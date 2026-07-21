@@ -3,6 +3,15 @@ import { z } from 'zod';
 
 config();
 
+/**
+ * Treats empty-string env vars as "not provided." Without this, an
+ * optional field left blank in .env (e.g. `STRIPE_SECRET_KEY=`) fails
+ * validation instead of being treated as absent, since dotenv loads
+ * blank values as "" rather than undefined.
+ */
+const optionalString = (schema: z.ZodString) =>
+  z.preprocess((val) => (val === '' ? undefined : val), schema.optional());
+
 const envSchema = z.object({
   // --- Core server ---
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -15,19 +24,19 @@ const envSchema = z.object({
   CLIENT_ORIGIN: z.string().url().default('http://localhost:3000'),
 
   // --- Auth (needed by admin-cms + saas-mvp modules) ---
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters').optional(),
+  JWT_SECRET: optionalString(z.string().min(32, 'JWT_SECRET must be at least 32 characters')),
 
   // --- AI chat module ---
-  ANTHROPIC_API_KEY: z.string().min(1).optional(),
-  OPENAI_API_KEY: z.string().min(1).optional(),
+  ANTHROPIC_API_KEY: optionalString(z.string().min(1)),
+  OPENAI_API_KEY: optionalString(z.string().min(1)),
 
   // --- SaaS MVP billing module ---
-  STRIPE_SECRET_KEY: z.string().min(1).optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  STRIPE_SECRET_KEY: optionalString(z.string().min(1)),
+  STRIPE_WEBHOOK_SECRET: optionalString(z.string().min(1)),
 
   // --- Storefront module ---
-  SHOPIFY_STOREFRONT_ACCESS_TOKEN: z.string().min(1).optional(),
-  SHOPIFY_STORE_DOMAIN: z.string().min(1).optional(),
+  SHOPIFY_STOREFRONT_ACCESS_TOKEN: optionalString(z.string().min(1)),
+  SHOPIFY_STORE_DOMAIN: optionalString(z.string().min(1)),
 });
 
 export type Env = z.infer<typeof envSchema>;

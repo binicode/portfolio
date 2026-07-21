@@ -1,5 +1,9 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import { env } from './env.js';
+
+// Force Node.js to use Google's Public DNS to bypass local querySrv blocks
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 let isConnected = false;
 
