@@ -29,6 +29,7 @@ const envSchema = z.object({
   // --- AI chat module ---
   ANTHROPIC_API_KEY: optionalString(z.string().min(1)),
   OPENAI_API_KEY: optionalString(z.string().min(1)),
+  VOYAGE_API_KEY: optionalString(z.string().min(1)),
 
   // --- SaaS MVP billing module ---
   STRIPE_SECRET_KEY: optionalString(z.string().min(1)),
