@@ -14,7 +14,7 @@ import type {
  */
 export const EMBEDDING_DIMENSIONS = 512;
 
-const VECTOR_INDEX_NAME = 'knowledge_vector_index';
+export const VECTOR_INDEX_NAME = 'knowledge_vector_index';
 
 const chatMessageSchema = new Schema<ChatMessage>(
   {
