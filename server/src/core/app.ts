@@ -3,6 +3,7 @@ import express, { type Application } from 'express';
 import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
+import aiChatRouter from '../modules/ai-chat/ai-chat.routes.js';
 
 export function createApp(): Application {
   const app = express();
@@ -27,7 +28,7 @@ export function createApp(): Application {
   });
 
   // --- Module routers get mounted here as each one is built ---
-  // app.use('/api/ai-chat', aiChatRouter);
+  app.use('/api/ai-chat', aiChatRouter);
   // app.use('/api/admin', adminRouter);
   // app.use('/api/saas', saasRouter);
   // app.use('/api/aggregator', aggregatorRouter);
