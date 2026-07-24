@@ -4,6 +4,8 @@ import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import aiChatRouter from '../modules/ai-chat/ai-chat.routes.js';
+import adminRouter from '../modules/admin/admin.routes.js';
+import projectsPublicRouter from '../modules/admin/projects-public.routes.js';
 
 export function createApp(): Application {
   const app = express();
@@ -29,7 +31,8 @@ export function createApp(): Application {
 
   // --- Module routers get mounted here as each one is built ---
   app.use('/api/ai-chat', aiChatRouter);
-  // app.use('/api/admin', adminRouter);
+  app.use('/api/admin', adminRouter);
+  app.use('/api/projects', projectsPublicRouter);
   // app.use('/api/saas', saasRouter);
   // app.use('/api/aggregator', aggregatorRouter);
   // app.use('/api/storefront', storefrontRouter);
