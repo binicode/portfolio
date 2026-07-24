@@ -21,6 +21,13 @@ declare global {
   }
 }
 
+// Name of the httpOnly cookie used by browser-based sessions (the admin
+// CMS). Exported so admin-auth.controller.ts sets/clears the exact same
+// cookie this middleware reads — duplicating this string in two files
+// would be the kind of copy-paste drift that breaks silently the first
+// time one of them gets renamed.
+export const AUTH_COOKIE_NAME = 'admin_token';
+
 function getJwtSecret(): string {
   if (!env.JWT_SECRET) {
     throw new AppError('Server misconfiguration: JWT_SECRET is not set', 500);
@@ -55,14 +62,30 @@ function extractBearerToken(req: Request): string | null {
   return token.length > 0 ? token : null;
 }
 
+function extractCookieToken(req: Request): string | null {
+  const token = req.cookies?.[AUTH_COOKIE_NAME];
+  return typeof token === 'string' && token.length > 0 ? token : null;
+}
+
 /**
- * Guards a route — requires a valid Bearer token. On success, attaches
- * the decoded payload to req.user for downstream handlers to use.
+ * Reads the access token from either an Authorization: Bearer header
+ * (for API-style clients — e.g. a future Month 2 SaaS module's own
+ * end users) or the httpOnly session cookie (used by the admin CMS's
+ * browser session). Bearer takes priority when both are present.
+ */
+function extractToken(req: Request): string | null {
+  return extractBearerToken(req) ?? extractCookieToken(req);
+}
+
+/**
+ * Guards a route — requires a valid token from either a Bearer header
+ * or the httpOnly auth cookie. On success, attaches the decoded
+ * payload to req.user for downstream handlers to use.
  *
  * Usage: router.get('/dashboard', requireAuth, dashboardController)
  */
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
-  const token = extractBearerToken(req);
+  const token = extractToken(req);
   if (!token) {
     next(new AppError('Authentication required', 401));
     return;
