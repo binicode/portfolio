@@ -3,24 +3,27 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { env } from '../../core/config/env.js';
 import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
-import { signAccessToken } from '../../core/middleware/auth.js';
-import type { AdminLoginInput, AdminLoginResult } from './admin.types.js';
+import { signAccessToken, AUTH_COOKIE_NAME } from '../../core/middleware/auth.js';
+import type { AdminLoginResult } from './admin.types.js';
 
 const adminLoginBodySchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
 
+// Matches signAccessToken's default expiresIn of '7d'.
+const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
 /**
  * POST /admin/login
  * Validates credentials against the single hardcoded admin identity
- * defined in env (ADMIN_EMAIL / ADMIN_PASSWORD_HASH) and issues a JWT
- * with the 'admin' role on success. There is no registration endpoint
- * and no User collection — this app has exactly one admin, configured
- * at deploy time via environment variables.
+ * defined in env (ADMIN_EMAIL / ADMIN_PASSWORD_HASH) and sets an
+ * httpOnly session cookie on success. The token is deliberately never
+ * returned in the JSON body — an httpOnly cookie that client-side JS
+ * can also read out of a fetch response defeats its own purpose.
  */
 export const postAdminLogin = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password }: AdminLoginInput = adminLoginBodySchema.parse(req.body);
+  const { email, password } = adminLoginBodySchema.parse(req.body);
 
   if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD_HASH) {
     throw new AppError('Server misconfiguration: admin credentials are not set', 500);
@@ -41,6 +44,25 @@ export const postAdminLogin = asyncHandler(async (req: Request, res: Response) =
     email: env.ADMIN_EMAIL,
   });
 
-  const result: AdminLoginResult = { token };
+  res.cookie(AUTH_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: COOKIE_MAX_AGE_MS,
+  });
+
+  const result: AdminLoginResult = { success: true };
   res.status(200).json(result);
+});
+
+/**
+ * POST /admin/logout
+ * Clears the session cookie. A stateless JWT can't be revoked
+ * server-side without a denylist — unnecessary complexity for a
+ * single-admin app, since clearing the cookie is sufficient: the
+ * browser simply stops sending it.
+ */
+export const postAdminLogout = asyncHandler(async (_req: Request, res: Response) => {
+  res.clearCookie(AUTH_COOKIE_NAME);
+  res.status(200).json({ success: true });
 });
