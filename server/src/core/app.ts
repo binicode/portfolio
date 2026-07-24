@@ -1,4 +1,5 @@
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import express, { type Application } from 'express';
 import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
@@ -18,6 +19,7 @@ export function createApp(): Application {
     })
   );
   app.use(express.json());
+  app.use(cookieParser());
   app.use(generalLimiter);
 
   // --- Health check (no module, lives at root) ---
