@@ -4,7 +4,7 @@ export interface AdminLoginInput {
 }
 
 export interface AdminLoginResult {
-  token: string;
+  success: true;
 }
 
 export interface ProjectDocument {
