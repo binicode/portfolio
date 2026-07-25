@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Biniyam — Full-Stack Software Engineer',
+  title: 'Biniyam Abera — Full-Stack Software Engineer',
   description:
     'Full-Stack Software Engineer with a B.Sc. in Civil Engineering and dual Meta & IBM Professional Certificates. Building scalable TypeScript applications with Next.js and Node.js.',
 };
