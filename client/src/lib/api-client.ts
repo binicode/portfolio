@@ -32,10 +32,15 @@ interface ApiErrorResponseBody {
  * responses are parsed to match errorHandler.ts's exact
  * `{ error: { message, details? } }` shape.
  *
+ * `init` is passed through to fetch() as-is, so a caller in a Server
+ * Component can supply Next.js-specific cache options (e.g.
+ * `{ next: { revalidate: 60 } }`) without this generic wrapper needing
+ * to know or care about Next's caching model.
+ *
  * Not used for the ai-chat SSE endpoint — that's a streaming response,
  * not a single JSON body, and gets its own dedicated function.
  */
-async function apiFetch<T>(path: string, method: string, body?: unknown): Promise<T> {
+async function apiFetch<T>(path: string, method: string, body?: unknown, init?: RequestInit): Promise<T> {
   let response: Response;
 
   try {
@@ -46,6 +51,7 @@ async function apiFetch<T>(path: string, method: string, body?: unknown): Promis
         'Content-Type': 'application/json',
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      ...init,
     });
   } catch {
     // fetch() itself throws on network failure (server down, no
@@ -80,7 +86,7 @@ async function apiFetch<T>(path: string, method: string, body?: unknown): Promis
 }
 
 export const apiClient = {
-  get: <T>(path: string): Promise<T> => apiFetch<T>(path, 'GET'),
+  get: <T>(path: string, init?: RequestInit): Promise<T> => apiFetch<T>(path, 'GET', undefined, init),
   post: <T>(path: string, body?: unknown): Promise<T> => apiFetch<T>(path, 'POST', body),
   patch: <T>(path: string, body?: unknown): Promise<T> => apiFetch<T>(path, 'PATCH', body),
   delete: <T>(path: string): Promise<T> => apiFetch<T>(path, 'DELETE'),
