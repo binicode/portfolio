@@ -120,6 +120,14 @@ export async function* streamChatCompletion(
         continue;
       }
 
+      // Logged here specifically because this error never reaches
+      // errorHandler.ts — it's caught inside this generator and turned
+      // into a yielded SSE event rather than a thrown Express error.
+      // Without this line, an unexpected failure here is completely
+      // invisible server-side, which is exactly the gap that made this
+      // bug hard to diagnose.
+      console.error('streamChatCompletion: unexpected error', error);
+
       const message =
         error instanceof Anthropic.APIError
           ? `Anthropic API error: ${error.message}`
