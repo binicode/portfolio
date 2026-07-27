@@ -1,23 +1,19 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenAI } from '@google/genai';
 import { env } from '../../core/config/env.js';
 import type { ChatMessage, ChatStreamEvent, RetrievedChunk } from './ai-chat.types.js';
 
-const ANTHROPIC_MODEL = 'claude-sonnet-5';
+const GEMINI_MODEL = 'gemini-flash-latest';
 
-// Hard ceiling on generation length — protects cost on a public-facing
-// widget where anyone can send a request.
+// Hard ceiling on generation length — protects against runaway cost
+// regardless of provider or free-tier status.
 const MAX_OUTPUT_TOKENS = 1024;
 
-const REQUEST_TIMEOUT_MS = 20_000;
 const MAX_RETRIES = 2;
 const RETRY_BASE_DELAY_MS = 500;
 
-const anthropic = new Anthropic({
-  apiKey: env.ANTHROPIC_API_KEY,
-  timeout: REQUEST_TIMEOUT_MS,
-});
+const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
-function buildSystemPrompt(retrievedChunks: RetrievedChunk[]): string {
+function buildSystemInstruction(retrievedChunks: RetrievedChunk[]): string {
   if (retrievedChunks.length === 0) {
     return [
       'You are the AI assistant embedded in this portfolio site.',
@@ -41,17 +37,34 @@ function buildSystemPrompt(retrievedChunks: RetrievedChunk[]): string {
   ].join('\n');
 }
 
-function toAnthropicMessages(history: ChatMessage[]) {
+/**
+ * Gemini uses 'model' for the assistant turn, not 'assistant'. This is
+ * the only place that translation happens — ChatMessage stays
+ * 'user' | 'assistant' everywhere else in the module (MongoDB,
+ * ai-chat.service.ts, the client types), so Gemini's naming convention
+ * doesn't leak outside this file.
+ */
+function toGeminiContents(history: ChatMessage[]) {
   return history.map((message) => ({
-    role: message.role,
-    content: message.content,
+    role: message.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: message.content }],
   }));
 }
 
+/**
+ * Duck-typed retry check rather than an instanceof check against a
+ * specific SDK error class. Confirmed the current package, model
+ * names, and streaming API from official docs; could not fully verify
+ * this SDK version's exact error class hierarchy, so this checks for a
+ * generic numeric `status` field instead of asserting a class name
+ * that might not be right.
+ */
 function isRetryableError(error: unknown): boolean {
-  if (error instanceof Anthropic.APIError && typeof error.status === 'number') {
-    // 429 rate limit, 529 overloaded, and 5xx are transient.
-    return error.status === 429 || error.status === 529 || error.status >= 500;
+  if (typeof error === 'object' && error !== null && 'status' in error) {
+    const status = (error as { status?: unknown }).status;
+    if (typeof status === 'number') {
+      return status === 429 || status >= 500;
+    }
   }
   return false;
 }
@@ -63,20 +76,16 @@ function delay(ms: number): Promise<void> {
 /**
  * Streams a chat completion grounded in the retrieved RAG context.
  * Yields ChatStreamEvent frames suitable for forwarding directly over
- * SSE to the client. This function has no knowledge of Express/HTTP —
- * that boundary belongs to ai-chat.controller.ts.
- *
- * Transient failures (rate limit / overload / 5xx) are retried with
- * exponential backoff, but ONLY before any token has reached the
- * caller. Once streaming has started, a failure surfaces as an 'error'
- * event instead, since partial output can't be un-sent.
+ * SSE to the client. Same external contract as before this file
+ * switched providers — ai-chat.service.ts calls this exactly the same
+ * way regardless of what's underneath.
  */
 export async function* streamChatCompletion(
   history: ChatMessage[],
   retrievedChunks: RetrievedChunk[],
 ): AsyncGenerator<ChatStreamEvent> {
-  const system = buildSystemPrompt(retrievedChunks);
-  const messages = toAnthropicMessages(history);
+  const systemInstruction = buildSystemInstruction(retrievedChunks);
+  const contents = toGeminiContents(history);
   const retrievedSources = retrievedChunks.map((chunk) => ({
     sourceTitle: chunk.metadata.sourceTitle,
     sourceType: chunk.metadata.sourceType,
@@ -87,28 +96,36 @@ export async function* streamChatCompletion(
 
   while (true) {
     try {
-      const stream = anthropic.messages.stream({
-        model: ANTHROPIC_MODEL,
-        max_tokens: MAX_OUTPUT_TOKENS,
-        system,
-        messages,
+      const stream = await ai.models.generateContentStream({
+        model: GEMINI_MODEL,
+        contents,
+        config: {
+          systemInstruction,
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+        },
       });
 
-      for await (const event of stream) {
-        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+      let inputTokens = 0;
+      let outputTokens = 0;
+
+      for await (const chunk of stream) {
+        if (chunk.text) {
           hasYieldedToken = true;
-          yield { type: 'token', content: event.delta.text };
+          yield { type: 'token', content: chunk.text };
+        }
+
+        // The last chunk to include usageMetadata has the final,
+        // complete token counts. Defaults to 0 rather than left
+        // undefined if the SDK never sends it.
+        if (chunk.usageMetadata) {
+          inputTokens = chunk.usageMetadata.promptTokenCount ?? inputTokens;
+          outputTokens = chunk.usageMetadata.candidatesTokenCount ?? outputTokens;
         }
       }
 
-      const finalMessage = await stream.finalMessage();
-
       yield {
         type: 'done',
-        usage: {
-          inputTokens: finalMessage.usage.input_tokens,
-          outputTokens: finalMessage.usage.output_tokens,
-        },
+        usage: { inputTokens, outputTokens },
         retrievedSources,
       };
 
@@ -120,17 +137,14 @@ export async function* streamChatCompletion(
         continue;
       }
 
-      // Logged here specifically because this error never reaches
-      // errorHandler.ts — it's caught inside this generator and turned
-      // into a yielded SSE event rather than a thrown Express error.
-      // Without this line, an unexpected failure here is completely
-      // invisible server-side, which is exactly the gap that made this
-      // bug hard to diagnose.
+      // Logged here for the same reason as before: this error never
+      // reaches errorHandler.ts, so without this line it's invisible
+      // server-side.
       console.error('streamChatCompletion: unexpected error', error);
 
       const message =
-        error instanceof Anthropic.APIError
-          ? `Anthropic API error: ${error.message}`
+        error instanceof Error
+          ? `Gemini API error: ${error.message}`
           : 'Unexpected error while generating a response';
 
       yield { type: 'error', message };
