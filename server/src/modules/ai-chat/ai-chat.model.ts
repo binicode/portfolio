@@ -52,7 +52,7 @@ const knowledgeChunkMetadataSchema = new Schema(
     sourceTitle: { type: String, required: true },
     sourceType: {
       type: String,
-      enum: ['bio', 'project', 'case-study'],
+      enum: ['bio', 'project', 'case-study', 'credentials', 'personal', 'skills'],
       required: true,
     },
     sourceId: { type: String, required: true },

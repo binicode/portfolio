@@ -18,7 +18,13 @@ export interface ChatSessionDocument {
   updatedAt: Date;
 }
 
-export type KnowledgeSourceType = 'bio' | 'project' | 'case-study';
+export type KnowledgeSourceType =
+  | 'case-study'
+  | 'bio'
+  | 'credentials'
+  | 'personal'
+  | 'skills'
+  | 'project';;
 
 export interface KnowledgeChunkMetadata {
   sourceTitle: string;

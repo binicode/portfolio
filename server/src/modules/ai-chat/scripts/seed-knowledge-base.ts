@@ -7,6 +7,7 @@ import { knowledgeBaseSources } from '../knowledge-base.content.js';
 // paragraphs stay together up to the cap rather than splitting
 // mid-thought, which keeps each chunk coherent enough to stand alone
 // as retrieved context.
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const MAX_WORDS_PER_CHUNK = 400;
 
 function chunkText(text: string): string[] {
@@ -42,7 +43,6 @@ function chunkText(text: string): string[] {
 async function seed(): Promise<void> {
   await connectDB();
   await ensureKnowledgeVectorIndex();
-
   console.log(`Seeding knowledge base from ${knowledgeBaseSources.length} source(s)...`);
 
   // Full rebuild, not an incremental append — this script is the single
@@ -54,12 +54,11 @@ async function seed(): Promise<void> {
     const chunks = chunkText(source.content);
 
     if (chunks.length === 0) {
-      console.warn(`  ⚠️  Skipping "${source.sourceTitle}" — no content to chunk`);
+      console.warn(` ⚠️ Skipping "${source.sourceTitle}" — no content to chunk`);
       continue;
     }
 
     const embeddings = await embedBatch(chunks, 'document');
-
     const documents = chunks.map((content, index) => ({
       content,
       embedding: embeddings[index].values,
@@ -72,7 +71,10 @@ async function seed(): Promise<void> {
     }));
 
     await KnowledgeChunkModel.insertMany(documents);
-    console.log(`  ✓ "${source.sourceTitle}" — ${chunks.length} chunk(s) embedded and stored`);
+    console.log(` ✓ "${source.sourceTitle}" — ${chunks.length} chunk(s) embedded and stored`);
+
+    // Wait 21 seconds to safely avoid Voyage AI's 3-requests-per-minute rate limit
+    await sleep(21000);
   }
 
   console.log('Knowledge base seeding complete.');
