@@ -1,33 +1,19 @@
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { clientEnv } from '@/lib/config';
+import { serverApiClient } from '@/lib/server-api-client';
 
-/**
- * Verifies the admin session by forwarding the incoming request's
- * cookies to the backend's GET /admin/auth/me route. Deliberately
- * does NOT use apiClient — that wrapper relies on the browser's cookie
- * jar via credentials: 'include', which does nothing here since this
- * fetch is server-to-server, not browser-to-server. cache: 'no-store'
- * is required — caching this would risk serving a cached "authenticated"
- * result to a different, unauthenticated visitor.
- */
-async function verifyAdminSession(): Promise<boolean> {
-  const cookieStore = await cookies();
-
-  const response = await fetch(`${clientEnv.NEXT_PUBLIC_API_URL}/admin/auth/me`, {
-    headers: {
-      Cookie: cookieStore.toString(),
-    },
-    cache: 'no-store',
-  });
-
-  return response.ok;
+async function isAdminSessionValid(): Promise<boolean> {
+  try {
+    await serverApiClient.get('/admin/auth/me');
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const isAuthenticated = await verifyAdminSession();
+  const isAuthenticated = await isAdminSessionValid();
 
   if (!isAuthenticated) {
     redirect('/login');
