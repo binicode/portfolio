@@ -66,3 +66,17 @@ export const postAdminLogout = asyncHandler(async (_req: Request, res: Response)
   res.clearCookie(AUTH_COOKIE_NAME);
   res.status(200).json({ success: true });
 });
+
+/**
+ * GET /admin/auth/me
+ * Returns the authenticated admin's email if the session is valid.
+ * requireAuth + requireRole('admin') (applied in admin-auth.routes.ts)
+ * do all the actual verification — this handler only ever runs if
+ * those middleware already confirmed a valid admin session. Exists
+ * specifically so dashboard/layout.tsx, a Server Component with no way
+ * to verify a JWT itself, has something to call to ask "is this
+ * visitor actually logged in."
+ */
+export const getAdminMe = asyncHandler(async (req: Request, res: Response) => {
+  res.status(200).json({ email: req.user!.email });
+});
