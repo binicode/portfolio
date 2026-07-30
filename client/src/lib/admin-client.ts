@@ -27,3 +27,13 @@ export interface CreateProjectInput {
 export function createProject(input: CreateProjectInput): Promise<Project> {
   return apiClient.post<Project>('/admin/projects', input);
 }
+
+export type UpdateProjectInput = Partial<CreateProjectInput>;
+
+export function updateProject(id: string, input: UpdateProjectInput): Promise<Project> {
+  return apiClient.patch<Project>(`/admin/projects/${id}`, input);
+}
+
+export function deleteProject(id: string): Promise<void> {
+  return apiClient.delete<void>(`/admin/projects/${id}`);
+}
