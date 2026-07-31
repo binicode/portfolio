@@ -21,12 +21,11 @@ declare global {
   }
 }
 
-// Name of the httpOnly cookie used by browser-based sessions (the admin
-// CMS). Exported so admin-auth.controller.ts sets/clears the exact same
-// cookie this middleware reads — duplicating this string in two files
-// would be the kind of copy-paste drift that breaks silently the first
-// time one of them gets renamed.
+// Two separate cookies for two separate auth contexts — the admin CMS
+// and the SaaS module each get their own, so logging into one never
+// silently overwrites or is overwritten by the other.
 export const AUTH_COOKIE_NAME = 'admin_token';
+export const SAAS_AUTH_COOKIE_NAME = 'saas_token';
 
 function getJwtSecret(): string {
   if (!env.JWT_SECRET) {
@@ -62,16 +61,32 @@ function extractBearerToken(req: Request): string | null {
   return token.length > 0 ? token : null;
 }
 
+/**
+ * Checks both the admin and SaaS cookies. Admin is checked first — if
+ * a browser somehow holds both simultaneously (only realistic during
+ * manual testing, never for a real end user), whichever role the
+ * current route actually requires is decided downstream by
+ * requireRole, which will correctly 403 a mismatched token rather than
+ * silently authorizing the wrong context.
+ */
 function extractCookieToken(req: Request): string | null {
-  const token = req.cookies?.[AUTH_COOKIE_NAME];
-  return typeof token === 'string' && token.length > 0 ? token : null;
+  const adminToken = req.cookies?.[AUTH_COOKIE_NAME];
+  if (typeof adminToken === 'string' && adminToken.length > 0) {
+    return adminToken;
+  }
+
+  const saasToken = req.cookies?.[SAAS_AUTH_COOKIE_NAME];
+  if (typeof saasToken === 'string' && saasToken.length > 0) {
+    return saasToken;
+  }
+
+  return null;
 }
 
 /**
  * Reads the access token from either an Authorization: Bearer header
- * (for API-style clients — e.g. a future Month 2 SaaS module's own
- * end users) or the httpOnly session cookie (used by the admin CMS's
- * browser session). Bearer takes priority when both are present.
+ * (for API-style clients) or one of the two httpOnly session cookies
+ * (admin CMS or SaaS module). Bearer takes priority when present.
  */
 function extractToken(req: Request): string | null {
   return extractBearerToken(req) ?? extractCookieToken(req);
@@ -79,8 +94,8 @@ function extractToken(req: Request): string | null {
 
 /**
  * Guards a route — requires a valid token from either a Bearer header
- * or the httpOnly auth cookie. On success, attaches the decoded
- * payload to req.user for downstream handlers to use.
+ * or one of the httpOnly auth cookies. On success, attaches the
+ * decoded payload to req.user for downstream handlers to use.
  *
  * Usage: router.get('/dashboard', requireAuth, dashboardController)
  */
