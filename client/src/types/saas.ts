@@ -7,6 +7,9 @@ export type SubscriptionStatus = 'none' | 'active' | 'canceled' | 'past_due';
 export interface SaasMeResponse {
   email: string;
   subscriptionStatus: SubscriptionStatus;
+  githubUsername?: string;
+  youtubeChannelId?: string;
+  brandSearchQuery?: string;
 }
 
 export interface GithubStats {
@@ -37,4 +40,16 @@ export interface AggregatorStats {
 
 export interface CheckoutSessionResponse {
   url: string;
+}
+
+export interface UpdateSettingsInput {
+  githubUsername?: string;
+  youtubeChannelId?: string;
+  brandSearchQuery?: string;
+}
+
+export interface UpdateSettingsResponse {
+  githubUsername?: string;
+  youtubeChannelId?: string;
+  brandSearchQuery?: string;
 }
