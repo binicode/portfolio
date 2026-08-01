@@ -20,15 +20,6 @@ const loginBodySchema = z.object({
 const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const BCRYPT_SALT_ROUNDS = 10;
 
-/**
- * POST /saas/auth/register
- * Creates a new SaasUser and immediately logs them in via the same
- * httpOnly cookie as login — a fresh signup shouldn't have to submit
- * the login form a second time right after registering. Relies on the
- * schema's unique index on email to reject duplicates; Mongoose's
- * 11000 error is already handled by errorHandler.ts with a 409, so no
- * separate pre-check is needed here.
- */
 export const postRegister = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = registerBodySchema.parse(req.body);
 
@@ -57,9 +48,6 @@ export const postRegister = asyncHandler(async (req: Request, res: Response) => 
   res.status(201).json(result);
 });
 
-/**
- * POST /saas/auth/login
- */
 export const postLogin = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = loginBodySchema.parse(req.body);
 
@@ -87,9 +75,6 @@ export const postLogin = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(result);
 });
 
-/**
- * POST /saas/auth/logout
- */
 export const postLogout = asyncHandler(async (_req: Request, res: Response) => {
   res.clearCookie(SAAS_AUTH_COOKIE_NAME);
   res.status(200).json({ success: true });
@@ -97,9 +82,10 @@ export const postLogout = asyncHandler(async (_req: Request, res: Response) => {
 
 /**
  * GET /saas/auth/me
- * Queries the current subscriptionStatus fresh from the database on
- * every call rather than trusting the JWT's claims — see file header
- * note on why that field can't be baked into the token.
+ * Now also returns the three aggregator source identifiers alongside
+ * email and subscriptionStatus — this endpoint represents the current
+ * user's full profile, and those fields are part of that profile, not
+ * a separate concern deserving a duplicate read endpoint.
  */
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
   const user = await SaasUserModel.findById(req.user!.sub);
@@ -111,5 +97,8 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({
     email: user.email,
     subscriptionStatus: user.subscriptionStatus,
+    githubUsername: user.githubUsername,
+    youtubeChannelId: user.youtubeChannelId,
+    brandSearchQuery: user.brandSearchQuery,
   });
 });
