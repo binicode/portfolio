@@ -7,6 +7,9 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 import aiChatRouter from '../modules/ai-chat/ai-chat.routes.js';
 import adminRouter from '../modules/admin/admin.routes.js';
 import projectsPublicRouter from '../modules/admin/projects-public.routes.js';
+import saasAuthRouter from '../modules/saas/saas-auth.routes.js';
+import billingRouter from '../modules/saas/billing.routes.js';
+import { postStripeWebhook } from '../modules/saas/webhook.controller.js';
 
 export function createApp(): Application {
   const app = express();
@@ -18,6 +21,15 @@ export function createApp(): Application {
       credentials: true,
     })
   );
+
+  // Stripe's webhook MUST be registered here, before express.json(),
+  // with its own raw-body parser. Stripe signs the exact raw bytes it
+  // sends — once express.json() below has parsed and re-serialized a
+  // body, signature verification fails even for a genuine request.
+  // Registering this exact path first means it's handled completely
+  // here and never falls through to the JSON parser below.
+  app.post('/api/saas/billing/webhook', express.raw({ type: 'application/json' }), postStripeWebhook);
+
   app.use(express.json());
   app.use(cookieParser());
   app.use(generalLimiter);
@@ -35,7 +47,8 @@ export function createApp(): Application {
   app.use('/api/ai-chat', aiChatRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/projects', projectsPublicRouter);
-  // app.use('/api/saas', saasRouter);
+  app.use('/api/saas/auth', saasAuthRouter);
+  app.use('/api/saas/billing', billingRouter);
   // app.use('/api/aggregator', aggregatorRouter);
   // app.use('/api/storefront', storefrontRouter);
 
