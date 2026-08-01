@@ -9,6 +9,7 @@ import adminRouter from '../modules/admin/admin.routes.js';
 import projectsPublicRouter from '../modules/admin/projects-public.routes.js';
 import saasAuthRouter from '../modules/saas/saas-auth.routes.js';
 import billingRouter from '../modules/saas/billing.routes.js';
+import aggregatorRouter from '../modules/saas/aggregator.routes.js';
 import { postStripeWebhook } from '../modules/saas/webhook.controller.js';
 
 export function createApp(): Application {
@@ -26,8 +27,6 @@ export function createApp(): Application {
   // with its own raw-body parser. Stripe signs the exact raw bytes it
   // sends — once express.json() below has parsed and re-serialized a
   // body, signature verification fails even for a genuine request.
-  // Registering this exact path first means it's handled completely
-  // here and never falls through to the JSON parser below.
   app.post('/api/saas/billing/webhook', express.raw({ type: 'application/json' }), postStripeWebhook);
 
   app.use(express.json());
@@ -49,7 +48,7 @@ export function createApp(): Application {
   app.use('/api/projects', projectsPublicRouter);
   app.use('/api/saas/auth', saasAuthRouter);
   app.use('/api/saas/billing', billingRouter);
-  // app.use('/api/aggregator', aggregatorRouter);
+  app.use('/api/saas/aggregator', aggregatorRouter);
   // app.use('/api/storefront', storefrontRouter);
 
   // --- 404 + error handling MUST be last, in this order ---
