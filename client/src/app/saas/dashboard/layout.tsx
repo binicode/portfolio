@@ -26,6 +26,9 @@ export default async function SaasDashboardLayout({ children }: { children: Reac
           <Link href="/saas/dashboard" className="font-semibold">
             Creator Dashboard
           </Link>
+          <Link href="/saas/dashboard/settings" className="text-sm hover:underline">
+            Settings
+          </Link>
         </nav>
       </header>
       <main className="flex-1">{children}</main>
