@@ -39,6 +39,7 @@ const envSchema = z.object({
     STRIPE_WEBHOOK_SECRET: optionalString(z.string().min(1)),
     STRIPE_PRO_PRICE_ID: optionalString(z.string().min(1)),
     GITHUB_API_TOKEN: optionalString(z.string().min(1)),
+    YOUTUBE_API_KEY: optionalString(z.string().min(1)),
 
     // --- Storefront module ---
     SHOPIFY_STOREFRONT_ACCESS_TOKEN: optionalString(z.string().min(1)),
