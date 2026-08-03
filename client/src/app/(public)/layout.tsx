@@ -13,6 +13,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           <div className="flex gap-6 text-sm">
             <Link href="/">Home</Link>
             <Link href="/projects">Projects</Link>
+            <Link href="/shop">Shop</Link>
           </div>
         </nav>
       </header>
