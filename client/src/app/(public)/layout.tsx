@@ -14,6 +14,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <Link href="/">Home</Link>
             <Link href="/projects">Projects</Link>
             <Link href="/shop">Shop</Link>
+            <Link href="/saas/signup">SaaS Demo</Link>
           </div>
         </nav>
       </header>
@@ -21,8 +22,14 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
       <main className="flex-1">{children}</main>
 
       <footer className="border-t">
-        <div className="mx-auto max-w-4xl px-6 py-6 text-sm text-gray-500">
-          © {new Date().getFullYear()} Biniyam Abera. All rights reserved.
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-6 text-sm text-gray-500">
+          <p>
+            {/* REPLACE WITH YOUR OWN FOOTER TEXT / SOCIAL LINKS */}
+            © {new Date().getFullYear()} Biniyam Abera. All rights reserved.
+          </p>
+          <Link href="/login" className="text-xs text-gray-400 hover:text-gray-600">
+            Admin
+          </Link>
         </div>
       </footer>
 
