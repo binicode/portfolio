@@ -62,31 +62,48 @@ function extractBearerToken(req: Request): string | null {
 }
 
 /**
- * Checks both the admin and SaaS cookies. Admin is checked first — if
- * a browser somehow holds both simultaneously (only realistic during
- * manual testing, never for a real end user), whichever role the
- * current route actually requires is decided downstream by
- * requireRole, which will correctly 403 a mismatched token rather than
- * silently authorizing the wrong context.
+ * Route-aware cookie resolution — this replaces an earlier "check
+ * admin_token first, always" version that had a real, confirmed bug:
+ * a browser holding both cookies at once (trivially easy during
+ * manual testing of both the admin panel and the SaaS module) would
+ * always authenticate as admin, even on SaaS-guarded routes, causing
+ * requireRole('user') to correctly but confusingly reject a valid SaaS
+ * session with a 403.
+ *
+ * Every cookie-guarded route already lives under either /api/admin/*
+ * or /api/saas/* — so req.originalUrl alone is enough to know which
+ * cookie actually applies, without requiring any change to how
+ * requireAuth is used in route files.
  */
 function extractCookieToken(req: Request): string | null {
+  const isSaasRoute = req.originalUrl.startsWith('/api/saas');
+  const isAdminRoute = req.originalUrl.startsWith('/api/admin');
+
+  if (isSaasRoute) {
+    const saasToken = req.cookies?.[SAAS_AUTH_COOKIE_NAME];
+    return typeof saasToken === 'string' && saasToken.length > 0 ? saasToken : null;
+  }
+
+  if (isAdminRoute) {
+    const adminToken = req.cookies?.[AUTH_COOKIE_NAME];
+    return typeof adminToken === 'string' && adminToken.length > 0 ? adminToken : null;
+  }
+
+  // Defensive fallback for a route outside both prefixes — shouldn't
+  // happen given every cookie-guarded route today lives under one of
+  // them, but checks both rather than silently authenticating no one.
   const adminToken = req.cookies?.[AUTH_COOKIE_NAME];
   if (typeof adminToken === 'string' && adminToken.length > 0) {
     return adminToken;
   }
-
   const saasToken = req.cookies?.[SAAS_AUTH_COOKIE_NAME];
-  if (typeof saasToken === 'string' && saasToken.length > 0) {
-    return saasToken;
-  }
-
-  return null;
+  return typeof saasToken === 'string' && saasToken.length > 0 ? saasToken : null;
 }
 
 /**
  * Reads the access token from either an Authorization: Bearer header
- * (for API-style clients) or one of the two httpOnly session cookies
- * (admin CMS or SaaS module). Bearer takes priority when present.
+ * (for API-style clients) or the route-appropriate httpOnly session
+ * cookie. Bearer takes priority when present.
  */
 function extractToken(req: Request): string | null {
   return extractBearerToken(req) ?? extractCookieToken(req);
@@ -94,8 +111,8 @@ function extractToken(req: Request): string | null {
 
 /**
  * Guards a route — requires a valid token from either a Bearer header
- * or one of the httpOnly auth cookies. On success, attaches the
- * decoded payload to req.user for downstream handlers to use.
+ * or the correct httpOnly auth cookie for this route. On success,
+ * attaches the decoded payload to req.user for downstream handlers.
  *
  * Usage: router.get('/dashboard', requireAuth, dashboardController)
  */
