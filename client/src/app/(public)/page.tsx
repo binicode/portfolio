@@ -1,4 +1,9 @@
 import Link from 'next/link';
+import { apiClient } from '@/lib/api-client';
+import type { Project } from '@/types/project';
+import TypewriterText from '@/components/effects/TypewriterText';
+import AnimatedCounter from '@/components/effects/AnimatedCounter';
+import Card from '@/components/ui/Card';
 
 const personSchema = {
   '@context': 'https://schema.org',
@@ -13,7 +18,11 @@ const personSchema = {
   ],
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const projects = await apiClient.get<Project[]>('/projects', {
+    next: { revalidate: 60 },
+  });
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
@@ -21,9 +30,8 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold tracking-tight text-foreground">
           Biniyam Abera
         </h1>
-
         <p className="mt-4 text-lg text-muted">
-          Full-Stack Software Engineer · Civil Engineer · Meta & IBM Certified
+          <TypewriterText text="Full-Stack Software Engineer · Civil Engineer · Meta & IBM Certified" />
         </p>
 
         <div className="mt-8 max-w-2xl space-y-4 text-gray-700 leading-relaxed">
@@ -56,6 +64,12 @@ export default function HomePage() {
           >
             View Projects
           </Link>
+        </div>
+
+        <div className="mt-16 max-w-xs">
+          <Card>
+            <AnimatedCounter target={projects.length} label="Projects Shipped" />
+          </Card>
         </div>
       </section>
     </>
