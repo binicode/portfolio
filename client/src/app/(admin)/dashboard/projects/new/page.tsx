@@ -4,6 +4,10 @@ import { useState, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProject } from '@/lib/admin-client';
 import { ApiError } from '@/lib/api-client';
+import Input from '@/components/ui/Input';
+import Textarea from '@/components/ui/Textarea';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 
 function slugify(text: string): string {
   return text
@@ -29,8 +33,6 @@ export default function NewProjectPage() {
 
   function handleTitleChange(value: string) {
     setTitle(value);
-    // Auto-fill the slug from the title until the user edits slug
-    // directly — once they touch it manually, stop overwriting it.
     if (!slugManuallyEdited) {
       setSlug(slugify(value));
     }
@@ -65,110 +67,46 @@ export default function NewProjectPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold">New Project</h1>
+      <h1 className="text-4xl font-bold text-foreground">New Project</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        {error && <Alert variant="error">{error}</Alert>}
 
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium">
-            Title
-          </label>
-          <input
-            id="title"
-            type="text"
-            required
-            value={title}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-        </div>
+        <Input label="Title" type="text" required value={title} onChange={(e) => handleTitleChange(e.target.value)} />
 
-        <div>
-          <label htmlFor="slug" className="block text-sm font-medium">
-            Slug
-          </label>
-          <input
-            id="slug"
-            type="text"
-            required
-            value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value);
-              setSlugManuallyEdited(true);
-            }}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-          <p className="mt-1 text-xs text-gray-400">Lowercase letters, numbers, and hyphens only.</p>
-        </div>
+        <Input
+          label="Slug"
+          type="text"
+          required
+          value={slug}
+          onChange={(e) => {
+            setSlug(e.target.value);
+            setSlugManuallyEdited(true);
+          }}
+          hint="Lowercase letters, numbers, and hyphens only."
+        />
 
-        <div>
-          <label htmlFor="summary" className="block text-sm font-medium">
-            Summary
-          </label>
-          <textarea
-            id="summary"
-            required
-            rows={3}
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-        </div>
+        <Textarea label="Summary" required rows={3} value={summary} onChange={(e) => setSummary(e.target.value)} />
 
-        <div>
-          <label htmlFor="techStack" className="block text-sm font-medium">
-            Tech Stack
-          </label>
-          <input
-            id="techStack"
-            type="text"
-            value={techStack}
-            onChange={(e) => setTechStack(e.target.value)}
-            placeholder="React, Node.js, MongoDB"
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-          <p className="mt-1 text-xs text-gray-400">Comma-separated.</p>
-        </div>
+        <Input
+          label="Tech Stack"
+          type="text"
+          value={techStack}
+          onChange={(e) => setTechStack(e.target.value)}
+          placeholder="React, Node.js, MongoDB"
+          hint="Comma-separated."
+        />
 
-        <div>
-          <label htmlFor="liveUrl" className="block text-sm font-medium">
-            Live URL (optional)
-          </label>
-          <input
-            id="liveUrl"
-            type="url"
-            value={liveUrl}
-            onChange={(e) => setLiveUrl(e.target.value)}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-        </div>
+        <Input label="Live URL (optional)" type="url" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} />
 
-        <div>
-          <label htmlFor="repoUrl" className="block text-sm font-medium">
-            Repo URL (optional)
-          </label>
-          <input
-            id="repoUrl"
-            type="url"
-            value={repoUrl}
-            onChange={(e) => setRepoUrl(e.target.value)}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-        </div>
+        <Input label="Repo URL (optional)" type="url" value={repoUrl} onChange={(e) => setRepoUrl(e.target.value)} />
 
-        <div>
-          <label htmlFor="caseStudyBody" className="block text-sm font-medium">
-            Case Study (optional)
-          </label>
-          <textarea
-            id="caseStudyBody"
-            rows={8}
-            value={caseStudyBody}
-            onChange={(e) => setCaseStudyBody(e.target.value)}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-        </div>
+        <Textarea
+          label="Case Study (optional)"
+          rows={8}
+          value={caseStudyBody}
+          onChange={(e) => setCaseStudyBody(e.target.value)}
+        />
 
         <div className="flex items-center gap-2">
           <input
@@ -176,20 +114,16 @@ export default function NewProjectPage() {
             type="checkbox"
             checked={published}
             onChange={(e) => setPublished(e.target.checked)}
-            className="h-4 w-4"
+            className="h-4 w-4 rounded border-white/10 bg-surface text-primary focus:ring-2 focus:ring-primary"
           />
-          <label htmlFor="published" className="text-sm font-medium">
+          <label htmlFor="published" className="text-sm font-bold text-foreground">
             Publish immediately
           </label>
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-        >
-          {isSubmitting ? 'Creating…' : 'Create Project'}
-        </button>
+        <Button type="submit" isLoading={isSubmitting} loadingText="Creating…">
+          Create Project
+        </Button>
       </form>
     </div>
   );
