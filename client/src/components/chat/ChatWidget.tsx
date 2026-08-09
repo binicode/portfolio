@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { getChatHistory, getOrCreateSessionId, streamChatMessage } from '@/lib/ai-chat-client';
 import type { ChatMessage, RetrievedSource } from '@/types/chat';
-import Button from '@/components/ui/Button';
 
 interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -39,8 +38,6 @@ export default function ChatWidget() {
         );
       })
       .catch(() => {
-        // A fresh session with no history yet returns an empty array
-        // from the server, not an error.
       });
   }, [isOpen, historyLoaded]);
 
@@ -112,55 +109,118 @@ export default function ChatWidget() {
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="border-beam fixed bottom-6 right-6 z-50 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-transform duration-200 hover:scale-105 active:scale-95"
-        aria-label={isOpen ? 'Close chat' : 'Open chat'}
-      >
-        {isOpen ? 'Close' : 'Ask AI'}
-      </button>
+      <div className="fixed bottom-6 right-6 z-50">
+        {!isOpen && (
+          <div className="absolute -inset-1 animate-pulse rounded-full bg-gradient-to-r from-violet-600 via-indigo-600 to-pink-600 opacity-70 blur-md transition-all duration-500 hover:opacity-100" />
+        )}
+
+        <button
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="group relative flex items-center gap-3 rounded-full border border-white/10 bg-black p-3 pr-5 text-white shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+          aria-label={isOpen ? 'Close chat' : 'Open chat'}
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-inner">
+            {isOpen ? (
+              <svg className="h-4 w-4 fill-current transition-transform duration-300 group-hover:rotate-90" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4 fill-current transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24">
+                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+              </svg>
+            )}
+          </div>
+          <div className="flex flex-col text-left">
+            <span className="text-sm font-semibold leading-none text-white">
+              {isOpen ? 'Close' : 'Ask AI'}
+            </span>
+            {!isOpen && (
+              <span className="mt-1 text-[10px] font-medium leading-tight text-violet-400">
+                Online & Ready
+              </span>
+            )}
+          </div>
+        </button>
+      </div>
 
       {isOpen && (
-        <div className="animate-fade-in fixed bottom-24 right-6 z-50 flex h-[28rem] w-80 flex-col rounded-[20px] border border-white/10 bg-card shadow-xl shadow-black/40">
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
+        <div className="animate-fade-in fixed bottom-24 right-6 z-50 flex h-[32rem] w-[22rem] sm:w-[24rem] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-black/90 text-slate-200 shadow-2xl shadow-violet-900/20 backdrop-blur-xl">
+
+          <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500">
+                <svg className="h-3.5 w-3.5 fill-white" viewBox="0 0 24 24">
+                  <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+                </svg>
+              </div>
+              <span className="text-sm font-bold text-white tracking-wide">AI Assistant</span>
+            </div>
+          </div>
+
+          <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
             {messages.length === 0 && (
-              <p className="text-sm text-muted">
-                Ask me anything about this portfolio, its projects, or the person behind it.
-              </p>
-            )}
-            {messages.map((message, index) => (
-              <div key={index} className={message.role === 'user' ? 'text-right' : 'text-left'}>
-                <div
-                  className={`inline-block rounded-xl px-3 py-2 text-sm ${
-                    message.role === 'user' ? 'bg-primary text-white' : 'bg-surface text-foreground'
-                  }`}
-                >
-                  {message.content || (isStreaming && index === messages.length - 1 ? '…' : '')}
+              <div className="mt-10 flex flex-col items-center justify-center text-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10">
+                  <svg className="h-6 w-6 fill-violet-400" viewBox="0 0 24 24">
+                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+                  </svg>
                 </div>
-                {message.sources && message.sources.length > 0 && (
-                  <p className="mt-1 text-xs text-muted">
-                    Sources: {message.sources.map((s) => s.sourceTitle).join(', ')}
-                  </p>
-                )}
+                <p className="text-sm text-slate-400 max-w-[80%] leading-relaxed">
+                  Hi! Ask me anything about this portfolio, the tech stack, or the person behind it.
+                </p>
+              </div>
+            )}
+
+            {messages.map((message, index) => (
+              <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex flex-col gap-1 max-w-[85%]`}>
+                  <div
+                    className={`inline-block px-4 py-2.5 text-sm leading-relaxed shadow-sm ${message.role === 'user'
+                        ? 'bg-gradient-to-tr from-violet-600 to-indigo-500 text-white rounded-2xl rounded-br-sm'
+                        : 'bg-white/10 border border-white/5 text-slate-200 rounded-2xl rounded-bl-sm'
+                      }`}
+                  >
+                    {message.content || (isStreaming && index === messages.length - 1 ? (
+                      <span className="animate-pulse">Typing...</span>
+                    ) : '')}
+                  </div>
+
+                  {message.sources && message.sources.length > 0 && (
+                    <p className="text-[10px] text-slate-500 ml-1">
+                      Sources: {message.sources.map((s) => s.sourceTitle).join(', ')}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="flex gap-2 border-t border-white/10 p-3">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              rows={1}
-              placeholder="Type a message…"
-              aria-label="Chat message"
-              className="flex-1 resize-none rounded-xl border border-white/10 bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-              disabled={isStreaming}
-            />
-            <Button onClick={handleSend} disabled={isStreaming || !input.trim()} className="px-3 py-2">
-              Send
-            </Button>
+          <div className="border-t border-white/10 bg-black/50 p-4">
+            <div className="flex gap-2 items-end">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                rows={1}
+                placeholder="Type a message…"
+                aria-label="Chat message"
+                className="max-h-32 flex-1 resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-all focus:border-violet-500/50 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-violet-500/10 scrollbar-thin"
+                disabled={isStreaming}
+              />
+
+              <button
+                onClick={handleSend}
+                disabled={isStreaming || !input.trim()}
+                className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                aria-label="Send message"
+              >
+                <svg className="h-5 w-5 fill-current ml-0.5" viewBox="0 0 24 24">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+              </button>
+            </div>
           </div>
+
         </div>
       )}
     </>
