@@ -1,33 +1,28 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import ChatWidget from '@/components/chat/ChatWidget';
+import PublicNav from '@/components/nav/PublicNav';
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b">
+      <header className="border-b border-white/10">
         <nav className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link href="/" className="font-semibold">
-            Biniyam
+          <Link href="/" className="font-bold">
+            Biniyam Abera
           </Link>
-          <div className="flex gap-6 text-sm">
-            <Link href="/">Home</Link>
-            <Link href="/projects">Projects</Link>
-            <Link href="/shop">Shop</Link>
-            <Link href="/saas/signup">SaaS Demo</Link>
-          </div>
+          <PublicNav />
         </nav>
       </header>
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-6 text-sm text-gray-500">
+      <footer className="border-t border-white/10">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-6 text-sm text-muted">
           <p>
-            {/* REPLACE WITH YOUR OWN FOOTER TEXT / SOCIAL LINKS */}
             © {new Date().getFullYear()} Biniyam Abera. All rights reserved.
           </p>
-          <Link href="/login" className="text-xs text-gray-400 hover:text-gray-600">
+          <Link href="/login" className="text-xs text-muted/60 hover:text-muted">
             Admin
           </Link>
         </div>
