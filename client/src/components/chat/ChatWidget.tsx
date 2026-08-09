@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { getChatHistory, getOrCreateSessionId, streamChatMessage } from '@/lib/ai-chat-client';
 import type { ChatMessage, RetrievedSource } from '@/types/chat';
+import Button from '@/components/ui/Button';
 
 interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -19,8 +20,6 @@ export default function ChatWidget() {
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Session id + history load only once the widget is actually opened —
-  // no reason to hit the API for a visitor who never interacts with it.
   useEffect(() => {
     if (!isOpen || historyLoaded) {
       return;
@@ -41,9 +40,7 @@ export default function ChatWidget() {
       })
       .catch(() => {
         // A fresh session with no history yet returns an empty array
-        // from the server, not an error — a genuine failure here (e.g.
-        // server unreachable) just means the widget opens with no
-        // history rather than blocking the visitor from typing.
+        // from the server, not an error.
       });
   }, [isOpen, historyLoaded]);
 
@@ -60,9 +57,6 @@ export default function ChatWidget() {
     setMessages((prev) => [...prev, { role: 'user', content: trimmed }]);
     setInput('');
     setIsStreaming(true);
-
-    // Placeholder assistant message, filled in token-by-token as the
-    // stream arrives.
     setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
     try {
@@ -120,31 +114,31 @@ export default function ChatWidget() {
     <>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-black px-5 py-3 text-sm font-medium text-white shadow-lg hover:bg-gray-800"
+        className="border-beam fixed bottom-6 right-6 z-50 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-transform duration-200 hover:scale-105 active:scale-95"
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
       >
         {isOpen ? 'Close' : 'Ask AI'}
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 flex h-[28rem] w-80 flex-col rounded-lg border bg-white shadow-xl">
+        <div className="animate-fade-in fixed bottom-24 right-6 z-50 flex h-[28rem] w-80 flex-col rounded-[20px] border border-white/10 bg-card shadow-xl shadow-black/40">
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
             {messages.length === 0 && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted">
                 Ask me anything about this portfolio, its projects, or the person behind it.
               </p>
             )}
             {messages.map((message, index) => (
               <div key={index} className={message.role === 'user' ? 'text-right' : 'text-left'}>
                 <div
-                  className={`inline-block rounded-lg px-3 py-2 text-sm ${
-                    message.role === 'user' ? 'bg-black text-white' : 'bg-gray-100 text-gray-800'
+                  className={`inline-block rounded-xl px-3 py-2 text-sm ${
+                    message.role === 'user' ? 'bg-primary text-white' : 'bg-surface text-foreground'
                   }`}
                 >
                   {message.content || (isStreaming && index === messages.length - 1 ? '…' : '')}
                 </div>
                 {message.sources && message.sources.length > 0 && (
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="mt-1 text-xs text-muted">
                     Sources: {message.sources.map((s) => s.sourceTitle).join(', ')}
                   </p>
                 )}
@@ -152,23 +146,20 @@ export default function ChatWidget() {
             ))}
           </div>
 
-          <div className="flex gap-2 border-t p-3">
+          <div className="flex gap-2 border-t border-white/10 p-3">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
               placeholder="Type a message…"
-              className="flex-1 resize-none rounded-md border px-3 py-2 text-sm focus:outline-none"
+              aria-label="Chat message"
+              className="flex-1 resize-none rounded-xl border border-white/10 bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted transition-colors duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               disabled={isStreaming}
             />
-            <button
-              onClick={handleSend}
-              disabled={isStreaming || !input.trim()}
-              className="rounded-md bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-40"
-            >
+            <Button onClick={handleSend} disabled={isStreaming || !input.trim()} className="px-3 py-2">
               Send
-            </button>
+            </Button>
           </div>
         </div>
       )}
