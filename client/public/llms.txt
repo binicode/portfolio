@@ -1,0 +1,12 @@
+# Biniyam Abera
+
+> A production-grade, ultra-fast full-stack showcase featuring a live creator analytics SaaS, secure admin controls, and modern Next.js architecture engineered for human users and AI search engines alike.
+
+I am a full-stack developer specializing in building high-performance, scalable web applications and SaaS platforms. I design and engineer end-to-end solutions using Next.js, Express, Tailwind CSS v4, and MongoDB. My work focuses on bridging robust backend architecture—like dual-role authentication and real-time data aggregation—with premium, ultra-fast, and highly accessible user interfaces. 
+
+## Pages
+
+- [Home](/): Bio and background
+- [Projects](/projects): Case studies of shipped work, including an AI-powered chat assistant, a subscription SaaS product, and a headless e-commerce storefront
+- [Shop](/shop): Headless Shopify storefront demo
+- [SaaS Demo](/saas/signup): Micro-SaaS product with real auth and Stripe billing
