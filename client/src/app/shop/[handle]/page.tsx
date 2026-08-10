@@ -22,16 +22,29 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  // First available variant is the default selection — a full
-  // size/color variant picker is a real enhancement for later, not
-  // required for this demo's simple sample products.
   const defaultVariant = product.variants.find((v) => v.availableForSale) ?? product.variants[0];
+
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description,
+    offers: {
+      '@type': 'Offer',
+      price: product.priceRange.minVariantPrice.amount,
+      priceCurrency: product.priceRange.minVariantPrice.currencyCode,
+      availability: defaultVariant?.availableForSale
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+    },
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <div className="grid gap-10 sm:grid-cols-2">
         {product.featuredImage && (
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+          <div className="relative aspect-square overflow-hidden rounded-[20px] bg-surface">
             <Image
               src={product.featuredImage.url}
               alt={product.featuredImage.altText ?? product.title}
@@ -44,20 +57,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         )}
 
         <div>
-          <h1 className="text-2xl font-bold">{product.title}</h1>
-          <p className="mt-2 text-lg text-gray-700">
+          <h1 className="text-4xl font-bold text-foreground">{product.title}</h1>
+          <p className="mt-2 text-lg text-muted">
             {formatPrice(
               product.priceRange.minVariantPrice.amount,
               product.priceRange.minVariantPrice.currencyCode,
             )}
           </p>
-          <p className="mt-6 whitespace-pre-line text-gray-600">{product.description}</p>
+          <p className="mt-6 whitespace-pre-line leading-relaxed text-muted">{product.description}</p>
 
           <div className="mt-8">
             {defaultVariant ? (
               <BuyNowButton variantId={defaultVariant.id} available={defaultVariant.availableForSale} />
             ) : (
-              <p className="text-sm text-gray-400">Currently unavailable.</p>
+              <p className="text-sm text-muted">Currently unavailable.</p>
             )}
           </div>
         </div>
