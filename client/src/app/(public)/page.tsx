@@ -3,6 +3,7 @@ import { apiClient } from '@/lib/api-client';
 import type { Project } from '@/types/project';
 import TypewriterText from '@/components/effects/TypewriterText';
 import AnimatedCounter from '@/components/effects/AnimatedCounter';
+import { getGithubActivity } from '@/lib/github-activity';
 import Card from '@/components/ui/Card';
 
 const personSchema = {
@@ -18,10 +19,13 @@ const personSchema = {
   ],
 };
 
+const GITHUB_USERNAME = 'binicode';
+
 export default async function HomePage() {
-  const projects = await apiClient.get<Project[]>('/projects', {
-    next: { revalidate: 60 },
-  });
+  const [projects, activity] = await Promise.all([
+    apiClient.get<Project[]>('/projects', { next: { revalidate: 60 } }),
+    getGithubActivity(GITHUB_USERNAME),
+  ]);
 
   return (
     <>
@@ -66,10 +70,24 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-16 max-w-xs">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2">
           <Card>
             <AnimatedCounter target={projects.length} label="Projects Shipped" />
           </Card>
+
+          {activity.length > 0 && (
+            <Card>
+              <h2 className="text-sm font-bold text-muted">Recent GitHub Activity</h2>
+              <ul className="mt-3 space-y-2.5">
+                {activity.map((item) => (
+                  <li key={item.id} className="text-sm">
+                    <p className="text-foreground">{item.summary}</p>
+                    <p className="text-xs text-muted">{new Date(item.createdAt).toLocaleDateString()}</p>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
         </div>
       </section>
     </>
