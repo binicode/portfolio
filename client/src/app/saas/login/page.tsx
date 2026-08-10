@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginSaasUser } from '@/lib/saas-client';
 import { ApiError } from '@/lib/api-client';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 
 export default function SaasLoginPage() {
   const router = useRouter();
@@ -31,49 +34,27 @@ export default function SaasLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-bold">Log In</h1>
+        <h1 className="text-4xl font-bold text-foreground">Log In</h1>
 
-        {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        {error && <Alert variant="error">{error}</Alert>}
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-        </div>
+        <Input label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          />
-        </div>
+        <Input
+          label="Password"
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-        >
-          {isSubmitting ? 'Logging in…' : 'Log in'}
-        </button>
+        <Button type="submit" isLoading={isSubmitting} loadingText="Logging in…" className="w-full">
+          Log in
+        </Button>
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-muted">
           Don&apos;t have an account?{' '}
-          <Link href="/saas/signup" className="font-medium underline">
+          <Link href="/saas/signup" className="font-bold text-primary hover:underline">
             Sign up
           </Link>
         </p>
