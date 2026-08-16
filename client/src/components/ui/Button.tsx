@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger';
 
@@ -11,9 +11,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT_STYLES: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-white hover:bg-primary/90',
-  secondary: 'bg-surface text-foreground border border-white/10 hover:bg-card',
-  danger: 'bg-red-500/10 text-red-400 hover:bg-red-500/20',
+  primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+  secondary:
+    'bg-secondary text-secondary-foreground border border-border hover:bg-accent hover:text-accent-foreground',
+  danger: 'bg-destructive/10 text-destructive hover:bg-destructive/20',
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -22,7 +23,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         disabled={disabled || isLoading}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 ${VARIANT_STYLES[variant]} ${className}`}
+        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 ${VARIANT_STYLES[variant]} ${className}`}
         {...props}
       >
         {isLoading && (
