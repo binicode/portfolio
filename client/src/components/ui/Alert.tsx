@@ -9,7 +9,7 @@ interface AlertProps {
 
 const VARIANT_STYLES: Record<AlertVariant, string> = {
   success: 'bg-success/10 text-success border-success/20',
-  error: 'bg-red-500/10 text-red-400 border-red-500/20',
+  error: 'bg-destructive/10 text-destructive border-destructive/20',
   info: 'bg-primary/10 text-primary border-primary/20',
 };
 
