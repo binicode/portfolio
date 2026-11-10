@@ -7,6 +7,7 @@ import { getProject, getProjects, projectYear } from '@/lib/projects';
 import { parseCaseStudy } from '@/lib/case-study';
 import { clientEnv } from '@/lib/config';
 import { site } from '@/lib/site';
+import JsonLdScript from '@/components/site/JsonLd';
 
 
 interface ProjectPageProps {
@@ -79,7 +80,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
   return (
     <article className="pb-section">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLdScript data={jsonLd} />
 
       <header className="container-page pt-[clamp(2rem,5vw,4.5rem)]">
         <Link
