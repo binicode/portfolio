@@ -8,14 +8,16 @@ interface BadgeProps {
 }
 
 const VARIANT_STYLES: Record<BadgeVariant, string> = {
-  primary: 'bg-primary/10 text-primary',
-  muted: 'bg-muted text-muted-foreground',
-  success: 'bg-success/10 text-success',
+  primary: 'border-accent/35 text-accent',
+  muted: 'border-border text-muted-foreground',
+  success: 'border-success/40 text-success',
 };
 
 export default function Badge({ variant = 'muted', children }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${VARIANT_STYLES[variant]}`}>
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${VARIANT_STYLES[variant]}`}
+    >
       {children}
     </span>
   );

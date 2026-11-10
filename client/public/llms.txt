@@ -1,12 +1,17 @@
 # Biniyam Abera
 
-> A production-grade, ultra-fast full-stack showcase featuring a live creator analytics SaaS, secure admin controls, and modern Next.js architecture engineered for human users and AI search engines alike.
+> Biniyam Abera is a full-stack software engineer with a background in civil engineering, building web applications and SaaS products with Next.js, TypeScript, Node.js, Express and MongoDB.
 
-I am a full-stack developer specializing in building high-performance, scalable web applications and SaaS platforms. I design and engineer end-to-end solutions using Next.js, Express, Tailwind CSS v4, and MongoDB. My work focuses on bridging robust backend architecture—like dual-role authentication and real-time data aggregation—with premium, ultra-fast, and highly accessible user interfaces. 
+Certifications: Meta Front-End Developer and IBM JavaScript Back-End Developer professional certificates. This site is Biniyam's portfolio, and it also runs three working systems: a retrieval-augmented AI assistant, a subscription SaaS product with Stripe billing, and a headless Shopify storefront.
 
 ## Pages
 
-- [Home](/): Bio and background
-- [Projects](/projects): Case studies of shipped work, including an AI-powered chat assistant, a subscription SaaS product, and a headless e-commerce storefront
-- [Shop](/shop): Headless Shopify storefront demo
-- [SaaS Demo](/saas/signup): Micro-SaaS product with real auth and Stripe billing
+- [Home](/): Introduction, selected work and background
+- [Work](/projects): Case studies of products Biniyam designed and built
+- [Creator Dashboard](/saas): A subscription SaaS that combines GitHub, YouTube and Hacker News numbers in one dashboard, with accounts and Stripe Checkout
+- [Shop](/shop): A headless storefront built on the Shopify Storefront API
+
+## Profiles
+
+- [GitHub](https://github.com/binicode)
+- [LinkedIn](https://linkedin.com/in/biniyam-abera-a7bbb8410)

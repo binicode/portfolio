@@ -33,35 +33,40 @@ export default function SaasNav({ email, subscriptionStatus }: SaasNavProps) {
   }
 
   return (
-    <div className="flex items-center gap-6">
-      <nav className="flex gap-6 text-sm">
-        {LINKS.map((link) => {
-          const isActive = pathname === link.href;
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={
-                isActive ? 'font-bold text-primary' : 'text-muted transition-colors duration-200 hover:text-foreground'
-              }
-            >
-              {link.label}
-            </Link>
-          );
-        })}
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+      <nav aria-label="Dashboard">
+        <ul className="flex gap-1 text-[0.9375rem]">
+          {LINKS.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`rounded-full px-3 py-1.5 transition-colors duration-150 ${
+                    isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
 
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         <Badge variant={subscriptionStatus === 'active' ? 'success' : 'muted'}>
           {subscriptionStatus === 'active' ? 'Pro' : 'Free'}
         </Badge>
-        <span className="truncate text-xs text-muted" title={email}>
+        <span className="max-w-[12rem] truncate text-sm text-muted-foreground" title={email}>
           {email}
         </span>
         <button
+          type="button"
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="text-sm text-muted transition-colors duration-200 hover:text-foreground disabled:opacity-40"
+          className="text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground disabled:opacity-40"
         >
           {isLoggingOut ? 'Logging out…' : 'Log out'}
         </button>

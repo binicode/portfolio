@@ -74,7 +74,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold text-foreground">Edit Project</h1>
+        <h1 className="font-wide text-h2 font-semibold">Edit project</h1>
         <Button variant="danger" onClick={handleDelete} isLoading={isDeleting} loadingText="Deleting…">
           Delete
         </Button>
@@ -97,7 +97,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
         <Textarea label="Summary" required rows={3} value={summary} onChange={(e) => setSummary(e.target.value)} />
 
         <Input
-          label="Tech Stack"
+          label="Tech stack"
           type="text"
           value={techStack}
           onChange={(e) => setTechStack(e.target.value)}
@@ -110,7 +110,8 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
         <Input label="Repo URL (optional)" type="url" value={repoUrl} onChange={(e) => setRepoUrl(e.target.value)} />
 
         <Textarea
-          label="Case Study (optional)"
+          label="Case study (optional)"
+          hint="One paragraph per line. Start a line with ## for a heading or - for a list item."
           rows={8}
           value={caseStudyBody}
           onChange={(e) => setCaseStudyBody(e.target.value)}
@@ -122,15 +123,15 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
             type="checkbox"
             checked={published}
             onChange={(e) => setPublished(e.target.checked)}
-            className="h-4 w-4 rounded border-white/10 bg-surface text-primary focus:ring-2 focus:ring-primary"
+            className="h-4 w-4 rounded-xs border-input accent-[var(--ink)]"
           />
-          <label htmlFor="published" className="text-sm font-bold text-foreground">
+          <label htmlFor="published" className="text-sm font-medium text-foreground">
             Published
           </label>
         </div>
 
         <Button type="submit" isLoading={isSubmitting} loadingText="Saving…">
-          Save Changes
+          Save changes
         </Button>
       </form>
     </div>
