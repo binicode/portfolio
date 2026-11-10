@@ -57,8 +57,10 @@ export default async function ShopPage() {
                       alt={product.featuredImage.altText ?? product.title}
                       fill
                       sizes="(min-width: 1344px) 432px, (min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
-                      loading={index < 3 ? 'eager' : 'lazy'}
-                      fetchPriority={index < 3 ? 'high' : 'auto'}
+                      // Only the first card is the LCP candidate (one column on phones);
+                      // giving three images high priority made them compete for bandwidth.
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
                       className="object-cover transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.03]"
                     />
                   )}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import { Archivo, Newsreader } from 'next/font/google';
+import { Newsreader } from 'next/font/google';
+import localFont from 'next/font/local';
 import { clientEnv } from '@/lib/config';
 import { site } from '@/lib/site';
 import './globals.css';
@@ -7,11 +8,18 @@ import './globals.css';
 // One variable family for the whole interface. The width axis (wdth) is
 // what gives headlines their engineered, expanded character; body text
 // stays at normal width.
-const archivo = Archivo({
+//
+// Self-hosted subset of Archivo (OFL, see fonts/OFL-Archivo.txt): Google's
+// latin range, weight 400–600 and width 100–118% only — the values the design
+// uses. 38 KB instead of 88 KB for the full Google file. Regenerate with
+// `npm run fonts:archivo` (scripts/subset-archivo.mjs) if those ranges change.
+const archivo = localFont({
+  src: './fonts/archivo-latin-wght400-600-wdth100-118.woff2',
   variable: '--font-archivo',
-  subsets: ['latin'],
-  axes: ['wdth'],
+  weight: '400 600',
+  declarations: [{ prop: 'font-stretch', value: '100% 118%' }],
   display: 'swap',
+  adjustFontFallback: 'Arial',
 });
 
 // Long-form serif for case studies. Declared here so its @font-face joins the

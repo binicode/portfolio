@@ -38,6 +38,12 @@ Never use `text-muted` or `text-secondary` for text: `muted` and
 - **Archivo** (variable: weight + width) for the interface. Headlines use
   the width axis: `font-wide` (118%) for display and section titles,
   `font-semiwide` (108%) for smaller titles. Body text stays at normal width.
+  Self-hosted as a subset in `src/app/fonts/` (OFL licence alongside):
+  Google's latin range, weight **400–600** and width **100–118%** only,
+  38 KB instead of 88 KB. Using `font-bold` or a width outside that range
+  will not render as intended — widen the ranges in
+  `scripts/subset-archivo.mjs`, run `npm run fonts:archivo`, and update
+  `weight` / `font-stretch` in `src/app/layout.tsx`.
 - **Newsreader** (variable weight, no optical-size axis, ~57 KB) for
   case-study long-form only. It is declared in the root layout so its
   `@font-face` stays in the single global stylesheet (declaring it in the
@@ -95,8 +101,12 @@ one pointer effect. Everything is CSS except the pointer light.
 - `experimental.inlineCss` was measured and rejected: on Next 16.2 it
   embedded the stylesheet about three times per page (HTML grew from ~12 KB
   to ~42 KB gzipped). Re-measure before enabling it on a future version.
-- Fonts: one preloaded file (Archivo, ~88 KB for both axes). Adding a
-  family or axis needs a measured reason.
+- Fonts: one preloaded file (the Archivo subset, ~38 KB). Adding a family,
+  weight or width range needs a measured reason.
+- Measure over HTTP/2: `next start` serves HTTP/1.1, which Lighthouse models
+  with six connections per origin and penalises Next's many small chunks.
+  Production hosts serve HTTP/2, so local numbers need an HTTP/2 proxy in
+  front of `next start` to be representative.
 
 ## Case-study format
 
