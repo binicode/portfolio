@@ -35,7 +35,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5">
       <dt className="text-[0.75rem] text-muted-foreground">{label}</dt>
-      <dd className="font-semiwide text-lg font-semibold tabular-nums">{value}</dd>
+      <dd className="text-lg font-semibold tabular-nums">{value}</dd>
     </div>
   );
 }
@@ -49,9 +49,9 @@ export default function DashboardPreview({ className = '' }: { className?: strin
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <p className="text-[0.8125rem] font-semibold">Creator Dashboard</p>
-          <div className="flex items-center gap-3 text-[0.75rem] text-muted-foreground">
-            <span className="rounded-full border border-success/40 px-2 py-0.5 text-success">Pro</span>
-            <span className="hidden sm:inline">Dashboard</span>
+          <div className="label flex items-center gap-4 text-muted-foreground">
+            <span className="rounded-xs border border-success/40 px-2 py-0.5 text-success">Pro</span>
+            <span className="hidden text-foreground sm:inline">Dashboard</span>
             <span className="hidden sm:inline">Settings</span>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function DashboardPreview({ className = '' }: { className?: strin
             </dl>
           </Panel>
           <Panel title="Hacker News">
-            <p className="font-semiwide text-2xl font-semibold tabular-nums">{SAMPLE.hackerNews.mentions}</p>
+            <p className="text-2xl font-semibold tabular-nums">{SAMPLE.hackerNews.mentions}</p>
             <p className="text-[0.75rem] text-muted-foreground">mentions</p>
             <ul className="mt-3 space-y-1.5 border-t border-border pt-3">
               {SAMPLE.hackerNews.titles.map((title) => (

@@ -22,7 +22,7 @@ export default function SiteNav() {
 
   return (
     <>
-      <ul className="hidden items-center gap-1 md:flex">
+      <ul className="hidden items-center gap-5 md:flex">
         {primaryNav.map((item) => {
           const active = isActive(pathname, item.href);
           return (
@@ -30,34 +30,24 @@ export default function SiteNav() {
               <Link
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`relative rounded-full px-3.5 py-2 text-[0.9375rem] transition-colors duration-150 ${
+                className={`label relative py-2 transition-colors duration-150 ${
                   active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {item.label}
                 {active && (
-                  <span aria-hidden="true" className="absolute inset-x-3.5 -bottom-px h-px bg-foreground" />
+                  <span aria-hidden="true" className="absolute inset-x-0 bottom-0.5 h-px bg-accent" />
                 )}
               </Link>
             </li>
           );
         })}
-        <li className="ml-3">
-          <a
-            href={contactHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-9 items-center rounded-full border border-foreground/25 px-4 text-sm font-medium transition-colors duration-150 hover:border-foreground"
-          >
-            Contact
-          </a>
-        </li>
       </ul>
 
       <button
         type="button"
         popoverTarget="site-menu"
-        className="inline-flex h-10 items-center gap-2 rounded-full border border-foreground/25 px-4 text-sm font-medium md:hidden"
+        className="label ml-auto inline-flex h-9 items-center border border-border px-3 text-foreground md:hidden"
       >
         Menu
       </button>
@@ -79,10 +69,10 @@ export default function SiteNav() {
                     href={item.href}
                     onClick={closeMenu}
                     aria-current={active ? 'page' : undefined}
-                    className="flex items-center justify-between py-4 font-semiwide text-2xl font-medium tracking-tight"
+                    className="flex items-center justify-between py-4 text-2xl font-medium tracking-[-0.03em]"
                   >
                     {item.label}
-                    {active && <span className="text-sm font-normal text-muted-foreground">Current page</span>}
+                    {active && <span className="label text-accent">Current</span>}
                   </Link>
                 </li>
               );
@@ -93,7 +83,7 @@ export default function SiteNav() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={closeMenu}
-            className="mt-6 inline-flex h-11 items-center rounded-full bg-primary px-5 text-[0.9375rem] font-medium text-primary-foreground"
+            className="btn-bracket mt-6"
           >
             Contact on LinkedIn
           </a>

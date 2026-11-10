@@ -8,6 +8,7 @@ import { parseCaseStudy } from '@/lib/case-study';
 import { clientEnv } from '@/lib/config';
 import { site } from '@/lib/site';
 import JsonLdScript from '@/components/site/JsonLd';
+import ProjectPlate from '@/components/work/ProjectPlate';
 
 
 interface ProjectPageProps {
@@ -85,7 +86,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       <header className="container-page pt-[clamp(2rem,5vw,4.5rem)]">
         <Link
           href="/projects"
-          className="group inline-flex items-center gap-2 text-[0.9375rem] text-muted-foreground transition-colors hover:text-foreground"
+          className="label group inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft
             aria-hidden="true"
@@ -95,13 +96,19 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           All work
         </Link>
 
-        <div className="mt-10 grid gap-8 lg:mt-14 lg:grid-cols-12">
-          <div className="lg:col-span-10">
+        <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-12 lg:items-end lg:gap-8">
+          <div className="lg:col-span-7">
             <ViewTransition name={`project-title-${project.slug}`}>
-              <h1 className="w-fit font-wide text-h1 font-semibold">{project.title}</h1>
+              <h1 className="w-fit text-h1 font-medium">{project.title}</h1>
             </ViewTransition>
             <p className="mt-6 max-w-[42rem] text-lead text-muted-foreground">{project.summary}</p>
           </div>
+          <ViewTransition name={`project-plate-${project.slug}`}>
+            <div className="overflow-hidden rounded-md border border-border bg-card lg:col-span-5">
+              {/* Same plate as on the work list (position in the newest-first list). */}
+              <ProjectPlate variant={Math.max(index, 0)} className="p-5" />
+            </div>
+          </ViewTransition>
         </div>
       </header>
 
@@ -110,12 +117,12 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
         <aside className="lg:col-span-3">
           <dl className="grid grid-cols-2 gap-x-6 gap-y-6 text-[0.9375rem] lg:sticky lg:top-[calc(var(--header-h)+2rem)] lg:grid-cols-1">
             <div>
-              <dt className="text-[0.8125rem] text-muted-foreground">Year</dt>
+              <dt className="label text-muted-foreground">Year</dt>
               <dd className="mt-1 tabular-nums">{projectYear(project)}</dd>
             </div>
             {project.techStack.length > 0 && (
               <div className="col-span-2 lg:col-span-1">
-                <dt className="text-[0.8125rem] text-muted-foreground">Built with</dt>
+                <dt className="label text-muted-foreground">Built with</dt>
                 <dd className="mt-1">
                   <ul className="space-y-0.5">
                     {project.techStack.map((tech) => (
@@ -127,7 +134,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
             )}
             {(project.liveUrl || project.repoUrl) && (
               <div className="col-span-2 lg:col-span-1">
-                <dt className="text-[0.8125rem] text-muted-foreground">Links</dt>
+                <dt className="label text-muted-foreground">Links</dt>
                 <dd className="mt-1 flex flex-wrap gap-x-5 gap-y-1 lg:flex-col">
                   {project.liveUrl && <ExternalLink href={project.liveUrl}>Live site</ExternalLink>}
                   {project.repoUrl && <ExternalLink href={project.repoUrl}>Source code</ExternalLink>}
@@ -139,7 +146,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
         <div className="lg:col-span-7 lg:col-start-5">
           {blocks.length > 0 ? (
-            <div className="case-study font-serif">
+            <div className="case-study">
               {blocks.map((block, i) => {
                 if (block.type === 'heading') {
                   const Tag = block.level === 2 ? 'h2' : 'h3';
@@ -174,9 +181,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       {next && (
         <nav aria-label="Next project" className="container-page mt-[var(--section)]">
           <Link href={`/projects/${next.slug}`} className="group block border-y border-border py-10 lg:py-14">
-            <span className="text-[0.8125rem] text-muted-foreground">Next project</span>
+            <span className="label text-muted-foreground">Next project</span>
             <span className="mt-3 flex items-end justify-between gap-6">
-              <span className="font-wide text-h2 font-semibold transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1.5">
+              <span className="text-h2 font-medium transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1.5">
                 {next.title}
               </span>
               <ArrowUpRight

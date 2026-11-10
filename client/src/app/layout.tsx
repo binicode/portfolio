@@ -1,36 +1,29 @@
 import type { Metadata, Viewport } from 'next';
-import { Newsreader } from 'next/font/google';
 import localFont from 'next/font/local';
 import { clientEnv } from '@/lib/config';
 import { site } from '@/lib/site';
 import './globals.css';
 
-// One variable family for the whole interface. The width axis (wdth) is
-// what gives headlines their engineered, expanded character; body text
-// stays at normal width.
-//
-// Self-hosted subset of Archivo (OFL, see fonts/OFL-Archivo.txt): Google's
-// latin range, weight 400–600 and width 100–118% only — the values the design
-// uses. 38 KB instead of 88 KB for the full Google file. Regenerate with
-// `npm run fonts:archivo` (scripts/subset-archivo.mjs) if those ranges change.
-const archivo = localFont({
-  src: './fonts/archivo-latin-wght400-600-wdth100-118.woff2',
-  variable: '--font-archivo',
+// Two self-hosted subsets (OFL, licences in ./fonts), regenerated with
+// `npm run fonts:subset` (scripts/subset-fonts.mjs):
+// - Inter Tight: tight grotesk for headings and body. Latin, weight 400–600. ~27 KB.
+// - Geist Mono: uppercase micro labels and coordinates. ASCII, weight 400–500. ~9 KB.
+const sans = localFont({
+  src: './fonts/inter-tight-latin-wght400-600.woff2',
+  variable: '--font-sans-face',
   weight: '400 600',
-  declarations: [{ prop: 'font-stretch', value: '100% 118%' }],
   display: 'swap',
   adjustFontFallback: 'Arial',
 });
 
-// Long-form serif for case studies. Declared here so its @font-face joins the
-// single global stylesheet (a route-level declaration added a second
-// render-blocking CSS file). Not preloaded: browsers only download a face that
-// rendered text actually uses, so only case-study pages fetch it.
-const newsreader = Newsreader({
-  variable: '--font-newsreader',
-  subsets: ['latin'],
+const mono = localFont({
+  src: './fonts/geist-mono-ascii-wght400-500.woff2',
+  variable: '--font-mono-face',
+  weight: '400 500',
   display: 'swap',
+  // Labels are small and below the headline; no need to compete with it.
   preload: false,
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -60,8 +53,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#ecedea',
-  colorScheme: 'light',
+  themeColor: '#0c0c0d',
+  colorScheme: 'dark',
 };
 
 export default function RootLayout({
@@ -70,7 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${archivo.variable} ${newsreader.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

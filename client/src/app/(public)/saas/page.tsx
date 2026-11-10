@@ -57,8 +57,8 @@ export default function SaasPage() {
           <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
             <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
               <h1 id="saas-title" className="lg:col-span-8">
-                <span className="block text-lead text-muted-foreground">Creator Dashboard</span>
-                <span className="mt-5 block font-wide text-h1 font-semibold">
+                <span className="label block text-accent">Creator Dashboard</span>
+                <span className="mt-5 block text-h1 font-medium">
                   Your GitHub, YouTube and Hacker News numbers in one place.
                 </span>
               </h1>
@@ -83,16 +83,16 @@ export default function SaasPage() {
 
       <section aria-labelledby="steps-title" className="py-section">
         <div className="container-page">
-          <h2 id="steps-title" className="font-wide text-h2 font-semibold">
+          <h2 id="steps-title" className="text-h2 font-medium">
             How it works
           </h2>
           <ol className="mt-12 grid gap-px border-y border-foreground/80 bg-border sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
             {STEPS.map((step, index) => (
               <li key={step.title} className="bg-background py-7 sm:pr-6 sm:even:pl-6 lg:pl-6 lg:first:pl-0">
-                <span className="font-semiwide text-sm font-semibold tabular-nums text-muted-foreground">
+                <span className="label tabular-nums text-accent">
                   Step {index + 1}
                 </span>
-                <h3 className="mt-6 font-semiwide text-h3 font-semibold">{step.title}</h3>
+                <h3 className="mt-6 text-h3 font-semibold">{step.title}</h3>
                 <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted-foreground">{step.body}</p>
               </li>
             ))}
@@ -103,7 +103,7 @@ export default function SaasPage() {
       <section aria-labelledby="engineering-title" className="pb-section">
         <div className="container-page grid gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
-            <h2 id="engineering-title" className="font-wide text-h2 font-semibold">
+            <h2 id="engineering-title" className="text-h2 font-medium">
               Built like a real product
             </h2>
             <p className="mt-5 max-w-[24rem] text-muted-foreground">
@@ -124,7 +124,7 @@ export default function SaasPage() {
       <section aria-labelledby="start-title" className="pb-section">
         <div className="container-page">
           <div className="flex flex-col gap-8 border-y border-border py-12 lg:flex-row lg:items-center lg:justify-between lg:py-16">
-            <h2 id="start-title" className="font-wide text-h2 font-semibold">
+            <h2 id="start-title" className="text-h2 font-medium">
               Try it with your own accounts.
             </h2>
             <div className="flex flex-wrap gap-3">

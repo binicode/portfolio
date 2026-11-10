@@ -3,6 +3,7 @@ import { ViewTransition } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import type { Project } from '@/types/project';
 import { projectYear } from '@/lib/projects';
+import ProjectPlate from './ProjectPlate';
 
 interface ProjectLedgerProps {
   projects: Project[];
@@ -10,47 +11,58 @@ interface ProjectLedgerProps {
 }
 
 /**
- * Projects as a ledger: year, title and summary, stack. Each row is one
- * link. The title shares a view-transition name with the case-study
- * heading, so it carries across the navigation.
+ * Projects as editorial rows: a drawing plate, then year, title, summary
+ * and stack. Each row is one link. The plate and title share
+ * view-transition names with the case study, so both carry across the
+ * navigation. `projects` must be in the site-wide (newest-first) order so
+ * each project keeps the same plate everywhere.
  */
 export default function ProjectLedger({ projects, headingLevel = 'h3' }: ProjectLedgerProps) {
   const Heading = headingLevel;
 
   return (
     <ol className="border-b border-border">
-      {projects.map((project) => (
+      {projects.map((project, index) => (
         <li key={project._id}>
           <Link
             href={`/projects/${project.slug}`}
-            className="group grid grid-cols-[3.5rem_1fr] gap-x-4 gap-y-3 border-t border-border py-7 transition-colors duration-300 sm:grid-cols-[5rem_1fr] lg:grid-cols-12 lg:gap-x-8 lg:py-9"
+            className="group grid gap-6 border-t border-border py-8 sm:grid-cols-[minmax(0,13rem)_1fr] sm:gap-8 lg:grid-cols-12 lg:py-10"
           >
-            <span className="pt-1 text-sm tabular-nums text-muted-foreground lg:col-span-1">
-              {projectYear(project)}
-            </span>
+            <ViewTransition name={`project-plate-${project.slug}`}>
+              <div className="overflow-hidden rounded-md border border-border bg-card lg:col-span-4">
+                <ProjectPlate
+                  variant={index}
+                  className="p-4 transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.035]"
+                />
+              </div>
+            </ViewTransition>
 
-            <div className="lg:col-span-6">
+            <div className="flex flex-col lg:col-span-8 lg:pl-4">
+              <p className="label text-accent">{projectYear(project)}</p>
               <ViewTransition name={`project-title-${project.slug}`}>
-                <Heading className="w-fit font-semiwide text-title font-semibold transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1.5">
+                <Heading className="mt-2 w-fit text-title font-medium transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1.5">
                   {project.title}
                 </Heading>
               </ViewTransition>
-              <p className="mt-3 max-w-[38rem] text-muted-foreground">{project.summary}</p>
+              <p className="mt-3 max-w-[40rem] text-muted-foreground">{project.summary}</p>
+
+              <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-6">
+                {project.techStack.length > 0 && (
+                  <p className="label max-w-[32rem] leading-relaxed text-muted-foreground">
+                    <span className="sr-only">Built with </span>
+                    {project.techStack.join(', ')}
+                  </p>
+                )}
+                <span className="label inline-flex items-center gap-1.5 text-foreground transition-colors duration-200 group-hover:text-accent">
+                  View project
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="h-4 w-4 transition-transform duration-300 ease-[var(--ease-out)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    strokeWidth={1.5}
+                  />
+                </span>
+              </div>
             </div>
-
-            {project.techStack.length > 0 && (
-              <p className="col-start-2 text-sm leading-relaxed text-muted-foreground transition-colors duration-300 group-hover:text-foreground lg:col-span-4 lg:col-start-auto lg:pt-2">
-                <span className="sr-only">Built with </span>
-                {project.techStack.join(', ')}
-              </p>
-            )}
-
-            <span aria-hidden="true" className="hidden justify-end pt-2 lg:col-span-1 lg:col-start-12 lg:flex">
-              <ArrowUpRight
-                className="h-5 w-5 -translate-x-1 translate-y-1 opacity-0 transition-[opacity,transform] duration-300 ease-[var(--ease-out)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-                strokeWidth={1.5}
-              />
-            </span>
           </Link>
         </li>
       ))}

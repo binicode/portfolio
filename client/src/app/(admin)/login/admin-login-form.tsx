@@ -33,7 +33,7 @@ export default function AdminLoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <h1 className="font-wide text-h2 font-semibold">Admin sign in</h1>
+        <h1 className="text-h2 font-medium">Admin sign in</h1>
         <p className="mt-2 text-muted-foreground">Manage portfolio projects.</p>
       </div>
 

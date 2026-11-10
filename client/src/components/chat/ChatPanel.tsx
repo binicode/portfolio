@@ -140,7 +140,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
           type="button"
           onClick={onClose}
           aria-label="Close assistant"
-          className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+          className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-xs text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
         >
           <X aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
         </button>
@@ -165,7 +165,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
                     type="button"
                     onClick={() => void send(suggestion)}
                     disabled={!sessionId || isStreaming}
-                    className="rounded-full border border-border px-3 py-1.5 text-left text-xs text-foreground transition-colors hover:border-foreground/50 disabled:opacity-50"
+                    className="rounded-xs border border-border px-3 py-1.5 text-left text-xs text-foreground transition-colors hover:border-foreground/50 disabled:opacity-50"
                   >
                     {suggestion}
                   </button>

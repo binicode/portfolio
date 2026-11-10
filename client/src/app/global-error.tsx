@@ -25,7 +25,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           <button
             type="button"
             onClick={reset}
-            className="mt-8 inline-flex h-11 items-center rounded-full bg-primary px-5 font-medium text-primary-foreground"
+            className="mt-8 inline-flex h-11 items-center rounded-xs bg-primary px-5 font-medium text-primary-foreground"
           >
             Try again
           </button>

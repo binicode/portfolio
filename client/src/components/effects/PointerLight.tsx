@@ -53,7 +53,7 @@ export default function PointerLight({ children, className = '' }: { children: R
       <div
         ref={lightRef}
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 -z-10 h-[32rem] w-[32rem] rounded-full opacity-0 transition-opacity duration-500 [background:radial-gradient(closest-side,rgb(143_176_255/0.16),transparent)] will-change-transform"
+        className="pointer-events-none absolute left-0 top-0 -z-10 h-[32rem] w-[32rem] rounded-full opacity-0 transition-opacity duration-500 [background:radial-gradient(closest-side,rgb(221_82_38/0.10),transparent)] will-change-transform"
       />
       {children}
     </div>

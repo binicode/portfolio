@@ -36,13 +36,14 @@ export default function AdminNav({ email }: AdminNavProps) {
       <Link
         href="/dashboard"
         aria-current={isActive ? 'page' : undefined}
-        className={`rounded-md px-3 py-2 text-[0.9375rem] transition-colors ${
+        className={`label flex items-center gap-2 rounded-xs px-3 py-2.5 transition-colors ${
           isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
         }`}
       >
+        {isActive && <span aria-hidden="true" className="h-1.5 w-1.5 bg-accent" />}
         Projects
       </Link>
-      <Link href="/" className="px-3 text-sm text-muted-foreground transition-colors hover:text-foreground md:py-1">
+      <Link href="/" className="label px-3 py-2 text-muted-foreground transition-colors hover:text-foreground">
         View site
       </Link>
 
@@ -54,7 +55,7 @@ export default function AdminNav({ email }: AdminNavProps) {
           type="button"
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="mt-2 px-3 text-left text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+          className="label mt-2 px-3 py-2 text-left text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
         >
           {isLoggingOut ? 'Logging out…' : 'Log out'}
         </button>

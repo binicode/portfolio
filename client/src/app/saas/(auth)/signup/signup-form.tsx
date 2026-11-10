@@ -34,7 +34,7 @@ export default function SaasSignupForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <h1 className="font-wide text-h2 font-semibold">Create an account</h1>
+        <h1 className="text-h2 font-medium">Create an account</h1>
         <p className="mt-2 text-muted-foreground">You’ll choose a subscription on the next screen.</p>
       </div>
 

@@ -35,7 +35,7 @@ export default function SaasNav({ email, subscriptionStatus }: SaasNavProps) {
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
       <nav aria-label="Dashboard">
-        <ul className="flex gap-1 text-[0.9375rem]">
+        <ul className="flex gap-5">
           {LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -43,11 +43,14 @@ export default function SaasNav({ email, subscriptionStatus }: SaasNavProps) {
                 <Link
                   href={link.href}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`rounded-full px-3 py-1.5 transition-colors duration-150 ${
-                    isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  className={`label relative inline-block py-2 transition-colors duration-150 ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {link.label}
+                  {isActive && (
+                    <span aria-hidden="true" className="absolute inset-x-0 bottom-0.5 h-px bg-accent" />
+                  )}
                 </Link>
               </li>
             );
@@ -66,7 +69,7 @@ export default function SaasNav({ email, subscriptionStatus }: SaasNavProps) {
           type="button"
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground disabled:opacity-40"
+          className="label py-2 text-muted-foreground transition-colors duration-150 hover:text-foreground disabled:opacity-40"
         >
           {isLoggingOut ? 'Logging out…' : 'Log out'}
         </button>
