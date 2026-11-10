@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { getSaasMe, getAggregatorStats } from '@/lib/saas-server';
 import SubscribeButton from './subscribe-button';
+import DashboardPreview from '@/components/saas/DashboardPreview';
 
 function MetricRow({ label, value }: { label: string; value: number }) {
   return (
@@ -53,6 +54,7 @@ export default async function SaasDashboardPage() {
             <SubscribeButton />
           </div>
         </div>
+        <DashboardPreview className="mt-12 lg:mt-16" />
       </div>
     );
   }

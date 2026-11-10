@@ -7,7 +7,8 @@ export default function SiteFooter() {
 
   return (
     <footer className="theme-ink">
-      <div className="container-page pb-10 pt-[calc(var(--section)*0.8)]">
+      {/* Extra bottom padding keeps the last row clear of the fixed assistant button. */}
+      <div className="container-page pb-24 pt-[calc(var(--section)*0.8)]">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
           <p className="font-wide text-h1 font-semibold text-balance lg:col-span-8">Have something that needs to hold up?</p>
           <div className="lg:col-span-4 lg:justify-self-end">
@@ -27,7 +28,7 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-16 grid gap-10 border-t border-border pt-10 sm:grid-cols-2 lg:grid-cols-12">
+        <div className="mt-16 grid gap-10 border-t border-border pt-10 sm:grid-cols-3 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <p className="font-semiwide font-semibold">{site.name}</p>
             <p className="mt-2 max-w-xs text-sm text-muted-foreground">
@@ -69,7 +70,7 @@ export default function SiteFooter() {
           </ul>
         </div>
 
-        <div className="mt-12 flex items-center justify-between gap-6 text-xs text-muted-foreground">
+        <div className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
           <p>
             © {year} {site.name}
           </p>

@@ -425,7 +425,7 @@
   }
 
   .motion-rise {
-    animation: rise 800ms var(--ease-out) both;
+    animation: rise 650ms var(--ease-out) both;
     animation-delay: var(--delay, 0ms);
   }
 
