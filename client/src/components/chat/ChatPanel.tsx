@@ -127,7 +127,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
       onKeyDown={(e) => {
         if (e.key === 'Escape') onClose();
       }}
-      className="theme-ink animate-fade-in fixed bottom-[calc(max(1rem,env(safe-area-inset-bottom))+3.5rem)] right-3 z-40 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-xl border border-border shadow-[0_30px_60px_-30px_rgb(15_34_51/0.7)] sm:right-6 sm:w-[24rem]"
+      className="theme-ink animate-fade-in fixed bottom-[calc(max(1rem,env(safe-area-inset-bottom))+3.5rem+var(--frame))] right-[calc(0.75rem+var(--frame))] z-40 flex h-[min(34rem,calc(100dvh-7rem-2*var(--frame)))] w-[calc(100vw-1.5rem-2*var(--frame))] flex-col overflow-hidden rounded-xl border border-border shadow-[0_30px_60px_-30px_rgb(0_0_0/0.8)] sm:right-[calc(1.5rem+var(--frame))] sm:w-[24rem]"
     >
       <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
         <div>

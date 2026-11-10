@@ -57,7 +57,7 @@ export default function SiteNav() {
         id="site-menu"
         popover="auto"
         aria-label="Site menu"
-        className="site-menu m-0 w-full max-w-none border-0 border-b border-border bg-background p-0 text-foreground md:hidden"
+        className="site-menu m-0 w-auto max-w-none border-0 border-b border-border bg-background p-0 text-foreground md:hidden"
       >
         <div className="container-page pb-8 pt-2">
           <ul className="divide-y divide-border border-y border-border">

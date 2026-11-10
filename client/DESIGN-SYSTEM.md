@@ -103,6 +103,13 @@ that isn't a sequence.
 
 ## Layout
 
+- `.site-frame`: the public site (and the 404 page) sits inside a rust
+  frame, `--frame` wide (6px on phones, up to 18px on desktop), rust at the
+  top fading to near-black. The wrapper is padded by `--frame`; the frame is
+  a fixed, pointer-transparent `::after` overlay. Anything sticky or fixed
+  adds `var(--frame)` to its offset (header, hero stage, mobile menu, chat
+  launcher and panel, sticky sidebars). Dashboards and sign-in pages are
+  not framed: the space matters more there.
 - `container-page`: max 84rem with fluid gutters (`--gutter`).
 - `py-section` / `pb-section`: fluid vertical rhythm (`--section`).
 - A 12-column grid at `lg`; content left-aligned. Section headings usually
