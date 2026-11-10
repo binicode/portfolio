@@ -7,7 +7,9 @@ import SaasNav from '@/components/nav/SaasNav';
 import type { SaasMeResponse } from '@/types/saas';
 
 export const metadata: Metadata = {
-  title: 'Creator Dashboard',
+  // A plain string here would stop the root template from applying to child
+  // pages, so this layout defines its own.
+  title: { default: 'Creator Dashboard', template: '%s — Creator Dashboard' },
   robots: { index: false, follow: false },
 };
 

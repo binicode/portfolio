@@ -78,7 +78,7 @@ function Hero() {
               background in civil engineering shapes how I work: engineering discipline, systems thinking, and software
               that stays reliable in real use.
             </p>
-            <div className="motion-rise mt-8 flex flex-wrap gap-3" style={delay(450)}>
+            <div className="motion-rise mt-8 flex flex-wrap gap-3" style={delay(200)}>
               <ButtonLink href="#work">See selected work</ButtonLink>
               <ButtonLink href="/saas" variant="secondary">
                 Explore the SaaS
@@ -95,7 +95,7 @@ function Hero() {
 
         <dl
           className="motion-rise mt-10 grid grid-cols-1 gap-px border-y border-foreground/80 bg-border sm:grid-cols-2 lg:mt-12 lg:grid-cols-4"
-          style={delay(550)}
+          style={delay(300)}
         >
           {[
             {

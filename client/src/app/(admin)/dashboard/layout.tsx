@@ -5,7 +5,7 @@ import { serverApiClient } from '@/lib/server-api-client';
 import AdminNav from '@/components/nav/AdminNav';
 
 export const metadata: Metadata = {
-  title: 'Admin',
+  title: { default: 'Admin', template: '%s — Admin' },
   robots: { index: false, follow: false },
 };
 
