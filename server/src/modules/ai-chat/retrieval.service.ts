@@ -59,3 +59,22 @@ export async function retrieveRelevantChunks(
 
   return results;
 }
+
+// Upper bound for the degraded path below. The knowledge base is small
+// (a handful of curated chunks), so this normally means "all of it". If it
+// grows well past this, the fallback should become keyword-based instead.
+const FALLBACK_MAX_CHUNKS = 8;
+
+/**
+ * Degraded retrieval for when the query can't be embedded (the embedding
+ * provider is rate-limited, slow or down). Returns the knowledge base
+ * itself, capped, so the answer stays grounded in the same curated
+ * content instead of the chat turn failing outright.
+ */
+export async function retrieveFallbackChunks(): Promise<RetrievedChunk[]> {
+  const chunks = await KnowledgeChunkModel.find({}, { _id: 0, content: 1, metadata: 1 })
+    .limit(FALLBACK_MAX_CHUNKS)
+    .lean<Array<Pick<RetrievedChunk, 'content' | 'metadata'>>>();
+
+  return chunks.map((chunk) => ({ ...chunk, score: 0 }));
+}
