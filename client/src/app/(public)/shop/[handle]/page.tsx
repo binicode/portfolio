@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { getProductByHandle, getProducts } from '@/lib/shopify-products';
 import { formatPrice } from '@/lib/format';
 import BuyNowButton from './buy-now-button';
+import JsonLdScript from '@/components/site/JsonLd';
 
 export const revalidate = 300;
 
@@ -68,7 +69,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <div className="container-page pb-section pt-[clamp(2rem,5vw,4.5rem)]">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+      <JsonLdScript data={productSchema} />
 
       <Link
         href="/shop"

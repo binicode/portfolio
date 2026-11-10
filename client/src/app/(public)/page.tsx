@@ -11,6 +11,7 @@ import ProjectLedger from '@/components/work/ProjectLedger';
 import DashboardPreview from '@/components/saas/DashboardPreview';
 import PointerLight from '@/components/effects/PointerLight';
 import OpenChatButton from '@/components/chat/OpenChatButton';
+import JsonLdScript from '@/components/site/JsonLd';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -49,7 +50,7 @@ function JsonLd() {
       author: { '@id': `${siteUrl}/#person` },
     },
   ];
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <JsonLdScript data={data} />;
 }
 
 function Hero() {
