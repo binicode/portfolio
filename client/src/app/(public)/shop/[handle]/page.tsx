@@ -99,7 +99,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </div>
 
         <div className="lg:col-span-4 lg:col-start-9">
-          <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
+          <div className="lg:sticky lg:top-[calc(var(--header-h)+var(--frame)+2rem)]">
             <h1 className="text-h2 font-medium">{product.title}</h1>
             <p className="mt-4 text-h3 tabular-nums">{price}</p>
 

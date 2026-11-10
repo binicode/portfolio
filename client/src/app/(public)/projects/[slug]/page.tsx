@@ -115,7 +115,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       <div className="container-page mt-12 lg:mt-16">
         <div className="grid gap-12 border-t border-foreground/80 pt-10 lg:grid-cols-12 lg:gap-8">
         <aside className="lg:col-span-3">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-6 text-[0.9375rem] lg:sticky lg:top-[calc(var(--header-h)+2rem)] lg:grid-cols-1">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-6 text-[0.9375rem] lg:sticky lg:top-[calc(var(--header-h)+var(--frame)+2rem)] lg:grid-cols-1">
             <div>
               <dt className="label text-muted-foreground">Year</dt>
               <dd className="mt-1 tabular-nums">{projectYear(project)}</dd>
