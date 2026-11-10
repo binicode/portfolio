@@ -4,24 +4,24 @@ export const STACK_LEGEND = [
     key: 'A',
     layer: 'Interface',
     detail: 'Next.js, React, TypeScript',
-    body: 'Pages render on the server with the Next.js App Router; only the small interactive parts ship JavaScript.',
+    body: 'Server-rendered pages that load fast and ship little JavaScript.',
   },
   {
     key: 'B',
     layer: 'API',
     detail: 'Node.js, Express, REST',
-    body: 'Express routes validate every input, keep sessions in httpOnly cookies, and check access on the server for each protected request.',
+    body: 'Every input validated, every protected request checked on the server.',
   },
   {
     key: 'C',
     layer: 'Data',
     detail: 'MongoDB Atlas, Vector Search',
-    body: 'Projects, accounts and chat history live in MongoDB Atlas; Atlas Vector Search powers the assistant’s retrieval.',
+    body: 'Accounts, content and AI search in one database.',
   },
   {
     key: 'D',
     layer: 'Services',
     detail: 'Stripe, Shopify, Gemini, Voyage AI',
-    body: 'Stripe runs subscriptions, Shopify the storefront, Gemini and Voyage AI the assistant — the AI calls with timeouts and fallbacks.',
+    body: 'Billing, commerce and AI that keeps answering when a provider fails.',
   },
 ] as const;

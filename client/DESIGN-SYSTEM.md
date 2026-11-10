@@ -12,9 +12,13 @@ site with a pinned, scroll-driven hero). The content and drawings stay
 specific to this portfolio: structures as a metaphor for the stack.
 
 Spend boldness in one place per page. On the home page that is the hero:
-a pinned scene where a small drawing card grows to fill the screen and
-becomes an explorer of the stack's layers. Everything around it stays
-quiet.
+a pinned scene where the headline clears away and a drawing of the stack
+zooms in to fill the screen, becoming an explorer of its layers.
+Everything around it stays quiet.
+
+Hero copy is written for prospective clients: one headline, one line on
+what the work is, two actions. No name or job-title chip (the header
+carries the name), and no filler.
 
 ## Drawings
 
@@ -115,10 +119,12 @@ elements (chat launcher and panel).
 One orchestrated moment per page; no time-based entrance animations on load.
 
 - Hero: `.hs` is 280vh with a sticky stage and a named view timeline
-  (`--hs`). The intro fades out, the drawing frame grows from 30% to full
-  size, then the heading and tabs fade in. All scroll-linked, CSS only,
-  behind `@supports (animation-timeline: view())`; other browsers get a
-  static stacked layout.
+  (`--hs`). Ranges are in `contain` percentages and must not overlap:
+  intro out 0–18%; the drawing frame is invisible until 18%, then zooms
+  (scale 0.55 → 1) and fades in until 48%; heading 46–56%, tabs 48–58%;
+  the rest is a dwell. All scroll-linked, CSS only, behind
+  `@supports (animation-timeline: view())`; other browsers and reduced
+  motion get a static stacked layout.
 - `reveal` and `RevealWords`: scroll-driven (`animation-timeline: view()`).
   Unread words start at 0.45 opacity so the large statement text stays
   above 3:1 at every scroll position.
