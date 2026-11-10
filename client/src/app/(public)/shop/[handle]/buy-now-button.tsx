@@ -28,7 +28,7 @@ export default function BuyNowButton({ variantId, available }: BuyNowButtonProps
   }
 
   if (!available) {
-    return <p className="text-sm text-muted">Sold out.</p>;
+    return <p className="text-muted-foreground">Sold out.</p>;
   }
 
   return (
@@ -38,9 +38,10 @@ export default function BuyNowButton({ variantId, available }: BuyNowButtonProps
           <Alert variant="error">{error}</Alert>
         </div>
       )}
-      <Button onClick={handleClick} isLoading={isLoading} loadingText="Redirecting…">
-        Buy Now
+      <Button onClick={handleClick} isLoading={isLoading} loadingText="Opening checkout…" className="w-full sm:w-auto">
+        Buy now
       </Button>
+      <p className="mt-3 text-sm text-muted-foreground">Checkout opens on Shopify.</p>
     </div>
   );
 }

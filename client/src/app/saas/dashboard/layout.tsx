@@ -1,9 +1,15 @@
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getSaasMe } from '@/lib/saas-server';
 import SaasNav from '@/components/nav/SaasNav';
 import type { SaasMeResponse } from '@/types/saas';
+
+export const metadata: Metadata = {
+  title: 'Creator Dashboard',
+  robots: { index: false, follow: false },
+};
 
 async function getSaasSession(): Promise<SaasMeResponse | null> {
   try {
@@ -21,16 +27,18 @@ export default async function SaasDashboardLayout({ children }: { children: Reac
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-white/10">
-        <nav className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link href="/saas/dashboard" className="font-bold text-foreground">
+    <div className="flex min-h-dvh flex-col">
+      <header className="border-b border-border">
+        <div className="container-page flex min-h-[var(--header-h)] flex-wrap items-center justify-between gap-x-6 gap-y-3 py-3">
+          <Link href="/saas/dashboard" className="font-semiwide text-[0.9375rem] font-semibold tracking-tight">
             Creator Dashboard
           </Link>
           <SaasNav email={session.email} subscriptionStatus={session.subscriptionStatus} />
-        </nav>
+        </div>
       </header>
-      <main className="flex-1">{children}</main>
+      <main id="main" className="flex-1">
+        {children}
+      </main>
     </div>
   );
 }

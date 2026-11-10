@@ -31,7 +31,7 @@ export default function SubscribeButton() {
         </div>
       )}
       <Button onClick={handleClick} isLoading={isLoading} loadingText="Redirecting…">
-        Subscribe Now
+        Subscribe
       </Button>
     </div>
   );

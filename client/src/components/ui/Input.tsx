@@ -1,4 +1,5 @@
 import { forwardRef, type InputHTMLAttributes } from 'react';
+import { fieldControlClasses, fieldErrorClasses, fieldHintClasses, fieldLabelClasses } from './field-styles';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -6,29 +7,36 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, id, className = '', ...props }, ref) => {
-    const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-');
+const Input = forwardRef<HTMLInputElement, InputProps>(({ label, error, hint, id, className = '', ...props }, ref) => {
+  const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-');
+  const describedBy = error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined;
 
-    return (
-      <div>
-        <label htmlFor={inputId} className="block text-sm font-medium text-foreground">
-          {label}
-        </label>
-        <input
-          ref={ref}
-          id={inputId}
-          className={`mt-1.5 w-full rounded-xl border border-input bg-input/30 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-200 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring ${
-            error ? 'border-destructive/50' : ''
-          } ${className}`}
-          {...props}
-        />
-        {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
-        {hint && !error && <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p>}
-      </div>
-    );
-  },
-);
+  return (
+    <div>
+      <label htmlFor={inputId} className={fieldLabelClasses}>
+        {label}
+      </label>
+      <input
+        ref={ref}
+        id={inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy}
+        className={`${fieldControlClasses} ${className}`}
+        {...props}
+      />
+      {error && (
+        <p id={`${inputId}-error`} className={fieldErrorClasses}>
+          {error}
+        </p>
+      )}
+      {hint && !error && (
+        <p id={`${inputId}-hint`} className={fieldHintClasses}>
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+});
 
 Input.displayName = 'Input';
 

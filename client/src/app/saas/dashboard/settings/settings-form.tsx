@@ -51,7 +51,7 @@ export default function SettingsForm({
       {error && <Alert variant="error">{error}</Alert>}
 
       <Input
-        label="GitHub Username"
+        label="GitHub username"
         type="text"
         value={githubUsername}
         onChange={(e) => setGithubUsername(e.target.value)}
@@ -59,7 +59,7 @@ export default function SettingsForm({
       />
 
       <Input
-        label="YouTube Channel ID"
+        label="YouTube channel ID"
         type="text"
         value={youtubeChannelId}
         onChange={(e) => setYoutubeChannelId(e.target.value)}
@@ -68,7 +68,7 @@ export default function SettingsForm({
       />
 
       <Input
-        label="Hacker News Search Query"
+        label="Hacker News search term"
         type="text"
         value={brandSearchQuery}
         onChange={(e) => setBrandSearchQuery(e.target.value)}
@@ -76,7 +76,7 @@ export default function SettingsForm({
       />
 
       <Button type="submit" isLoading={isSubmitting} loadingText="Saving…">
-        Save Settings
+        Save settings
       </Button>
     </form>
   );

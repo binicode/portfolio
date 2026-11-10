@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import StatusMessage from '@/components/site/StatusMessage';
+import Button from '@/components/ui/Button';
+import ButtonLink from '@/components/ui/ButtonLink';
 
 interface ErrorPageProps {
   error: Error & { digest?: string };
@@ -16,17 +19,18 @@ export default function PublicError({ error, reset }: ErrorPageProps) {
   }, [error]);
 
   return (
-    <section className="mx-auto max-w-2xl px-6 py-24 text-center">
-      <h1 className="text-2xl font-bold">Something went wrong</h1>
-      <p className="mt-4 text-gray-600">
-        We couldn&apos;t load this page. This is usually temporary — try again in a moment.
-      </p>
-      <button
-        onClick={reset}
-        className="mt-6 inline-block rounded-md bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
-      >
-        Try again
-      </button>
-    </section>
+    <StatusMessage
+      title="This page didn’t load."
+      actions={
+        <>
+          <Button onClick={reset}>Try again</Button>
+          <ButtonLink href="/" variant="secondary">
+            Go to the home page
+          </ButtonLink>
+        </>
+      }
+    >
+      <p>A service behind it didn’t respond. This is usually temporary, so try again in a moment.</p>
+    </StatusMessage>
   );
 }
