@@ -74,7 +74,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="font-wide text-h2 font-semibold">Edit project</h1>
+        <h1 className="text-h2 font-medium">Edit project</h1>
         <Button variant="danger" onClick={handleDelete} isLoading={isDeleting} loadingText="Deleting…">
           Delete
         </Button>
@@ -123,7 +123,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
             type="checkbox"
             checked={published}
             onChange={(e) => setPublished(e.target.checked)}
-            className="h-4 w-4 rounded-xs border-input accent-[var(--ink)]"
+            className="h-4 w-4 rounded-xs border-input accent-[var(--rust)]"
           />
           <label htmlFor="published" className="text-sm font-medium text-foreground">
             Published

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "fonts:archivo": "node scripts/subset-archivo.mjs"
+    "fonts:subset": "node scripts/subset-fonts.mjs"
   },
   "dependencies": {
     "@shopify/storefront-api-client": "^1.0.10",

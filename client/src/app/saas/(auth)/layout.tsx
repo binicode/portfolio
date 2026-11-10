@@ -19,9 +19,9 @@ export default function SaasAuthLayout({ children }: { children: ReactNode }) {
       backLabel="Product overview"
       aside={
         <>
-          <p className="text-lead text-muted-foreground">Creator Dashboard</p>
+          <p className="label text-accent">Creator Dashboard</p>
           <div>
-            <p className="max-w-[16ch] font-wide text-h2 font-semibold">Your reach, in one dashboard.</p>
+            <p className="max-w-[16ch] text-h2 font-medium">Your reach, in one dashboard.</p>
             <ul className="mt-10 space-y-3 border-t border-border pt-8 text-[0.9375rem] text-muted-foreground">
               {POINTS.map((point) => (
                 <li key={point}>{point}</li>

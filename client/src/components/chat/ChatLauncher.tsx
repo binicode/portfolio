@@ -38,9 +38,9 @@ export default function ChatLauncher() {
         onClick={() => (isOpen ? close() : open())}
         aria-expanded={isOpen}
         aria-controls={hasOpened ? 'assistant-panel' : undefined}
-        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 inline-flex h-11 items-center gap-2.5 rounded-full bg-[var(--cyanotype)] pl-3.5 pr-4 text-sm font-medium text-white shadow-[0_10px_30px_-12px_rgb(15_34_51/0.6)] ring-1 ring-white/20 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 sm:right-6"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 inline-flex h-11 items-center gap-2.5 rounded-xs bg-accent pl-3.5 pr-4 font-mono text-xs uppercase tracking-[0.04em] text-accent-foreground shadow-[0_10px_30px_-12px_rgb(0_0_0/0.8)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 sm:right-6"
       >
-        <span aria-hidden="true" className="h-2 w-2 rounded-full bg-white" />
+        <span aria-hidden="true" className="h-1.5 w-1.5 bg-accent-foreground" />
         {isOpen ? (
           'Close'
         ) : (

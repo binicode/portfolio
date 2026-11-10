@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getProjects } from '@/lib/projects';
 import ProjectLedger from '@/components/work/ProjectLedger';
-import OpenChatButton from '@/components/chat/OpenChatButton';
+import LiveSystemsList from '@/components/work/LiveSystemsList';
 
 export const metadata: Metadata = {
   title: 'Work',
@@ -17,7 +17,7 @@ export default async function ProjectsPage() {
   return (
     <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
       <header className="grid gap-6 lg:grid-cols-12 lg:items-end">
-        <h1 className="font-wide text-h1 font-semibold lg:col-span-7">Work</h1>
+        <h1 className="text-h1 font-medium lg:col-span-7">Work</h1>
         <p className="max-w-[30rem] text-lead text-muted-foreground lg:col-span-5">
           Products I designed and built end to end, with the reasoning behind the main technical decisions.
         </p>
@@ -27,15 +27,14 @@ export default async function ProjectsPage() {
         {projects.length > 0 ? (
           <ProjectLedger projects={projects} headingLevel="h2" />
         ) : (
-          <div className="border-y border-border py-12">
-            <p className="text-lead">
-              {unavailable ? 'The project list can’t be loaded right now.' : 'No case studies are published yet.'}
+          <>
+            <p className="mb-8 max-w-[40rem] text-muted-foreground">
+              {unavailable
+                ? 'The case studies can’t be loaded right now. These products run on this site, so you can try them directly:'
+                : 'Written case studies are on the way. These products already run on this site, so you can try them directly:'}
             </p>
-            <p className="mt-2 text-muted-foreground">
-              {unavailable ? 'Refresh in a minute, or ' : 'In the meantime, '}
-              <OpenChatButton className="link">ask the assistant about my work</OpenChatButton>.
-            </p>
-          </div>
+            <LiveSystemsList />
+          </>
         )}
       </div>
     </div>

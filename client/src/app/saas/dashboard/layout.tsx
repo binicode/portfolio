@@ -32,7 +32,7 @@ export default async function SaasDashboardLayout({ children }: { children: Reac
     <div className="flex min-h-dvh flex-col">
       <header className="border-b border-border">
         <div className="container-page flex min-h-[var(--header-h)] flex-wrap items-center justify-between gap-x-6 gap-y-3 py-3">
-          <Link href="/saas/dashboard" className="font-semiwide text-[0.9375rem] font-semibold tracking-tight">
+          <Link href="/saas/dashboard" className="text-[0.9375rem] font-semibold tracking-tight">
             Creator Dashboard
           </Link>
           <SaasNav email={session.email} subscriptionStatus={session.subscriptionStatus} />

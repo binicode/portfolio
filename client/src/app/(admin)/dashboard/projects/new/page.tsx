@@ -67,7 +67,7 @@ export default function NewProjectPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="font-wide text-h2 font-semibold">New project</h1>
+      <h1 className="text-h2 font-medium">New project</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && <Alert variant="error">{error}</Alert>}
@@ -115,7 +115,7 @@ export default function NewProjectPage() {
             type="checkbox"
             checked={published}
             onChange={(e) => setPublished(e.target.checked)}
-            className="h-4 w-4 rounded-xs border-input accent-[var(--ink)]"
+            className="h-4 w-4 rounded-xs border-input accent-[var(--rust)]"
           />
           <label htmlFor="published" className="text-sm font-medium text-foreground">
             Publish immediately

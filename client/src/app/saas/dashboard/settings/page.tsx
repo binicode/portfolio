@@ -12,7 +12,7 @@ export default async function SettingsPage() {
   return (
     <div className="container-page py-[clamp(2.5rem,6vw,4.5rem)]">
       <div className="max-w-xl">
-        <h1 className="font-wide text-h2 font-semibold">Settings</h1>
+        <h1 className="text-h2 font-medium">Settings</h1>
         <p className="mt-3 text-muted-foreground">Choose the accounts this dashboard tracks.</p>
         <SettingsForm
           initialGithubUsername={me.githubUsername ?? ''}

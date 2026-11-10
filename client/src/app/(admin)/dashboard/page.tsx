@@ -10,7 +10,7 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-wide text-h2 font-semibold">Projects</h1>
+        <h1 className="text-h2 font-medium">Projects</h1>
         <ButtonLink href="/dashboard/projects/new" size="sm">
           New project
         </ButtonLink>

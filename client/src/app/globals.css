@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 /*
- * Design system — "concrete and ink".
- * One source of truth for color, type, radii and motion. Components use the
- * semantic names (background, foreground, muted-foreground, border…); the raw
- * palette below is only referenced here. `.theme-ink` re-maps the same
- * semantic names for dark product sections, so components adapt without
- * per-component dark variants.
+ * Design system — charcoal and burnt orange.
+ * Palette and type hierarchy follow the reference the site is styled after:
+ * near-black surfaces, off-white tight grotesk headlines, small uppercase
+ * mono labels, one burnt-orange accent and rust-coloured glow gradients.
+ * Components use the semantic names (background, foreground,
+ * muted-foreground, border…); the raw palette is only referenced here.
  */
 
 @theme inline {
@@ -16,6 +16,7 @@
   --color-card-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-dim: var(--dim);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--muted);
@@ -29,37 +30,44 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: var(--font-sans-face), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 @theme {
-  /* Type scale: classic 16 / 18 / 21 / 24 / 36 / 48 steps, fluid at the top end. */
-  --text-display: clamp(3rem, 1.2rem + 7.6vw, 8.75rem);
-  --text-display--line-height: 0.94;
-  --text-display--letter-spacing: -0.035em;
-  --text-h1: clamp(2.5rem, 1.6rem + 3.6vw, 4.75rem);
-  --text-h1--line-height: 0.98;
-  --text-h1--letter-spacing: -0.03em;
-  --text-h2: clamp(1.875rem, 1.4rem + 1.9vw, 3rem);
-  --text-h2--line-height: 1.04;
-  --text-h2--letter-spacing: -0.025em;
-  --text-title: clamp(1.5rem, 1.2rem + 1.25vw, 2.375rem);
-  --text-title--line-height: 1.06;
-  --text-title--letter-spacing: -0.022em;
-  --text-h3: 1.3125rem;
-  --text-h3--line-height: 1.25;
-  --text-h3--letter-spacing: -0.01em;
-  --text-lead: clamp(1.125rem, 1.04rem + 0.4vw, 1.3125rem);
-  --text-lead--line-height: 1.5;
+  /* Tight grotesk scale: large sizes with near-solid leading and negative
+     tracking; body stays at 16px / 1.6. */
+  --text-display: clamp(3rem, 1.6rem + 5.6vw, 7rem);
+  --text-display--line-height: 0.92;
+  --text-display--letter-spacing: -0.05em;
+  --text-stat: clamp(4rem, 2rem + 8vw, 8rem);
+  --text-stat--line-height: 0.9;
+  --text-stat--letter-spacing: -0.06em;
+  --text-h1: clamp(2.5rem, 1.4rem + 4.2vw, 5.25rem);
+  --text-h1--line-height: 0.95;
+  --text-h1--letter-spacing: -0.04em;
+  --text-h2: clamp(2rem, 1.3rem + 2.6vw, 3.5rem);
+  --text-h2--line-height: 1;
+  --text-h2--letter-spacing: -0.04em;
+  --text-statement: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+  --text-statement--line-height: 1.08;
+  --text-statement--letter-spacing: -0.03em;
+  --text-title: clamp(1.5rem, 1.15rem + 1.4vw, 2.5rem);
+  --text-title--line-height: 1.04;
+  --text-title--letter-spacing: -0.03em;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: -0.02em;
+  --text-lead: clamp(1.125rem, 1.04rem + 0.4vw, 1.375rem);
+  --text-lead--line-height: 1.45;
+  --text-lead--letter-spacing: -0.01em;
 
-  --radius-xs: 3px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
-  --radius-2xl: 18px;
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 12px;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -68,59 +76,47 @@
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Palette */
-  --concrete: #ecedea;
-  --concrete-raised: #f6f6f4;
-  --concrete-sunken: #e2e4e0;
-  --ink: #0f2233;
-  --ink-raised: #152b3f;
-  --ink-sunken: #0b1a28;
-  --steel: #5b6670;
-  --rule: #c9ccc7;
-  --control: #7d8680;
-  --cyanotype: #1f4fd8;
-  --cyanotype-light: #8fb0ff;
+  /* Palette (sampled from the reference, adjusted for WCAG contrast) */
+  --char-950: #0c0c0d;
+  --char-900: #141315;
+  --char-850: #1c1b1e;
+  --char-line: #29282c;
+  --bone: #e4e3e4;
+  --ash: #a3a2a4;
+  --smoke: #7d7c7e;
+  /* Burnt orange: 4.9:1 on charcoal, so it works for small text too. */
+  --rust: #dd5226;
+  --rust-deep: #873417;
+  --rust-shadow: #5f2814;
 
-  /* Semantic roles (light) */
-  --background: var(--concrete);
-  --foreground: var(--ink);
-  --card: var(--concrete-raised);
-  --muted: var(--concrete-sunken);
-  --muted-foreground: var(--steel);
-  --primary: var(--ink);
-  --primary-foreground: var(--concrete-raised);
-  --accent: var(--cyanotype);
-  --accent-foreground: #ffffff;
-  --destructive: #b42318;
-  --success: #1b6e3f;
-  --border: var(--rule);
-  --input: var(--control);
-  --ring: var(--cyanotype);
+  /* Semantic roles */
+  --background: var(--char-950);
+  --foreground: var(--bone);
+  --card: var(--char-900);
+  --muted: var(--char-850);
+  --muted-foreground: var(--ash);
+  --dim: var(--smoke);
+  --primary: var(--bone);
+  --primary-foreground: var(--char-950);
+  --accent: var(--rust);
+  --accent-foreground: var(--char-950);
+  --destructive: #ff7b6b;
+  --success: #6fcf97;
+  --border: var(--char-line);
+  --input: #6a696d;
+  --ring: var(--rust);
 
   --gutter: clamp(1.25rem, 0.6rem + 3vw, 3rem);
   --section: clamp(5rem, 3rem + 7vw, 10rem);
   --header-h: 4rem;
 }
 
-/* Dark product surfaces. Applied to a section, not the page. */
+/* Structural marker for full-bleed dark sections (hero, product, footer).
+   The whole site is dark now, so it only pins the surface colours. */
 .theme-ink {
   color-scheme: dark;
-  --background: var(--ink);
-  --foreground: #e8ecef;
-  --card: var(--ink-raised);
-  --muted: #1b3247;
-  --muted-foreground: #9aabba;
-  --primary: #e8ecef;
-  --primary-foreground: var(--ink);
-  --accent: var(--cyanotype-light);
-  --accent-foreground: var(--ink);
-  --destructive: #ff8a7a;
-  --success: #7ad3a0;
-  --border: rgb(232 236 239 / 0.14);
-  --input: rgb(232 236 239 / 0.42);
-  --ring: var(--cyanotype-light);
   background-color: var(--background);
   color: var(--foreground);
 }
@@ -139,6 +135,7 @@
     @apply bg-background font-sans text-foreground antialiased;
     font-size: 1rem;
     line-height: 1.6;
+    letter-spacing: -0.006em;
     font-feature-settings: "kern", "liga", "calt";
   }
 
@@ -184,13 +181,17 @@
   padding-block: var(--section);
 }
 
-/* Variable-font width axis (Archivo wdth 62–125). */
-@utility font-wide {
-  font-stretch: 118%;
+@utility pb-section {
+  padding-bottom: var(--section);
 }
 
-@utility font-semiwide {
-  font-stretch: 108%;
+/* Uppercase mono micro label: navigation, meta, captions, tab notes. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Text link: quiet hairline underline that strengthens on hover. */
@@ -208,47 +209,635 @@
 
 /* ---- Drawing devices ---------------------------------------------------- */
 
-/* Dimension line: |<———— label ————>| with end ticks. */
-.dimension {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* Hairline drawings: hero stack section and project plates. Strokes stay
+   1px-crisp at any size via non-scaling-stroke. */
+.stack-drawing,
+.plate {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.d-structure,
+.d-faint,
+.d-dashed,
+.d-accent,
+.d-leader {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.d-structure {
+  stroke: var(--foreground);
+  stroke-width: 1.25;
+}
+
+.d-fill {
+  fill: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+
+.d-solid {
+  fill: var(--foreground);
+}
+
+.d-slab {
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: 3;
+}
+
+.d-faint {
+  stroke: var(--muted-foreground);
+  stroke-width: 0.75;
+  opacity: 0.7;
+}
+
+.d-dashed {
+  stroke: var(--muted-foreground);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.d-accent {
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+
+.d-leader {
+  stroke: var(--accent);
+  stroke-width: 0.75;
+}
+
+.d-node,
+.d-bubble {
+  fill: var(--background);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.d-node {
+  stroke: var(--foreground);
+}
+
+.d-bubble {
+  stroke: var(--accent);
+}
+
+.d-bubble-text {
+  fill: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.d-label {
+  fill: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+/* Explorer: the selected layer stays, the others recede. */
+.stack-drawing .layer {
+  transition: opacity 400ms var(--ease-out);
+}
+
+[data-layer="A"] .stack-drawing .layer:not(.layer-a),
+[data-layer="B"] .stack-drawing .layer:not(.layer-b),
+[data-layer="C"] .stack-drawing .layer:not(.layer-c),
+[data-layer="D"] .stack-drawing .layer:not(.layer-d) {
+  opacity: 0.22;
+}
+
+/* ---- Hero system (home) --------------------------------------------------
+   Default: a normal static layout (intro, drawing, explorer). The pinned
+   scroll scene is layered on further down, only where scroll-driven
+   animations are supported and motion is allowed. */
+
+.hs {
+  --hs-pad: clamp(1.25rem, 3vw, 2.5rem);
+  position: relative;
+  overflow: clip;
+}
+
+.hs-stage {
+  position: relative;
+  padding-block: clamp(3rem, 7vw, 6rem) clamp(3rem, 6vw, 5rem);
+}
+
+.hs-guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hs-side,
+.hs-readout {
+  display: none;
+}
+
+.hs-intro {
+  position: relative;
+  text-align: center;
+}
+
+.hs-chip {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hs-chip > span {
+  padding: 0.45rem 0.6rem;
   color: var(--muted-foreground);
 }
 
-.dimension__line {
-  position: relative;
-  flex: 1;
-  height: 1px;
-  background-color: currentColor;
-  transform-origin: left center;
+.hs-chip > span:last-child {
+  background-color: var(--foreground);
+  color: var(--background);
 }
 
-.dimension__line::before,
-.dimension__line::after {
+.hs-side,
+.hs-readout,
+.hs-tab-detail {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hs-frame,
+.hs-head,
+.hs-tabs {
+  width: calc(100% - 2 * var(--gutter));
+  max-width: calc(84rem - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.hs-frame {
+  position: relative;
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.hs-frame-inner {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  padding: var(--hs-pad);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  /* Charcoal warming into rust at the bottom. Static gradient: painted once.
+     Kept dark enough under the tabs for muted text to stay above 4.5:1. */
+  background-image: linear-gradient(180deg, #121113 0%, #171112 52%, #3d1a0e 82%, #5a2412 100%);
+}
+
+@media (max-width: 40rem) {
+  .hs-frame-inner {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+.hs-drawing-box {
+  width: 100%;
+  max-width: 34rem;
+}
+
+.hs-head {
+  margin-top: 2.5rem;
+}
+
+.hs-head > h2 {
+  max-width: 24ch;
+}
+
+.hs-panel {
+  margin-top: 0.75rem;
+  max-width: 34rem;
+  color: var(--muted-foreground);
+}
+
+.hs-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 48rem) {
+  .hs-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Inactive tabs recede by colour, not opacity, so text over the rust glow
+   stays at or above 4.5:1. */
+.hs-tab {
+  position: relative;
+  padding: 1rem 0 0.75rem;
+  text-align: left;
+  font-size: 0.9375rem;
+  color: var(--muted-foreground);
+  transition: color 300ms var(--ease-out);
+}
+
+.hs-tab:hover,
+.hs-tab[aria-selected="true"] {
+  color: var(--foreground);
+}
+
+/* Lighter orange: the letters sit on the rust end of the frame gradient. */
+.hs-tab-key {
+  color: #f47b4c;
+  font-weight: 600;
+}
+
+.hs-tab-detail {
+  display: none;
+  margin-top: 0.4rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 48rem) {
+  .hs-tab-detail {
+    display: block;
+  }
+}
+
+/* Top hairline of a tab: full orange when selected; when auto-advancing, an
+   orange bar fills it and the next tab activates when it completes. */
+.hs-tab-progress {
+  position: absolute;
+  inset: -1px 0 auto;
+  height: 1px;
+  overflow: hidden;
+}
+
+.hs-tab[aria-selected="true"] .hs-tab-progress {
+  background-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.hs-tab-progress-bar {
+  display: block;
+  height: 100%;
+  background-color: var(--accent);
+  transform-origin: left center;
+  animation: tab-progress 6s linear forwards;
+}
+
+.hs-tabs:hover .hs-tab-progress-bar,
+.hs-tabs:focus-within .hs-tab-progress-bar {
+  animation-play-state: paused;
+}
+
+@keyframes tab-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-tab-progress-bar {
+    animation: none;
+  }
+}
+
+/* The pinned scene. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hs {
+      height: 280vh;
+      view-timeline-name: --hs;
+      view-timeline-inset: var(--header-h) 0px;
+    }
+
+    .hs-stage {
+      position: sticky;
+      top: var(--header-h);
+      height: calc(100dvh - var(--header-h));
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .hs-side {
+      position: absolute;
+      top: 50%;
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      animation: hs-out linear both;
+      animation-timeline: --hs;
+      animation-range: contain 0% contain 20%;
+    }
+
+    .hs-side-left {
+      left: var(--gutter);
+    }
+
+    .hs-side-right {
+      right: var(--gutter);
+    }
+
+    @media (min-width: 64rem) {
+      .hs-side {
+        display: block;
+      }
+    }
+
+    .hs-intro {
+      position: absolute;
+      inset: 0 0 auto;
+      padding-top: clamp(1.5rem, 7vh, 4.5rem);
+      /* Longhands on purpose: the minifier expands a multi-animation
+         shorthand with duration 0s, which breaks scroll-driven timing. */
+      animation-name: hs-out, hs-hide;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --hs;
+      animation-range: contain 0% contain 24%;
+    }
+
+    /* Starts as a small card under the intro (scaled from its bottom edge)
+       and grows to fill the stage. */
+    .hs-frame {
+      position: absolute;
+      z-index: 1;
+      inset: 1.5rem var(--gutter) 2.5rem;
+      width: auto;
+      max-width: none;
+      margin: 0;
+      transform-origin: 50% 100%;
+      animation: hs-grow linear both;
+      animation-timeline: --hs;
+      animation-range: contain 0% contain 40%;
+    }
+
+    .hs-frame-inner {
+      position: absolute;
+      inset: 0;
+      aspect-ratio: auto;
+      padding: 0;
+    }
+
+    /* The band between the heading and the tabs at full size; the SVG fits
+       inside it (preserveAspectRatio keeps it centred). */
+    .hs-drawing-box {
+      position: absolute;
+      inset: 15rem 1.25rem 9rem;
+      width: auto;
+      max-width: none;
+    }
+
+    .hs-drawing {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hs-head,
+    .hs-tabs {
+      position: absolute;
+      z-index: 2;
+      left: calc(var(--gutter) + var(--hs-pad));
+      right: calc(var(--gutter) + var(--hs-pad));
+      width: auto;
+      max-width: none;
+      margin: 0;
+      animation-name: hs-in, hs-show;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --hs;
+    }
+
+    .hs-head {
+      top: calc(1.5rem + var(--hs-pad));
+      animation-range: contain 36% contain 48%;
+    }
+
+    .hs-tabs {
+      bottom: calc(2.5rem + var(--hs-pad) - 0.75rem);
+      animation-range: contain 38% contain 50%;
+    }
+
+    .hs-readout {
+      position: absolute;
+      z-index: 2;
+      inset: auto var(--gutter) 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.6875rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted-foreground);
+    }
+
+    @media (min-width: 64rem) {
+      .hs-drawing-box {
+        inset: 12rem var(--hs-pad) 7.5rem;
+      }
+    }
+  }
+}
+
+/* Opacity and transform run on the compositor; visibility (which takes the
+   faded controls out of the tab order) is a separate, discrete animation. */
+@keyframes hs-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4vh);
+  }
+}
+
+@keyframes hs-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes hs-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hs-show {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visible;
+  }
+}
+
+@keyframes hs-grow {
+  from {
+    transform: scale(0.3);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Outlined accent button with corner brackets (Contact). */
+.btn-bracket {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  transition: background-color 200ms var(--ease-out);
+}
+
+.btn-bracket::before,
+.btn-bracket::after {
   content: "";
   position: absolute;
-  top: -5px;
-  width: 1px;
-  height: 11px;
-  background-color: currentColor;
+  width: 7px;
+  height: 7px;
+  border: 0 solid var(--accent);
 }
 
-.dimension__line::before {
-  left: 0;
+.btn-bracket::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
 }
 
-.dimension__line::after {
-  right: 0;
+.btn-bracket::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 1px 1px 0;
 }
 
-.dimension__line--end {
-  transform-origin: right center;
+.btn-bracket:hover {
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* Striped scroll meter in the header (desktop). Orange stripes sit under a
+   cover of dim stripes that slides right with page progress: transform only. */
+.stripe-meter {
+  position: relative;
+  flex: 1;
+  min-width: 4rem;
+  height: 1.75rem;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(90deg, var(--accent) 0 1px, transparent 1px 4px);
+}
+
+.stripe-meter-cover {
+  position: absolute;
+  inset: 0;
+  background-color: var(--background);
+  background-image: repeating-linear-gradient(90deg, var(--border) 0 1px, transparent 1px 4px);
+}
+
+@supports (animation-timeline: scroll()) {
+  .stripe-meter-cover {
+    animation: meter-uncover linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes meter-uncover {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Header scroll meter (below desktop): a hairline that fills with page progress. */
+.scroll-meter {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-meter {
+    position: absolute;
+    z-index: 1;
+    inset: auto 0 0;
+    display: block;
+    height: 1px;
+    background-color: var(--accent);
+    transform-origin: left center;
+    animation: scroll-meter linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+/* Desktop shows the striped meter instead. */
+@media (min-width: 64rem) {
+  .scroll-meter {
+    display: none;
+  }
+}
+
+@keyframes scroll-meter {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Scroll-linked reading: words brighten as they reach the middle of the view.
+   The statement is large text (24px+), and 0.45 keeps unread words at 3.7:1. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-word {
+      animation: word-in linear both;
+      animation-timeline: view();
+      animation-range: cover 10% cover 40%;
+    }
+  }
+}
+
+@keyframes word-in {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Footer: charcoal warming into a rust glow behind the closing line, like the
+   reference's gradient sections. Static; text above it stays on dark. */
+.footer-glow {
+  background-image: radial-gradient(80% 70% at 30% 0%, rgb(135 52 23 / 0.45), transparent 70%),
+    linear-gradient(180deg, #120d0c 0%, var(--background) 65%);
+}
+
+/* A soft rust light behind the hero. Static: painted once. */
+.hero-glow {
+  background-image: radial-gradient(55% 60% at 74% 42%, rgb(221 82 38 / 0.08), transparent 70%);
 }
 
 /* Faint column guides, used once on the hero. */
 .column-guides {
-  background-image: linear-gradient(to right, rgb(15 34 51 / 0.045) 1px, transparent 1px);
+  background-image: linear-gradient(to right, color-mix(in srgb, var(--foreground) 6%, transparent) 1px, transparent 1px);
   background-size: calc(100% / 6) 100%;
   background-position: 0 0;
   /* Guides fade out instead of stopping at the section edge. */
@@ -264,7 +853,7 @@
 /* ---- Long-form case study ------------------------------------------------- */
 
 .case-study {
-  max-width: 36em;
+  max-width: 38em;
   font-size: clamp(1.125rem, 1.06rem + 0.3vw, 1.25rem);
   line-height: 1.72;
 }
@@ -281,8 +870,7 @@
 .case-study h2,
 .case-study h3 {
   font-family: var(--font-sans);
-  font-stretch: 108%;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.012em;
   scroll-margin-top: calc(var(--header-h) + 1.5rem);
 }
@@ -405,30 +993,12 @@
   }
 }
 
-@keyframes draw-x {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
 /*
- * The hero headline is never animated: it is the LCP element and must paint
- * on the first frame. Only supporting details move.
+ * No time-based entrance animations on load: the hero headline is the LCP
+ * element, and the drawing is SVG, whose animated transforms repaint on the
+ * main thread every frame. Motion is scroll-linked instead.
  */
 @media (prefers-reduced-motion: no-preference) {
-  .motion-draw {
-    animation: draw-x 1100ms var(--ease-out) both;
-    animation-delay: var(--delay, 0ms);
-  }
-
-  .motion-rise {
-    animation: rise 650ms var(--ease-out) both;
-    animation-delay: var(--delay, 0ms);
-  }
-
   @supports (animation-timeline: view()) {
     .reveal {
       animation: rise linear both;

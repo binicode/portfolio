@@ -73,7 +73,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
       <Link
         href="/shop"
-        className="group inline-flex items-center gap-2 text-[0.9375rem] text-muted-foreground transition-colors hover:text-foreground"
+        className="label group inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft
           aria-hidden="true"
@@ -100,8 +100,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
         <div className="lg:col-span-4 lg:col-start-9">
           <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
-            <h1 className="font-wide text-h2 font-semibold">{product.title}</h1>
-            <p className="mt-4 font-semiwide text-h3 tabular-nums">{price}</p>
+            <h1 className="text-h2 font-medium">{product.title}</h1>
+            <p className="mt-4 text-h3 tabular-nums">{price}</p>
 
             <div className="mt-8 border-t border-border pt-8">
               {defaultVariant ? (

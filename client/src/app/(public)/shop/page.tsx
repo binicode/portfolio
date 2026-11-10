@@ -27,7 +27,7 @@ export default async function ShopPage() {
   return (
     <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
       <header className="grid gap-6 lg:grid-cols-12 lg:items-end">
-        <h1 className="font-wide text-h1 font-semibold lg:col-span-7">Shop</h1>
+        <h1 className="text-h1 font-medium lg:col-span-7">Shop</h1>
         <p className="max-w-[30rem] text-lead text-muted-foreground lg:col-span-5">
           A headless storefront: products come from the Shopify Storefront API, and checkout is handled by Shopify.
         </p>
@@ -46,7 +46,7 @@ export default async function ShopPage() {
                   {!product.featuredImage && (
                     <span
                       aria-hidden="true"
-                      className="absolute inset-0 flex items-center justify-center p-8 text-center font-wide text-h3 font-semibold text-muted-foreground"
+                      className="absolute inset-0 flex items-center justify-center p-8 text-center text-h3 font-semibold text-muted-foreground"
                     >
                       {product.title}
                     </span>
