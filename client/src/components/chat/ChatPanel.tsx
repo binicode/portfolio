@@ -16,7 +16,9 @@ interface ChatPanelProps {
   onClose: () => void;
 }
 
-const SUGGESTIONS = ['What stack do you use?', 'Tell me about the SaaS project', 'What is your background?'];
+// Each suggestion maps to a knowledge-base source (server/src/modules/ai-chat/
+// knowledge-base.content.ts), so a first click always gets a grounded answer.
+const SUGGESTIONS = ['What stack do you use?', 'What certifications do you have?', 'What is your background?'];
 
 /**
  * Loaded on demand by ChatLauncher. Behaviour matches the original widget:

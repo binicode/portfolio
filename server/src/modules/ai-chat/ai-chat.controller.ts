@@ -43,14 +43,22 @@ export const postChatMessage = asyncHandler(async (req: Request, res: Response) 
   } catch (error) {
     // Headers are already committed to the SSE response at this point,
     // so a thrown error can't become a normal JSON error response — it
-    // has to be reported as an SSE error frame instead.
+    // has to be reported as an SSE error frame instead. It also never
+    // reaches errorHandler.ts, so it is logged here: before, failures in
+    // embedding/retrieval/persistence left no trace server-side.
+    const isClientError = error instanceof AppError && error.statusCode < 500;
+    if (!isClientError) {
+      console.error('postChatMessage: chat turn failed', error);
+    }
+
     if (!clientDisconnected) {
       writeEvent({
         type: 'error',
-        message:
-          error instanceof AppError
-            ? error.message
-            : 'Something went wrong while generating a response',
+        // Only client errors are safe to show verbatim; server-side
+        // AppErrors can carry provider responses or config details.
+        message: isClientError
+          ? error.message
+          : "The assistant can't answer right now. Please try again in a moment.",
       });
     }
   } finally {

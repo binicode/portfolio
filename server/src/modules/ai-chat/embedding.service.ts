@@ -10,6 +10,13 @@ const VOYAGE_MODEL = 'voyage-3-lite';
 // input arrays against this so callers never have to think about it.
 const MAX_TEXTS_PER_REQUEST = 128;
 
+// A query embedding normally returns in 0.5–2.5 s; without a timeout a
+// stalled request would hold the visitor's chat turn open indefinitely.
+// The chat falls back to the whole knowledge base when this fails, so the
+// limit can be tight. Batches (used by the seed script) get more room.
+const QUERY_TIMEOUT_MS = 6_000;
+const BATCH_TIMEOUT_MS = 60_000;
+
 export type EmbeddingInputType = 'query' | 'document';
 
 interface VoyageEmbeddingsResponse {
@@ -35,6 +42,7 @@ async function callVoyageEmbeddingsApi(
       input: texts,
       input_type: inputType,
     }),
+    signal: AbortSignal.timeout(texts.length > 1 ? BATCH_TIMEOUT_MS : QUERY_TIMEOUT_MS),
   });
 
   if (!response.ok) {
