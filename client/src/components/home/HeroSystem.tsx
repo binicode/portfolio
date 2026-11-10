@@ -1,5 +1,4 @@
 import ButtonLink from '@/components/ui/ButtonLink';
-import { site } from '@/lib/site';
 import StackDrawing from './StackDrawing';
 import SystemExplorer from './SystemExplorer';
 import CursorReadout from './CursorReadout';
@@ -8,9 +7,10 @@ import CursorReadout from './CursorReadout';
  * Home hero and stack explorer in one pinned scene.
  *
  * With scroll-driven animation support (and motion allowed), the stage is
- * sticky inside a tall section: the intro fades, the small drawing card
- * grows to fill the stage, then the layer explorer appears. Everything is
- * CSS (globals.css, "Hero system"), transform and opacity only.
+ * sticky inside a tall section: the intro fades out, then the drawing
+ * frame zooms and fades in from nothing to fill the stage, then the layer
+ * explorer appears. Everything is CSS (globals.css, "Hero system"),
+ * transform and opacity only.
  *
  * Without support, or with reduced motion, the same markup lays out as a
  * normal page: intro, drawing, explorer.
@@ -32,18 +32,11 @@ export default function HeroSystem() {
         </span>
 
         <div className="hs-intro container-page">
-          <h1 id="hero-title" className="flex flex-col items-center">
-            <span className="hs-chip">
-              <span>{site.name}</span>
-              <span>Full‑stack engineer</span>
-            </span>{' '}
-            <span className="mt-7 block max-w-[16ch] text-h1 font-medium sm:mt-8">
-              Software engineered to hold up.
-            </span>
+          <h1 id="hero-title" className="mx-auto max-w-[16ch] text-h1 font-medium">
+            Software engineered to hold up.
           </h1>
-          <p className="mx-auto mt-6 max-w-[36rem] text-muted-foreground sm:text-lead">
-            I build web applications and SaaS products end to end, from the interface to the API to the database, with
-            the discipline of a civil engineer.
+          <p className="mx-auto mt-6 max-w-[30rem] text-muted-foreground sm:text-lead">
+            I design and build web apps and SaaS products, from interface to database.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <ButtonLink href="#work">See the work</ButtonLink>
@@ -55,9 +48,7 @@ export default function HeroSystem() {
 
         <SystemExplorer
           head={
-            <h2 className="text-h3 font-medium sm:text-title">
-              Built like a structure: every layer carries the next.
-            </h2>
+            <h2 className="text-h3 font-medium sm:text-title">Every layer carries the next.</h2>
           }
         >
           <div className="hs-frame">

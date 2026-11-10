@@ -344,28 +344,6 @@
   text-align: center;
 }
 
-.hs-chip {
-  display: inline-flex;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xs);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.hs-chip > span {
-  padding: 0.45rem 0.6rem;
-  color: var(--muted-foreground);
-}
-
-.hs-chip > span:last-child {
-  background-color: var(--foreground);
-  color: var(--background);
-}
-
 .hs-side,
 .hs-readout,
 .hs-tab-detail {
@@ -538,7 +516,7 @@
       color: var(--muted-foreground);
       animation: hs-out linear both;
       animation-timeline: --hs;
-      animation-range: contain 0% contain 20%;
+      animation-range: contain 0% contain 16%;
     }
 
     .hs-side-left {
@@ -555,10 +533,14 @@
       }
     }
 
+    /* The first screen holds only the intro, centred in the stage. */
     .hs-intro {
       position: absolute;
-      inset: 0 0 auto;
-      padding-top: clamp(1.5rem, 7vh, 4.5rem);
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 2.5rem;
       /* Longhands on purpose: the minifier expands a multi-animation
          shorthand with duration 0s, which breaks scroll-driven timing. */
       animation-name: hs-out, hs-hide;
@@ -566,11 +548,11 @@
       animation-timing-function: linear;
       animation-fill-mode: both;
       animation-timeline: --hs;
-      animation-range: contain 0% contain 24%;
+      animation-range: contain 0% contain 18%;
     }
 
-    /* Starts as a small card under the intro (scaled from its bottom edge)
-       and grows to fill the stage. */
+    /* Invisible at rest. Once the intro has gone, it zooms and fades in from
+       the centre to fill the stage, so the two never overlap. */
     .hs-frame {
       position: absolute;
       z-index: 1;
@@ -578,10 +560,10 @@
       width: auto;
       max-width: none;
       margin: 0;
-      transform-origin: 50% 100%;
-      animation: hs-grow linear both;
+      transform-origin: 50% 50%;
+      animation: hs-zoom ease-out both;
       animation-timeline: --hs;
-      animation-range: contain 0% contain 40%;
+      animation-range: contain 18% contain 48%;
     }
 
     .hs-frame-inner {
@@ -623,12 +605,12 @@
 
     .hs-head {
       top: calc(1.5rem + var(--hs-pad));
-      animation-range: contain 36% contain 48%;
+      animation-range: contain 46% contain 56%;
     }
 
     .hs-tabs {
       bottom: calc(2.5rem + var(--hs-pad) - 0.75rem);
-      animation-range: contain 38% contain 50%;
+      animation-range: contain 48% contain 58%;
     }
 
     .hs-readout {
@@ -683,11 +665,13 @@
   }
 }
 
-@keyframes hs-grow {
+@keyframes hs-zoom {
   from {
-    transform: scale(0.3);
+    opacity: 0;
+    transform: scale(0.55);
   }
   to {
+    opacity: 1;
     transform: none;
   }
 }
