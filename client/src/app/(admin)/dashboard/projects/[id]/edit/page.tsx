@@ -10,13 +10,15 @@ interface EditProjectPageProps {
 export default async function EditProjectPage({ params }: EditProjectPageProps) {
   const { id } = await params;
 
+  let project;
   try {
-    const project = await getProjectById(id);
-    return <EditProjectForm project={project} />;
+    project = await getProjectById(id);
   } catch (error) {
     if (error instanceof ApiError && error.statusCode === 404) {
       notFound();
     }
     throw error;
   }
+
+  return <EditProjectForm project={project} />;
 }

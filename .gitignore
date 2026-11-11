@@ -6,3 +6,6 @@ dist/
 build/
 *.log
 .DS_Store
+
+# curl cookie jars from local API testing (may contain session tokens)
+*cookies.txt

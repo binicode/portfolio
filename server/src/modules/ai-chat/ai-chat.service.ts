@@ -1,9 +1,9 @@
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { ChatSessionModel, type ChatSessionHydratedDocument } from './ai-chat.model.js';
 import { embedText } from './embedding.service.js';
-import { retrieveRelevantChunks } from './retrieval.service.js';
+import { retrieveFallbackChunks, retrieveRelevantChunks } from './retrieval.service.js';
 import { streamChatCompletion } from './llm.service.js';
-import type { ChatMessage, ChatStreamEvent, SendChatMessageInput } from './ai-chat.types.js';
+import type { ChatMessage, ChatStreamEvent, RetrievedChunk, SendChatMessageInput } from './ai-chat.types.js';
 
 // Conversation history sent to the LLM is capped independently of what's
 // persisted — keeps per-turn input cost bounded as a session grows long,
@@ -21,6 +21,22 @@ async function getOrCreateSession(sessionId: string): Promise<ChatSessionHydrate
 
 function getRecentHistory(messages: ChatMessage[]): ChatMessage[] {
   return messages.slice(-MAX_HISTORY_MESSAGES_SENT_TO_LLM);
+}
+
+/**
+ * Semantic retrieval, degrading to the (small) knowledge base as a whole
+ * when the query can't be embedded — e.g. the embedding provider's
+ * free-tier limit of 3 requests per minute is exhausted. Failing the whole
+ * chat turn over that would be worse than a less targeted context.
+ */
+async function retrieveContext(message: string): Promise<RetrievedChunk[]> {
+  try {
+    const queryEmbedding = await embedText(message, 'query');
+    return await retrieveRelevantChunks(queryEmbedding.values);
+  } catch (error) {
+    console.warn('sendChatMessage: semantic retrieval unavailable, using the full knowledge base', error);
+    return retrieveFallbackChunks();
+  }
 }
 
 /**
@@ -52,8 +68,7 @@ export async function* sendChatMessage(
   session.messages.push(userMessage);
   await session.save();
 
-  const queryEmbedding = await embedText(trimmedMessage, 'query');
-  const retrievedChunks = await retrieveRelevantChunks(queryEmbedding.values);
+  const retrievedChunks = await retrieveContext(trimmedMessage);
   const history = getRecentHistory(session.messages);
 
   let assistantReply = '';

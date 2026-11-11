@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { adminLogout } from '@/lib/admin-client';
-import Badge from '@/components/ui/Badge';
 
 interface AdminNavProps {
   email: string;
@@ -33,32 +32,34 @@ export default function AdminNav({ email }: AdminNavProps) {
   const isActive = pathname.startsWith('/dashboard');
 
   return (
-    <nav className="mt-6 flex flex-col gap-4">
-      <div>
-        <Badge variant="primary">Admin</Badge>
-        <p className="mt-2 truncate text-xs text-muted" title={email}>
+    <nav aria-label="Admin" className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3 md:mt-8 md:flex-col md:items-stretch">
+      <Link
+        href="/dashboard"
+        aria-current={isActive ? 'page' : undefined}
+        className={`label flex items-center gap-2 rounded-xs px-3 py-2.5 transition-colors ${
+          isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+        }`}
+      >
+        {isActive && <span aria-hidden="true" className="h-1.5 w-1.5 bg-accent" />}
+        Projects
+      </Link>
+      <Link href="/" className="label px-3 py-2 text-muted-foreground transition-colors hover:text-foreground">
+        View site
+      </Link>
+
+      <div className="md:mt-8 md:border-t md:border-border md:pt-6">
+        <p className="truncate px-3 text-xs text-muted-foreground" title={email}>
           {email}
         </p>
-      </div>
-
-      <div className="flex flex-col gap-2 text-sm">
-        <Link
-          href="/dashboard"
-          className={
-            isActive ? 'font-bold text-primary' : 'text-muted transition-colors duration-200 hover:text-foreground'
-          }
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="label mt-2 px-3 py-2 text-left text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
         >
-          Projects
-        </Link>
+          {isLoggingOut ? 'Logging out…' : 'Log out'}
+        </button>
       </div>
-
-      <button
-        onClick={handleLogout}
-        disabled={isLoggingOut}
-        className="mt-auto text-left text-sm text-muted transition-colors duration-200 hover:text-foreground disabled:opacity-40"
-      >
-        {isLoggingOut ? 'Logging out…' : 'Log out'}
-      </button>
     </nav>
   );
 }

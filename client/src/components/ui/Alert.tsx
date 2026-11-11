@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { CircleAlert, CircleCheck, Info } from 'lucide-react';
 
 type AlertVariant = 'success' | 'error' | 'info';
 
@@ -8,45 +9,25 @@ interface AlertProps {
 }
 
 const VARIANT_STYLES: Record<AlertVariant, string> = {
-  success: 'bg-success/10 text-success border-success/20',
-  error: 'bg-destructive/10 text-destructive border-destructive/20',
-  info: 'bg-primary/10 text-primary border-primary/20',
+  success: 'border-success/40 text-success',
+  error: 'border-destructive/40 text-destructive',
+  info: 'border-accent/40 text-accent',
 };
 
-const ICONS: Record<AlertVariant, ReactNode> = {
-  success: (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-shrink-0">
-      <path
-        fillRule="evenodd"
-        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-        clipRule="evenodd"
-      />
-    </svg>
-  ),
-  error: (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-shrink-0">
-      <path
-        fillRule="evenodd"
-        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-        clipRule="evenodd"
-      />
-    </svg>
-  ),
-  info: (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 flex-shrink-0">
-      <path
-        fillRule="evenodd"
-        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
-        clipRule="evenodd"
-      />
-    </svg>
-  ),
-};
+const ICONS = {
+  success: CircleCheck,
+  error: CircleAlert,
+  info: Info,
+} as const;
 
 export default function Alert({ variant, children }: AlertProps) {
+  const Icon = ICONS[variant];
   return (
-    <div className={`flex items-start gap-2.5 rounded-xl border px-3.5 py-3 text-sm ${VARIANT_STYLES[variant]}`}>
-      {ICONS[variant]}
+    <div
+      role={variant === 'error' ? 'alert' : 'status'}
+      className={`flex items-start gap-2.5 rounded-md border bg-card px-3.5 py-3 text-sm leading-snug ${VARIANT_STYLES[variant]}`}
+    >
+      <Icon aria-hidden="true" className="mt-px h-4 w-4 shrink-0" strokeWidth={1.75} />
       <span>{children}</span>
     </div>
   );

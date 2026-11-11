@@ -1,4 +1,5 @@
 import { forwardRef, type TextareaHTMLAttributes } from 'react';
+import { fieldControlClasses, fieldErrorClasses, fieldHintClasses, fieldLabelClasses } from './field-styles';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
@@ -9,22 +10,31 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, hint, id, className = '', ...props }, ref) => {
     const textareaId = id ?? label.toLowerCase().replace(/\s+/g, '-');
+    const describedBy = error ? `${textareaId}-error` : hint ? `${textareaId}-hint` : undefined;
 
     return (
       <div>
-        <label htmlFor={textareaId} className="block text-sm font-medium text-foreground">
+        <label htmlFor={textareaId} className={fieldLabelClasses}>
           {label}
         </label>
         <textarea
           ref={ref}
           id={textareaId}
-          className={`mt-1.5 w-full rounded-xl border border-input bg-input/30 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-200 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring ${
-            error ? 'border-destructive/50' : ''
-          } ${className}`}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          className={`${fieldControlClasses} leading-relaxed ${className}`}
           {...props}
         />
-        {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
-        {hint && !error && <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p>}
+        {error && (
+          <p id={`${textareaId}-error`} className={fieldErrorClasses}>
+            {error}
+          </p>
+        )}
+        {hint && !error && (
+          <p id={`${textareaId}-hint`} className={fieldHintClasses}>
+            {hint}
+          </p>
+        )}
       </div>
     );
   },

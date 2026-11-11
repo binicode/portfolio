@@ -1,21 +1,26 @@
 import type { ReactNode } from 'react';
 
-type BadgeVariant = 'primary' | 'muted' | 'success';
+export type BadgeVariant = 'primary' | 'muted' | 'success';
 
 interface BadgeProps {
   variant?: BadgeVariant;
+  /** Leading status dot, so state never rests on colour alone. */
+  dot?: boolean;
   children: ReactNode;
 }
 
 const VARIANT_STYLES: Record<BadgeVariant, string> = {
-  primary: 'bg-primary/10 text-primary',
-  muted: 'bg-muted text-muted-foreground',
-  success: 'bg-success/10 text-success',
+  primary: 'border-accent/35 text-accent',
+  muted: 'border-border text-muted-foreground',
+  success: 'border-success/40 text-success',
 };
 
-export default function Badge({ variant = 'muted', children }: BadgeProps) {
+export default function Badge({ variant = 'muted', dot = false, children }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${VARIANT_STYLES[variant]}`}>
+    <span
+      className={`label inline-flex items-center gap-1.5 whitespace-nowrap rounded-xs border px-2 py-0.5 ${VARIANT_STYLES[variant]}`}
+    >
+      {dot && <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-current" />}
       {children}
     </span>
   );
