@@ -101,6 +101,35 @@ that isn't a sequence.
 - `RevealWords`: splits a statement into words that brighten as they cross
   the viewport (scroll-driven, no JavaScript after render).
 
+## Dashboard charts (Creator Dashboard)
+
+- Layout: a metric row of one tile per source (status badge, headline
+  figure, two supporting numbers, a small chart), then the repositories
+  table (8 of 12 columns at `xl`) beside the latest Hacker News mentions.
+- `DashboardBody` renders all of it. The dashboard page passes live stats;
+  `DashboardPreview` (on `/saas` and the locked dashboard) passes fixed
+  sample data with `preview` (fewer rows, secondary panels hidden on small
+  screens) inside an `inert` frame. One component, so the preview cannot
+  drift from the product.
+- `ColumnSpark` (bars) and `LineSpark` (line) in `components/saas/charts/`
+  are server components: no chart library, no client JavaScript.
+- One series per chart in the de-emphasis gray `--chart-muted` (#6f6e72,
+  3.7:1 on the card), with one mark in the accent: the newest video, the
+  current week, the top repository. Validated with the dataviz skill's
+  script (CVD ΔE 10.3, both colours above 3:1); the gray is neutral by
+  design.
+- Marks: bars at most 24px wide, 4px rounded top, square baseline, air
+  between them; 2px line with non-scaling stroke over a faint wash; end dot
+  with a 2px surface ring. One hairline at the maximum, labelled for scale.
+- Hover readouts (`.chart-tip`) put the value first, then the name. They
+  enhance only: each chart's `role="img"` name lists every value.
+- Status badges always pair a dot and a word with the colour (`Badge dot`).
+  Repository status comes from GitHub's archived flag and last push:
+  Active (30 days), Quiet (6 months), Dormant (older). Source badges: Live,
+  Not connected (with a connect link), Unavailable (the provider failed).
+- Phones: the table drops secondary columns and shows status and last push
+  under the repository name, so nothing important sits off-screen.
+
 ## Layout
 
 - `.site-frame`: the public site (and the 404 page) sits inside a rust
