@@ -18,6 +18,8 @@ interface ColumnSparkProps {
   unit: string;
   /** Optional x-axis end labels (time series). */
   axis?: { start: string; end: string };
+  /** Hover readouts. Off in inert previews, where they can never show. */
+  readouts?: boolean;
 }
 
 /**
@@ -28,7 +30,7 @@ interface ColumnSparkProps {
  * slot (wider than the mark) shows its value and name. Screen readers get
  * every value in the accessible name, so nothing depends on hover.
  */
-export default function ColumnSpark({ data, emphasis, summary, unit, axis }: ColumnSparkProps) {
+export default function ColumnSpark({ data, emphasis, summary, unit, axis, readouts = true }: ColumnSparkProps) {
   const max = Math.max(0, ...data.map((column) => column.value));
   const label = `${summary}: ${data.map((column) => `${column.label}, ${formatCount(column.value)} ${unit}`).join('; ')}.`;
 
@@ -53,15 +55,17 @@ export default function ColumnSpark({ data, emphasis, summary, unit, axis }: Col
                   }`}
                   style={{ height: `${height}%` }}
                 />
-                <span
-                  className={`chart-tip ${alignEnd ? 'right-0' : 'left-0'} group-hover/col:opacity-100`}
-                >
-                  <span className="block font-medium tabular-nums text-foreground">
-                    {formatCount(column.value)} {unit}
+                {readouts && (
+                  <span
+                    className={`chart-tip ${alignEnd ? 'right-0' : 'left-0'} group-hover/col:opacity-100`}
+                  >
+                    <span className="block font-medium tabular-nums text-foreground">
+                      {formatCount(column.value)} {unit}
+                    </span>
+                    <span className="block text-muted-foreground">{column.label}</span>
+                    {column.detail && <span className="block text-muted-foreground">{column.detail}</span>}
                   </span>
-                  <span className="block text-muted-foreground">{column.label}</span>
-                  {column.detail && <span className="block text-muted-foreground">{column.detail}</span>}
-                </span>
+                )}
               </div>
             );
           })}

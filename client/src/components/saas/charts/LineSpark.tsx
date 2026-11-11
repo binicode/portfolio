@@ -12,6 +12,8 @@ interface LineSparkProps {
   summary: string;
   unit: string;
   axis: { start: string; end: string };
+  /** Hover crosshair and readouts. Off in inert previews, where they can never show. */
+  readouts?: boolean;
 }
 
 /**
@@ -22,7 +24,7 @@ interface LineSparkProps {
  * HTML, so they stay round and crisp at any width. Each period's hover band
  * is the full slot, wider than the line.
  */
-export default function LineSpark({ data, summary, unit, axis }: LineSparkProps) {
+export default function LineSpark({ data, summary, unit, axis, readouts = true }: LineSparkProps) {
   const n = data.length;
   const max = Math.max(1, ...data.map((point) => point.value));
   const x = (index: number) => (n === 1 ? 50 : (index / (n - 1)) * 100);
@@ -73,7 +75,7 @@ export default function LineSpark({ data, summary, unit, axis }: LineSparkProps)
           </span>
 
           {/* Crosshair: one hover band per period, centred on its x. */}
-          {data.map((point, index) => (
+          {readouts && data.map((point, index) => (
             <div
               key={point.key}
               className="group/pt absolute inset-y-0"
