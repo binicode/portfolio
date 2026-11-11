@@ -96,7 +96,7 @@ const SAMPLE: AggregatorStats = {
   fetchedAt: new Date(SAMPLE_NOW).toISOString(),
 };
 
-export default function DashboardPreview({ className = '' }: { className?: string }) {
+export default function DashboardPreview({ className = '', compact = false }: { className?: string; compact?: boolean }) {
   return (
     <figure className={className}>
       <div inert className="overflow-hidden rounded-xl border border-border bg-background shadow-[0_40px_80px_-40px_rgb(0_0_0/0.6)]">
@@ -110,7 +110,7 @@ export default function DashboardPreview({ className = '' }: { className?: strin
         </div>
         <div className="p-3 sm:p-4">
           <p className="mb-3 text-h3 font-medium sm:mb-4">Your reach</p>
-          <DashboardBody stats={SAMPLE} preview />
+          <DashboardBody stats={SAMPLE} preview compact={compact} />
         </div>
       </div>
       <figcaption className="mt-3 text-[0.8125rem] text-muted-foreground">

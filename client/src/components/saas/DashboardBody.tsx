@@ -30,7 +30,7 @@ function SourceGap({ source, status, hint }: { source: string; status: SourceSta
   );
 }
 
-function GithubTile({ stats }: { stats: AggregatorStats }) {
+function GithubTile({ stats, readouts }: { stats: AggregatorStats; readouts: boolean }) {
   const github = stats.github;
   const top = github?.repos.slice(0, CHART_COLUMNS) ?? [];
   return (
@@ -55,6 +55,7 @@ function GithubTile({ stats }: { stats: AggregatorStats }) {
           emphasis={0}
           summary={`Stars on your top ${top.length} repositories, most first`}
           unit="stars"
+          readouts={readouts}
         />
       ) : (
         <Note>No stars yet across your public repositories.</Note>
@@ -63,7 +64,7 @@ function GithubTile({ stats }: { stats: AggregatorStats }) {
   );
 }
 
-function YoutubeTile({ stats, className }: { stats: AggregatorStats; className?: string }) {
+function YoutubeTile({ stats, readouts, className }: { stats: AggregatorStats; readouts: boolean; className?: string }) {
   const youtube = stats.youtube;
   const videos = [...(youtube?.recentVideos ?? [])].reverse();
   return (
@@ -94,6 +95,7 @@ function YoutubeTile({ stats, className }: { stats: AggregatorStats; className?:
           emphasis={videos.length - 1}
           summary={`Views on your last ${videos.length} videos, oldest first`}
           unit="views"
+          readouts={readouts}
           axis={{ start: formatShortDate(videos[0].publishedAt), end: formatShortDate(videos[videos.length - 1].publishedAt) }}
         />
       ) : (
@@ -103,7 +105,7 @@ function YoutubeTile({ stats, className }: { stats: AggregatorStats; className?:
   );
 }
 
-function HackerNewsTile({ stats, className }: { stats: AggregatorStats; className?: string }) {
+function HackerNewsTile({ stats, readouts, className }: { stats: AggregatorStats; readouts: boolean; className?: string }) {
   const hn = stats.hackerNews;
   const weekly = hn?.weekly ?? [];
   const hasWeeks = weekly.length >= 2;
@@ -142,6 +144,7 @@ function HackerNewsTile({ stats, className }: { stats: AggregatorStats; classNam
           })}
           summary={`Weekly Hacker News mentions of ${hn?.query}, oldest week first`}
           unit="mentions"
+          readouts={readouts}
           axis={{ start: formatShortDate(weekly[0].weekStart), end: 'Today' }}
         />
       ) : (
@@ -159,10 +162,12 @@ interface DashboardBodyProps {
    * real dashboard, so it can't drift from what subscribers see.
    */
   preview?: boolean;
+  /** Preview with the metric row only (home page). */
+  compact?: boolean;
 }
 
 /** The Creator Dashboard below its heading: metric row, repositories table, latest mentions. */
-export default function DashboardBody({ stats, preview = false }: DashboardBodyProps) {
+export default function DashboardBody({ stats, preview = false, compact = false }: DashboardBodyProps) {
   // Relative dates ("3 days ago") are measured from when the data was fetched.
   const now = new Date(stats.fetchedAt).getTime();
   const github = stats.github;
@@ -180,71 +185,73 @@ export default function DashboardBody({ stats, preview = false }: DashboardBodyP
             : 'grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:[&>*:last-child]:col-span-2 lg:[&>*:last-child]:col-span-1'
         }
       >
-        <GithubTile stats={stats} />
-        <YoutubeTile stats={stats} className={preview ? 'hidden sm:flex' : undefined} />
-        <HackerNewsTile stats={stats} className={preview ? 'hidden sm:flex' : undefined} />
+        <GithubTile stats={stats} readouts={!preview} />
+        <YoutubeTile stats={stats} readouts={!preview} className={preview ? 'hidden sm:flex' : undefined} />
+        <HackerNewsTile stats={stats} readouts={!preview} className={preview ? 'hidden sm:flex' : undefined} />
       </div>
 
-      <div className={`grid ${preview ? 'mt-3 gap-3 lg:grid-cols-12' : 'mt-4 gap-4 xl:grid-cols-12'} items-start`}>
-        <section
-          aria-labelledby="repos-title"
-          className={`min-w-0 rounded-md border border-border bg-card ${preview ? 'lg:col-span-8' : 'xl:col-span-8'}`}
-        >
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-border p-5">
-            <div>
-              <h2 id="repos-title" className="text-h3 font-medium">
-                Repositories
-              </h2>
+      {!compact && (
+        <div className={`grid ${preview ? 'mt-3 gap-3 lg:grid-cols-12' : 'mt-4 gap-4 xl:grid-cols-12'} items-start`}>
+          <section
+            aria-labelledby="repos-title"
+            className={`min-w-0 rounded-md border border-border bg-card ${preview ? 'lg:col-span-8' : 'xl:col-span-8'}`}
+          >
+            <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-border p-5">
+              <div>
+                <h2 id="repos-title" className="text-h3 font-medium">
+                  Repositories
+                </h2>
+                {github && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Top {Math.min(github.repos.length, tableRows)} of {github.publicRepos.toLocaleString('en-US')} public
+                    repositories, by stars
+                  </p>
+                )}
+              </div>
               {github && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Top {Math.min(github.repos.length, tableRows)} of {github.publicRepos.toLocaleString('en-US')} public
-                  repositories, by stars
-                </p>
+                <a
+                  href={`https://github.com/${encodeURIComponent(github.username)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="label text-muted-foreground hover:text-foreground"
+                >
+                  Open GitHub ↗
+                </a>
               )}
             </div>
-            {github && (
-              <a
-                href={`https://github.com/${encodeURIComponent(github.username)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="label text-muted-foreground hover:text-foreground"
-              >
-                Open GitHub ↗
-              </a>
-            )}
-          </div>
-          {github && github.repos.length > 0 ? (
-            <RepoTable repos={github.repos.slice(0, tableRows)} now={now} />
-          ) : (
-            <div className="p-5">
-              {github ? (
-                <Note>No public repositories yet.</Note>
-              ) : (
-                <SourceGap source="GitHub" status={stats.sources.github} hint="Add your GitHub username to list your repositories here." />
-              )}
-            </div>
-          )}
-        </section>
-
-        <section
-          aria-labelledby="mentions-title"
-          className={`min-w-0 rounded-md border border-border bg-card p-5 ${preview ? 'hidden lg:col-span-4 lg:block' : 'xl:col-span-4'}`}
-        >
-          <h2 id="mentions-title" className="text-h3 font-medium">
-            Latest on Hacker News
-          </h2>
-          {hn && <p className="mt-1 text-sm text-muted-foreground">Newest mentions of “{hn.query}”</p>}
-          <div className="mt-5 border-t border-border pt-5">
-            {mentions.length > 0 ? (
-              <MentionsList mentions={mentions} now={now} />
-            ) : hn ? (
-              <Note>No mentions of “{hn.query}” yet.</Note>
+            {github && github.repos.length > 0 ? (
+              <RepoTable repos={github.repos.slice(0, tableRows)} now={now} />
             ) : (
-              <SourceGap source="Hacker News" status={stats.sources.hackerNews} hint="Add a search term to follow mentions here." />
+              <div className="p-5">
+                {github ? (
+                  <Note>No public repositories yet.</Note>
+                ) : (
+                  <SourceGap source="GitHub" status={stats.sources.github} hint="Add your GitHub username to list your repositories here." />
+                )}
+              </div>
             )}
-          </div>
-        </section>
-      </div>
+          </section>
+
+          <section
+            aria-labelledby="mentions-title"
+            className={`min-w-0 rounded-md border border-border bg-card p-5 ${preview ? 'hidden lg:col-span-4 lg:block' : 'xl:col-span-4'}`}
+          >
+            <h2 id="mentions-title" className="text-h3 font-medium">
+              Latest on Hacker News
+            </h2>
+            {hn && <p className="mt-1 text-sm text-muted-foreground">Newest mentions of “{hn.query}”</p>}
+            <div className="mt-5 border-t border-border pt-5">
+              {mentions.length > 0 ? (
+                <MentionsList mentions={mentions} now={now} />
+              ) : hn ? (
+                <Note>No mentions of “{hn.query}” yet.</Note>
+              ) : (
+                <SourceGap source="Hacker News" status={stats.sources.hackerNews} hint="Add a search term to follow mentions here." />
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </>
   );
 }

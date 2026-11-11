@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Generated: npm run orbit:keyframes. Inlined at build, no extra request. */
+@import "./orbit-keyframes.css";
 
 /*
  * Design system — charcoal and burnt orange.
@@ -23,6 +25,7 @@
   --color-secondary: var(--muted);
   --color-secondary-foreground: var(--foreground);
   --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
@@ -91,6 +94,8 @@
   --rust: #dd5226;
   --rust-deep: #873417;
   --rust-shadow: #5f2814;
+  /* Small accent text over the rust end of the hero frame (4.7:1 there). */
+  --rust-bright: #f47b4c;
 
   /* Semantic roles */
   --background: var(--char-950);
@@ -102,6 +107,7 @@
   --primary: var(--bone);
   --primary-foreground: var(--char-950);
   --accent: var(--rust);
+  --accent-bright: var(--rust-bright);
   --accent-foreground: var(--char-950);
   --destructive: #ff7b6b;
   --success: #6fcf97;
@@ -238,9 +244,8 @@
 
 /* ---- Drawing devices ---------------------------------------------------- */
 
-/* Hairline drawings: hero stack section and project plates. Strokes stay
+/* Hairline drawings: project plates and the stack illustrations. Strokes stay
    1px-crisp at any size via non-scaling-stroke. */
-.stack-drawing,
 .plate {
   display: block;
   width: 100%;
@@ -329,22 +334,10 @@
   letter-spacing: 0.02em;
 }
 
-/* Explorer: the selected layer stays, the others recede. */
-.stack-drawing .layer {
-  transition: opacity 400ms var(--ease-out);
-}
-
-[data-layer="A"] .stack-drawing .layer:not(.layer-a),
-[data-layer="B"] .stack-drawing .layer:not(.layer-b),
-[data-layer="C"] .stack-drawing .layer:not(.layer-c),
-[data-layer="D"] .stack-drawing .layer:not(.layer-d) {
-  opacity: 0.22;
-}
-
 /* ---- Hero system (home) --------------------------------------------------
-   Default: a normal static layout (intro, drawing, explorer). The pinned
-   scroll scene is layered on further down, only where scroll-driven
-   animations are supported and motion is allowed. */
+   Default: a normal static layout (intro, heading, the four stack layers as
+   a grid). The pinned scroll scene is layered on further down, only where
+   scroll-driven animations are supported and motion is allowed. */
 
 .hs {
   --hs-pad: clamp(1.25rem, 3vw, 2.5rem);
@@ -364,7 +357,11 @@
 }
 
 .hs-side,
-.hs-readout {
+.hs-readout,
+.hs-legend,
+.orbit-axis,
+.orbit-axis-label,
+.orbit-scrim {
   display: none;
 }
 
@@ -375,7 +372,7 @@
 
 .hs-side,
 .hs-readout,
-.hs-tab-detail {
+.hs-legend-detail {
   font-family: var(--font-mono);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -383,149 +380,151 @@
 
 .hs-frame,
 .hs-head,
-.hs-tabs {
+.hs-legend {
   width: calc(100% - 2 * var(--gutter));
   max-width: calc(84rem - 2 * var(--gutter));
   margin-inline: auto;
 }
 
-.hs-frame {
-  position: relative;
-  margin-top: clamp(2.5rem, 6vw, 4.5rem);
-}
-
-.hs-frame-inner {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 10;
-  padding: var(--hs-pad);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  /* Charcoal warming into rust at the bottom. Static gradient: painted once.
-     Kept dark enough under the tabs for muted text to stay above 4.5:1. */
-  background-image: linear-gradient(180deg, #121113 0%, #171112 52%, #3d1a0e 82%, #5a2412 100%);
-}
-
-@media (max-width: 40rem) {
-  .hs-frame-inner {
-    aspect-ratio: 4 / 5;
-  }
-}
-
-.hs-drawing-box {
-  width: 100%;
-  max-width: 34rem;
-}
-
 .hs-head {
-  margin-top: 2.5rem;
+  margin-top: clamp(3.5rem, 8vw, 6rem);
 }
 
 .hs-head > h2 {
   max-width: 24ch;
 }
 
-.hs-panel {
-  margin-top: 0.75rem;
-  max-width: 34rem;
-  color: var(--muted-foreground);
+.hs-frame {
+  position: relative;
+  margin-top: 2rem;
 }
 
-.hs-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 1.5rem;
-  margin-top: 2rem;
+.hs-frame-inner {
+  padding: var(--hs-pad);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  /* Charcoal warming into rust at the bottom. Static gradient: painted once.
+     Kept dark enough under the legend for muted text to stay above 4.5:1. */
+  background-image: linear-gradient(180deg, #121113 0%, #171112 52%, #3d1a0e 82%, #5a2412 100%);
+}
+
+/* Progress legend (pinned scene only): four layers in a row, an accent bar
+   travelling over the one in front. Static colours; only the bar moves. */
+.hs-legend {
+  position: relative;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 1rem;
   border-top: 1px solid var(--border);
 }
 
-@media (min-width: 48rem) {
-  .hs-tabs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+.hs-legend-indicator {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 25%;
+  height: 1px;
+  background-color: var(--accent);
 }
 
-/* Inactive tabs recede by colour, not opacity, so text over the rust glow
-   stays at or above 4.5:1. */
-.hs-tab {
-  position: relative;
-  padding: 1rem 0 0.75rem;
-  text-align: left;
-  font-size: 0.9375rem;
-  color: var(--muted-foreground);
-  transition: color 300ms var(--ease-out);
+.hs-legend-item {
+  padding: 0.9rem 0 0.25rem;
+  font-size: 0.8125rem;
 }
 
-.hs-tab:hover,
-.hs-tab[aria-selected="true"] {
-  color: var(--foreground);
-}
-
-/* Lighter orange: the letters sit on the rust end of the frame gradient. */
-.hs-tab-key {
-  color: #f47b4c;
+/* Lighter orange: the legend sits on the rust end of the frame gradient. */
+/* Phones: key above the name, so four columns fit. */
+.hs-legend-key {
+  display: block;
+  color: var(--accent-bright);
   font-weight: 600;
 }
 
-.hs-tab-detail {
+.hs-legend-detail {
   display: none;
   margin-top: 0.4rem;
   font-size: 0.6875rem;
   line-height: 1.5;
+  color: var(--muted-foreground);
 }
 
 @media (min-width: 48rem) {
-  .hs-tab-detail {
+  .hs-legend-item {
+    font-size: 0.9375rem;
+  }
+
+  .hs-legend-key {
+    display: inline;
+    margin-right: 0.5rem;
+  }
+
+  .hs-legend-detail {
     display: block;
   }
 }
 
-/* Top hairline of a tab: full orange when selected; when auto-advancing, an
-   orange bar fills it and the next tab activates when it completes. */
-.hs-tab-progress {
-  position: absolute;
-  inset: -1px 0 auto;
-  height: 1px;
-  overflow: hidden;
-}
+/* ---- Stack cards ---------------------------------------------------------
+   One per layer. A dark panel with a hairline edge and a faint top light, so
+   the drawing and text stay legible over the frame gradient and over the
+   cards behind it. No blur, no glow. */
 
-.hs-tab[aria-selected="true"] .hs-tab-progress {
-  background-color: color-mix(in srgb, var(--accent) 30%, transparent);
-}
-
-.hs-tab-progress-bar {
-  display: block;
+.stack-card {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  background-color: var(--accent);
-  transform-origin: left center;
-  animation: tab-progress 6s linear forwards;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 11%, transparent);
+  border-radius: var(--radius-md);
+  background-color: rgb(18 17 19 / 0.94);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 40%);
 }
 
-.hs-tabs:hover .hs-tab-progress-bar,
-.hs-tabs:focus-within .hs-tab-progress-bar {
-  animation-play-state: paused;
+.stack-card-art {
+  margin-top: 1rem;
+  aspect-ratio: 2 / 1;
 }
 
-@keyframes tab-progress {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
+.stack-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---- Stack orbit ---------------------------------------------------------
+   Static fallback: the four cards as a grid. The orbit itself is in the
+   pinned scene below. */
+
+.orbit-stage {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .orbit-stage {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hs-tab-progress-bar {
-    animation: none;
-  }
+/* The centre line of a structural drawing: dash-dot, fixed in place. */
+.orbit-axis-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.75;
+  stroke-dasharray: 14 4 2 4;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
 }
 
 /* The pinned scene. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
+    /* Scroll budget: intro 0–9%, frame zoom 9–24%, then the orbit turns
+       through the four layers from 24% to the end (about 60vh each). */
     .hs {
-      height: 280vh;
+      height: 400vh;
       view-timeline-name: --hs;
       view-timeline-inset: calc(var(--header-h) + var(--frame)) var(--frame);
     }
@@ -545,7 +544,7 @@
       color: var(--muted-foreground);
       animation: hs-out linear both;
       animation-timeline: --hs;
-      animation-range: contain 0% contain 16%;
+      animation-range: contain 0% contain 7%;
     }
 
     .hs-side-left {
@@ -577,7 +576,7 @@
       animation-timing-function: linear;
       animation-fill-mode: both;
       animation-timeline: --hs;
-      animation-range: contain 0% contain 18%;
+      animation-range: contain 0% contain 9%;
     }
 
     /* Invisible at rest. Once the intro has gone, it zooms and fades in from
@@ -592,32 +591,23 @@
       transform-origin: 50% 50%;
       animation: hs-zoom ease-out both;
       animation-timeline: --hs;
-      animation-range: contain 18% contain 48%;
+      animation-range: contain 9% contain 24%;
     }
 
     .hs-frame-inner {
       position: absolute;
       inset: 0;
-      aspect-ratio: auto;
       padding: 0;
     }
 
-    /* The band between the heading and the tabs at full size; the SVG fits
-       inside it (preserveAspectRatio keeps it centred). */
-    .hs-drawing-box {
+    /* The band between the heading and the legend; the orbit fills it. */
+    .hs-orbit-box {
       position: absolute;
-      inset: 15rem 1.25rem 9rem;
-      width: auto;
-      max-width: none;
-    }
-
-    .hs-drawing {
-      width: 100%;
-      height: 100%;
+      inset: 6.5rem 1rem 8.5rem;
     }
 
     .hs-head,
-    .hs-tabs {
+    .hs-legend {
       position: absolute;
       z-index: 2;
       left: calc(var(--gutter) + var(--hs-pad));
@@ -625,21 +615,25 @@
       width: auto;
       max-width: none;
       margin: 0;
-      animation-name: hs-in, hs-show;
-      animation-duration: auto;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
+      animation: hs-in linear both;
       animation-timeline: --hs;
     }
 
     .hs-head {
       top: calc(1.5rem + var(--hs-pad));
-      animation-range: contain 46% contain 56%;
+      animation-range: contain 21% contain 27%;
     }
 
-    .hs-tabs {
+    .hs-legend {
+      display: grid;
       bottom: calc(2.5rem + var(--hs-pad) - 0.75rem);
-      animation-range: contain 48% contain 58%;
+      animation-range: contain 22% contain 28%;
+    }
+
+    .hs-legend-indicator {
+      animation: legend-move linear both;
+      animation-timeline: --hs;
+      animation-range: contain 24% contain 100%;
     }
 
     .hs-readout {
@@ -654,15 +648,145 @@
     }
 
     @media (min-width: 64rem) {
-      .hs-drawing-box {
-        inset: 12rem var(--hs-pad) 7.5rem;
+      .hs-orbit-box {
+        inset: 8rem var(--hs-pad) 7.5rem;
+      }
+    }
+
+    /* Orbit: cards are centred in a size container, so poses can be written
+       in cq units and scale with the band. */
+    .orbit {
+      position: absolute;
+      inset: 0;
+      container-type: size;
+    }
+
+    .orbit-axis {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .orbit-axis-label {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      display: block;
+      translate: 0.5rem -0.25rem;
+      color: var(--muted-foreground);
+    }
+
+    .orbit-stage {
+      position: absolute;
+      inset: 0;
+      display: block;
+    }
+
+    .orbit-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(20rem, 88cqw);
+      height: min(21rem, 98cqh);
+      translate: -50% -50%;
+      animation: orbit-m-1 linear both;
+      animation-timeline: --hs;
+      animation-range: contain 24% contain 100%;
+    }
+
+    .orbit-card:nth-child(1) {
+      animation-name: orbit-m-1;
+    }
+
+    .orbit-card:nth-child(2) {
+      animation-name: orbit-m-2;
+    }
+
+    .orbit-card:nth-child(3) {
+      animation-name: orbit-m-3;
+    }
+
+    .orbit-card:nth-child(4) {
+      animation-name: orbit-m-4;
+    }
+
+    .orbit-card .stack-card-art {
+      flex: 1 1 auto;
+      min-height: 0;
+      aspect-ratio: auto;
+    }
+
+    /* Phones: flat crossfade, no perspective; the axis drawing stays out. */
+    @media (max-width: 47.99rem) {
+      .orbit-axis,
+      .orbit-axis-label {
+        display: none;
+      }
+    }
+
+    /* Wider screens: real depth. The stage is one 3D rendering context, so
+       the browser sorts the cards by depth itself (no z-index juggling). */
+    @media (min-width: 48rem) {
+      .orbit-stage {
+        perspective: 1100px;
+        transform-style: preserve-3d;
+      }
+
+      .orbit-card {
+        width: clamp(14rem, 30cqw, 20rem);
+        backface-visibility: hidden;
+      }
+
+      .orbit-card:nth-child(1) {
+        animation-name: orbit-1;
+      }
+
+      .orbit-card:nth-child(2) {
+        animation-name: orbit-2;
+      }
+
+      .orbit-card:nth-child(3) {
+        animation-name: orbit-3;
+      }
+
+      .orbit-card:nth-child(4) {
+        animation-name: orbit-4;
+      }
+
+      /* Depth by darkening, not transparency: cards stay opaque, so the 3D
+         sort hides what is behind them instead of showing it through. */
+      .orbit-scrim {
+        position: absolute;
+        inset: 0;
+        display: block;
+        border-radius: var(--radius-md);
+        background-color: var(--background);
+        pointer-events: none;
+        animation: orbit-dim-1 linear both;
+        animation-timeline: --hs;
+        animation-range: contain 24% contain 100%;
+      }
+
+      .orbit-card:nth-child(2) .orbit-scrim {
+        animation-name: orbit-dim-2;
+      }
+
+      .orbit-card:nth-child(3) .orbit-scrim {
+        animation-name: orbit-dim-3;
+      }
+
+      .orbit-card:nth-child(4) .orbit-scrim {
+        animation-name: orbit-dim-4;
       }
     }
   }
 }
 
 /* Opacity and transform run on the compositor; visibility (which takes the
-   faded controls out of the tab order) is a separate, discrete animation. */
+   faded intro links out of the tab order) is a separate, discrete animation. */
 @keyframes hs-out {
   to {
     opacity: 0;
@@ -685,15 +809,6 @@
   }
 }
 
-@keyframes hs-show {
-  from {
-    visibility: hidden;
-  }
-  to {
-    visibility: visible;
-  }
-}
-
 @keyframes hs-zoom {
   from {
     opacity: 0;
@@ -704,6 +819,8 @@
     transform: none;
   }
 }
+
+/* Orbit keyframes: generated into ./orbit-keyframes.css (imported at the top). */
 
 /* Hover readout for dashboard charts (ColumnSpark, LineSpark). Text in text
    tokens, never the series colour; hidden from assistive tech by the chart's

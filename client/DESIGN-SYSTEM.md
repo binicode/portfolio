@@ -12,9 +12,9 @@ site with a pinned, scroll-driven hero). The content and drawings stay
 specific to this portfolio: structures as a metaphor for the stack.
 
 Spend boldness in one place per page. On the home page that is the hero:
-a pinned scene where the headline clears away and a drawing of the stack
-zooms in to fill the screen, becoming an explorer of its layers.
-Everything around it stays quiet.
+a pinned scene where the headline clears away, a frame zooms in, and the
+four layers of the stack orbit a fixed centre line, each coming to the
+front in turn as you scroll. Everything around it stays quiet.
 
 Hero copy is written for prospective clients: one headline, one line on
 what the work is, two actions. No name or job-title chip (the header
@@ -22,9 +22,14 @@ carries the name), and no filler.
 
 ## Drawings
 
-- `components/home/StackDrawing.tsx`: the stack drawn as a building section
-  (interface = roof truss, API = floors, data = foundation, services attached),
-  with lettered callouts A–D keyed to the explorer tabs.
+- `components/home/tech-stack/illustrations/`: one drawing per layer
+  (`InterfaceIllustration`, `ApiIllustration`, `DataIllustration`,
+  `ServicesIllustration`) on a shared 320×160 sheet (`ArtSheet`) with
+  registration crosses: a page plan with one component bracketed, a request
+  through two checkpoints to a route, stacked disks with a nearest-neighbour
+  search, and providers wired to the API with a webhook back. They replace
+  the building-section drawing but keep its drafting language, which is the
+  civil-to-software link.
 - `components/work/ProjectPlate.tsx`: five structural motifs (truss bridge,
   column grid, arch, cantilever, strata). A project's plate is chosen by its
   position in the newest-first list, so it matches on the work list and its
@@ -33,7 +38,8 @@ carries the name), and no filler.
   for crisp hairlines. Styles live in `globals.css` (`.d-*` classes).
 - Drawings are static. Animated SVG transforms cannot be composited and
   repaint the surrounding layer on every frame (measured: ~100 main-thread
-  paints during load when the hero drawing assembled itself).
+  paints during load when the old hero drawing assembled itself). Move the
+  HTML element that holds a drawing instead, as the orbit does.
 
 ## Color
 
@@ -55,8 +61,8 @@ Never use `text-muted` or `text-secondary` for text: `muted` and
 `secondary` are surface colors.
 
 Text over the rust gradients needs checking by hand (axe skips gradients):
-the hero tab letters use a lighter `#f47b4c` and inactive tabs dim by colour
-(Ash), not opacity, so both stay at 4.5:1 or better over the deepest stop.
+small accent text there uses `accent-bright` (`--rust-bright`, #f47b4c) and
+secondary text stays Ash, both at 4.5:1 or better over the deepest stop.
 
 ## Type
 
@@ -94,9 +100,17 @@ that isn't a sequence.
   for Contact (header and mobile menu).
 - `.stripe-meter`: the striped header bar; its cover slides with page
   scroll (`scroll(root)`), so it doubles as a reading-progress meter.
-- `HeroSystem` (server) + `SystemExplorer` (client): the pinned hero. Tabs
-  are a real ARIA tablist (arrows, Home, End), auto-advance every 6 s via a
-  CSS progress bar, pause on hover or focus, and stop on manual choice.
+- `HeroSystem` + `TechnologyStackOrbit` (server components, no client
+  JavaScript): the pinned hero. Data for the four layers lives once in
+  `tech-stack/stack.ts`; `StackCard` renders a layer (key, drawing, marks
+  with names, one line of copy); `StackLegend` is the decorative progress
+  row whose accent bar follows the scroll. Scroll is the only control, so
+  there are no tabs; all four layers stay in the DOM, in order, for
+  assistive tech.
+- `TechLogo`: brand marks, monochrome (`currentColor`) so they stay in the
+  palette, always beside the written name. Path data is unmodified from
+  Simple Icons 16.37.0 (CC0) and, for Voyage AI, its own site header (the
+  leaf mark). Generated from the source SVGs; don't hand-edit.
 - `CursorReadout` (client): X/Y coordinates, fine pointers only, decorative.
 - `RevealWords`: splits a statement into words that brighten as they cross
   the viewport (scroll-driven, no JavaScript after render).
@@ -109,8 +123,10 @@ that isn't a sequence.
 - `DashboardBody` renders all of it. The dashboard page passes live stats;
   `DashboardPreview` (on `/saas` and the locked dashboard) passes fixed
   sample data with `preview` (fewer rows, secondary panels hidden on small
-  screens) inside an `inert` frame. One component, so the preview cannot
-  drift from the product.
+  screens, no hover readouts) inside an `inert` frame. One component, so
+  the preview cannot drift from the product. The home page uses `compact`
+  (metric row only): the full replica there cost ~220 DOM nodes below the
+  fold.
 - `ColumnSpark` (bars) and `LineSpark` (line) in `components/saas/charts/`
   are server components: no chart library, no client JavaScript.
 - One series per chart in the de-emphasis gray `--chart-muted` (#6f6e72,
@@ -154,13 +170,22 @@ elements (chat launcher and panel).
 
 One orchestrated moment per page; no time-based entrance animations on load.
 
-- Hero: `.hs` is 280vh with a sticky stage and a named view timeline
+- Hero: `.hs` is 400vh with a sticky stage and a named view timeline
   (`--hs`). Ranges are in `contain` percentages and must not overlap:
-  intro out 0–18%; the drawing frame is invisible until 18%, then zooms
-  (scale 0.55 → 1) and fades in until 48%; heading 46–56%, tabs 48–58%;
-  the rest is a dwell. All scroll-linked, CSS only, behind
+  intro out 0–9%; the frame is invisible until 9%, then zooms (scale
+  0.55 → 1) and fades in until 24%; heading and legend 21–28%; the orbit
+  turns from 24% to the end. All scroll-linked, CSS only, behind
   `@supports (animation-timeline: view())`; other browsers and reduced
-  motion get a static stacked layout.
+  motion get the four layers as a static grid.
+- Stack orbit: per layer, a 16% dwell then a 12% turn. Keyframes are
+  generated from one pose table (front, left, back, right, with arc
+  midpoints), so the four cards can't drift out of step. From `md` up the
+  stage is a real 3D context (`perspective` + `preserve-3d` + `translateZ`),
+  so the browser depth-sorts the cards; cards stay opaque and recede by a
+  darkening scrim, never by transparency, so nothing shows through. Phones
+  get a flat fade-through, one card at a time. Every animated property is
+  `transform` or `opacity`, and the front pose is the identity transform,
+  so text there is rasterised sharp.
 - `reveal` and `RevealWords`: scroll-driven (`animation-timeline: view()`).
   Unread words start at 0.45 opacity so the large statement text stays
   above 3:1 at every scroll position.
@@ -180,7 +205,7 @@ One orchestrated moment per page; no time-based entrance animations on load.
 
 - Server Components by default. Client components today: `SiteNav`,
   `ChatLauncher` (panel lazy-loaded on intent), `OpenChatButton`,
-  `PointerLight`, `SystemExplorer`, `CursorReadout`, `ShopifyImage`, forms,
+  `PointerLight`, `CursorReadout`, `ShopifyImage`, forms,
   and dashboard navigation.
 - No animation, 3D or UI libraries. `lucide-react` icons only.
 - `src/lib/config.ts` must stay dependency-free: it is imported by browser
