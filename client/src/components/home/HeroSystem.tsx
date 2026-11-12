@@ -1,19 +1,18 @@
 import ButtonLink from '@/components/ui/ButtonLink';
-import StackDrawing from './StackDrawing';
-import SystemExplorer from './SystemExplorer';
+import TechnologyStackOrbit, { StackLegend } from './tech-stack/TechnologyStackOrbit';
 import CursorReadout from './CursorReadout';
 
 /**
- * Home hero and stack explorer in one pinned scene.
+ * Home hero and stack orbit in one pinned scene.
  *
  * With scroll-driven animation support (and motion allowed), the stage is
- * sticky inside a tall section: the intro fades out, then the drawing
- * frame zooms and fades in from nothing to fill the stage, then the layer
- * explorer appears. Everything is CSS (globals.css, "Hero system"),
- * transform and opacity only.
+ * sticky inside a tall section: the intro fades out, the frame zooms in
+ * from nothing to fill the stage, and further scrolling turns the stack
+ * orbit so each layer comes to the front in turn. Everything is CSS
+ * (globals.css, "Hero system" and "Stack orbit"), transform and opacity only.
  *
  * Without support, or with reduced motion, the same markup lays out as a
- * normal page: intro, drawing, explorer.
+ * normal page: intro, heading, then the four layers as a grid.
  */
 export default function HeroSystem() {
   return (
@@ -46,19 +45,19 @@ export default function HeroSystem() {
           </div>
         </div>
 
-        <SystemExplorer
-          head={
-            <h2 className="text-h3 font-medium sm:text-title">Every layer carries the next.</h2>
-          }
-        >
-          <div className="hs-frame">
-            <div className="hs-frame-inner">
-              <div className="hs-drawing-box">
-                <StackDrawing className="hs-drawing" />
-              </div>
+        <div className="hs-head">
+          <h2 className="text-h3 font-medium sm:text-title">Every layer carries the next.</h2>
+        </div>
+
+        <div className="hs-frame">
+          <div className="hs-frame-inner">
+            <div className="hs-orbit-box">
+              <TechnologyStackOrbit />
             </div>
           </div>
-        </SystemExplorer>
+        </div>
+
+        <StackLegend />
 
         <CursorReadout />
       </div>

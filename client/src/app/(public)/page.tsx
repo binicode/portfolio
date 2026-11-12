@@ -94,7 +94,7 @@ function Systems({ id }: { id: string }) {
                 Three products run on this site, each with its own backend. Try them while you read.
               </p>
             </div>
-            <DashboardPreview className="reveal lg:col-span-7" />
+            <DashboardPreview compact className="reveal lg:col-span-7" />
           </div>
 
           <ul className="mt-16 grid gap-px border-y border-border bg-border lg:mt-24 lg:grid-cols-3">
