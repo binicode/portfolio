@@ -30,9 +30,10 @@ export default function SubscribeButton() {
           <Alert variant="error">{error}</Alert>
         </div>
       )}
-      <Button onClick={handleClick} isLoading={isLoading} loadingText="Redirecting…">
-        Subscribe
+      <Button onClick={handleClick} isLoading={isLoading} loadingText="Opening checkout…">
+        Continue to checkout
       </Button>
+      <p className="mt-3 text-sm text-muted-foreground">Secure checkout on Stripe.</p>
     </div>
   );
 }

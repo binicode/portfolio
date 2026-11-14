@@ -1,4 +1,6 @@
 import ButtonLink from '@/components/ui/ButtonLink';
+import OpenChatButton from '@/components/chat/OpenChatButton';
+import { buttonClasses } from '@/components/ui/button-styles';
 import TechnologyStackOrbit, { StackLegend } from './tech-stack/TechnologyStackOrbit';
 import CursorReadout from './CursorReadout';
 
@@ -37,12 +39,16 @@ export default function HeroSystem() {
           <p className="mx-auto mt-6 max-w-[30rem] text-muted-foreground sm:text-lead">
             I design and build web apps and SaaS products, from interface to database.
           </p>
+          {/* For a prospective client: start the project, or see proof first. */}
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <ButtonLink href="#work">See the work</ButtonLink>
-            <ButtonLink href="/saas" variant="secondary">
-              Explore the SaaS
+            <OpenChatButton mode="discovery" className={buttonClasses('accent')}>
+              Plan your project
+            </OpenChatButton>
+            <ButtonLink href="#work" variant="secondary">
+              See the work
             </ButtonLink>
           </div>
+          <p className="mt-4 text-body-sm text-muted-foreground">About 2 minutes. You get a project brief to keep.</p>
         </div>
 
         <div className="hs-head">

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import ButtonLink from '@/components/ui/ButtonLink';
+import OpenChatButton from '@/components/chat/OpenChatButton';
+import { buttonClasses } from '@/components/ui/button-styles';
 import DashboardPreview from '@/components/saas/DashboardPreview';
 import PointerLight from '@/components/effects/PointerLight';
 
@@ -44,6 +46,9 @@ export default function SaasPage() {
                     Log in
                   </ButtonLink>
                 </div>
+                <p className="mt-4 text-body-sm text-muted-foreground">
+                  Signing up is free. The dashboard needs a subscription; the price shows at checkout.
+                </p>
               </div>
             </div>
 
@@ -87,17 +92,23 @@ export default function SaasPage() {
         </div>
       </section>
 
-      <section aria-labelledby="start-title" className="pb-section">
+      {/* Two audiences end here: people trying the product, and people who want one built. */}
+      <section aria-label="Get started" className="pb-section">
         <div className="container-page">
-          <div className="flex flex-col gap-8 border-y border-border py-12 lg:flex-row lg:items-center lg:justify-between lg:py-16">
-            <h2 id="start-title" className="text-h2 font-medium">
-              Try it with your accounts.
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              <ButtonLink href="/saas/signup">Create an account</ButtonLink>
-              <ButtonLink href="/projects" variant="secondary">
-                More work
+          <div className="grid border-y border-border lg:grid-cols-2">
+            <div className="py-12 lg:py-16 lg:pr-12">
+              <h2 className="text-h2 font-medium">Try it with your accounts.</h2>
+              <p className="mt-3 text-muted-foreground">Free to sign up. Subscribe when you want the numbers.</p>
+              <ButtonLink href="/saas/signup" className="mt-8">
+                Create an account
               </ButtonLink>
+            </div>
+            <div className="border-t border-border py-12 lg:border-l lg:border-t-0 lg:py-16 lg:pl-12">
+              <h2 className="text-h2 font-medium">Want a product like this?</h2>
+              <p className="mt-3 text-muted-foreground">Plan yours in about 2 minutes and get a project brief.</p>
+              <OpenChatButton mode="discovery" build="saas" className={buttonClasses('accent', 'md', 'mt-8')}>
+                Plan a similar product
+              </OpenChatButton>
             </div>
           </div>
         </div>

@@ -9,7 +9,9 @@ import {
   activeQuestions,
   answer,
   back,
+  buildFromStack,
   describe,
+  isBuildType,
   fallbackBrief,
   fallbackInsight,
   nextQuestion,
@@ -103,6 +105,16 @@ test('parseBrief reads headings, grouped list items and lines, without markup', 
   ]);
   // Mid-stream text parses without throwing.
   assert.deepEqual(parseBrief('## Pro'), [{ kind: 'heading', text: 'Pro' }]);
+});
+
+test('buildFromStack picks the most specific project type for a stack', () => {
+  assert.equal(buildFromStack(['Next.js', 'Shopify Storefront API', 'Gemini']), 'ecommerce');
+  assert.equal(buildFromStack(['Next.js', 'Express', 'MongoDB', 'Stripe']), 'saas');
+  assert.equal(buildFromStack(['Next.js', 'MongoDB Atlas Vector Search', 'Voyage AI', 'Gemini']), 'ai');
+  assert.equal(buildFromStack(['React Native', 'Expo']), 'mobile');
+  assert.equal(buildFromStack(['Next.js', 'TypeScript']), 'web');
+  assert.equal(buildFromStack([]), 'web');
+  assert.ok(isBuildType('ecommerce') && !isBuildType('nope') && !isBuildType(undefined));
 });
 
 test('fallback insights are specific to the answers', () => {

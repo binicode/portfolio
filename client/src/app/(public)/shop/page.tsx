@@ -3,6 +3,8 @@ import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import Link from 'next/link';
 import { preconnect } from 'react-dom';
 import ShopifyImage from '@/components/shop/ShopifyImage';
+import OpenChatButton from '@/components/chat/OpenChatButton';
+import { buttonClasses } from '@/components/ui/button-styles';
 import { getProducts } from '@/lib/shopify-products';
 import { formatPrice } from '@/lib/format';
 
@@ -99,6 +101,22 @@ export default async function ShopPage() {
           ))}
         </ul>
       )}
+
+      {/* The store is a working demo; a visitor here may want one of their own. */}
+      <section
+        aria-labelledby="store-cta-title"
+        className="mt-[var(--section)] flex flex-col gap-6 border-y border-border py-10 lg:flex-row lg:items-center lg:justify-between lg:py-12"
+      >
+        <div>
+          <h2 id="store-cta-title" className="text-h3 font-medium">
+            Want a store like this?
+          </h2>
+          <p className="mt-2 text-muted-foreground">Headless Shopify, fast pages, Shopify’s own checkout.</p>
+        </div>
+        <OpenChatButton mode="discovery" build="ecommerce" className={buttonClasses('accent')}>
+          Plan a similar store
+        </OpenChatButton>
+      </section>
     </div>
   );
 }

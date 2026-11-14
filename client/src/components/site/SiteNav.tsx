@@ -3,7 +3,10 @@
 import { useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ArrowUpRight } from 'lucide-react';
 import { primaryNav, contactHref } from '@/lib/site';
+import { requestOpenChat } from '@/components/chat/chat-events';
+import { buttonClasses } from '@/components/ui/button-styles';
 
 function isActive(pathname: string, href: string): boolean {
   if (href.includes('#')) return false;
@@ -78,15 +81,31 @@ export default function SiteNav() {
               );
             })}
           </ul>
-          <a
-            href={contactHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={closeMenu}
-            className="btn-bracket mt-6"
-          >
-            Contact on LinkedIn
-          </a>
+          <div className="mt-6 grid gap-3">
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              onClick={() => {
+                closeMenu();
+                requestOpenChat('discovery');
+              }}
+              className={buttonClasses('accent', 'lg', 'w-full')}
+            >
+              Start a project
+            </button>
+            <a
+              href={contactHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeMenu}
+              className={buttonClasses('secondary', 'lg', 'w-full')}
+            >
+              Message me on LinkedIn
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
+          </div>
+          <p className="mt-3 text-body-sm text-muted-foreground">Starting takes about 2 minutes and ends with a project brief.</p>
         </div>
       </div>
     </>

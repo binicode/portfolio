@@ -2,8 +2,12 @@ import SiteHeader from '@/components/site/SiteHeader';
 import SiteFooter from '@/components/site/SiteFooter';
 import StatusMessage from '@/components/site/StatusMessage';
 import ButtonLink from '@/components/ui/ButtonLink';
+import ChatLauncher from '@/components/chat/ChatLauncher';
 
-/** Unmatched URLs anywhere in the app. */
+/**
+ * Unmatched URLs anywhere in the app. Mounts the assistant like the public
+ * layout, so the header's and footer's "Start a project" work here too.
+ */
 export default function RootNotFound() {
   return (
     <div className="site-frame flex min-h-dvh flex-col">
@@ -24,7 +28,8 @@ export default function RootNotFound() {
           <p>Check the address, or start here.</p>
         </StatusMessage>
       </main>
-      <SiteFooter assistant={false} />
+      <SiteFooter />
+      <ChatLauncher />
     </div>
   );
 }

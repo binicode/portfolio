@@ -1,7 +1,7 @@
 'use client';
 
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { OPEN_CHAT_EVENT, type AssistantMode } from './chat-events';
+import { OPEN_CHAT_EVENT, type AssistantMode, type OpenChatDetail } from './chat-events';
 
 // The panel (and the chat client it imports) is fetched only when a
 // visitor shows intent: hover, focus or click on the launcher.
@@ -12,7 +12,14 @@ export default function ChatLauncher() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const [mode, setMode] = useState<AssistantMode>('chat');
+  // A project type to preselect in discovery; the nonce makes a repeat
+  // request from another button count as new.
+  const [seed, setSeed] = useState<{ build: string; nonce: number } | null>(null);
+  // A question to place in the chat box, same nonce idea.
+  const [prompt, setPrompt] = useState<{ text: string; nonce: number } | null>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
+  /** The button that opened the panel; focus returns there on close. */
+  const openerRef = useRef<HTMLElement | null>(null);
 
   const open = useCallback(() => {
     setHasOpened(true);
@@ -21,13 +28,22 @@ export default function ChatLauncher() {
 
   const close = useCallback(() => {
     setIsOpen(false);
-    launcherRef.current?.focus();
+    const opener = openerRef.current;
+    openerRef.current = null;
+    opener?.focus();
+    // The opener may be gone or hidden (a closed mobile menu): use the launcher.
+    if (document.activeElement !== opener) launcherRef.current?.focus();
   }, []);
 
   useEffect(() => {
     const onRequest = (event: Event) => {
-      const requested = (event as CustomEvent<{ mode?: AssistantMode } | null>).detail?.mode;
-      if (requested) setMode(requested);
+      const detail = (event as CustomEvent<OpenChatDetail | null>).detail;
+      if (detail?.mode) setMode(detail.mode);
+      if (detail?.build) setSeed((prev) => ({ build: detail.build!, nonce: (prev?.nonce ?? 0) + 1 }));
+      if (detail?.question) setPrompt((prev) => ({ text: detail.question!, nonce: (prev?.nonce ?? 0) + 1 }));
+      if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) {
+        openerRef.current = document.activeElement;
+      }
       open();
     };
     window.addEventListener(OPEN_CHAT_EVENT, onRequest);
@@ -59,7 +75,7 @@ export default function ChatLauncher() {
 
       {hasOpened && (
         <Suspense fallback={null}>
-          <ChatPanel isOpen={isOpen} onClose={close} mode={mode} onModeChange={setMode} />
+          <ChatPanel isOpen={isOpen} onClose={close} mode={mode} onModeChange={setMode} seed={seed} prompt={prompt} />
         </Suspense>
       )}
     </>

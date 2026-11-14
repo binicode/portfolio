@@ -14,19 +14,19 @@ export const LIVE_SYSTEMS: LiveSystem[] = [
   {
     name: 'Portfolio assistant',
     body: 'Chat with my notes. Answers stream in, with sources.',
-    action: { kind: 'chat', label: 'Ask the assistant' },
+    action: { kind: 'chat', label: 'Try the assistant' },
     stack: ['Next.js', 'Express', 'SSE', 'MongoDB Atlas Vector Search', 'Voyage AI', 'Gemini', 'TypeScript'],
   },
   {
     name: 'Creator Dashboard',
     body: 'A paid SaaS. Stripe billing, one dashboard for your reach.',
-    action: { kind: 'link', label: 'See the product', href: '/saas' },
+    action: { kind: 'link', label: 'Explore the dashboard', href: '/saas' },
     stack: ['Next.js', 'Express', 'MongoDB', 'Stripe', 'TypeScript'],
   },
   {
     name: 'Headless storefront',
     body: 'Shopify products, rendered on the server. Shopify checkout.',
-    action: { kind: 'link', label: 'Visit the shop', href: '/shop' },
+    action: { kind: 'link', label: 'Browse the store', href: '/shop' },
     stack: ['Next.js', 'Shopify Storefront API', 'TypeScript'],
   },
 ];
