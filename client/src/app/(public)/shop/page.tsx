@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import Link from 'next/link';
 import { preconnect } from 'react-dom';
 import ShopifyImage from '@/components/shop/ShopifyImage';
@@ -17,12 +18,31 @@ export const metadata: Metadata = {
   openGraph: { url: '/shop' },
 };
 
+/**
+ * During `next build`, a Shopify failure (an outage, or a CI build without
+ * store credentials) renders the empty state instead of failing the whole
+ * build; ISR replaces it within `revalidate`. At runtime the error is
+ * rethrown, so a failed regeneration keeps serving the last good page and a
+ * cold miss shows the route's error boundary.
+ */
+async function loadProducts() {
+  try {
+    return await getProducts();
+  } catch (error) {
+    if (process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD) {
+      console.warn('Shop: products unavailable at build time; serving the empty state until revalidation.', error);
+      return [];
+    }
+    throw error;
+  }
+}
+
 export default async function ShopPage() {
   // Product images are served by Shopify's CDN (see ShopifyImage); open that
   // connection while the HTML is still parsing.
   preconnect('https://cdn.shopify.com');
 
-  const products = await getProducts();
+  const products = await loadProducts();
 
   return (
     <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
