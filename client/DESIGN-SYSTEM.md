@@ -130,12 +130,63 @@ page's or section's identity (for example "Creator Dashboard").
 Avoid: accenting one word in a headline, numbered markers on content
 that isn't a sequence.
 
+## Calls to action
+
+The site's job is to turn a visitor with an idea into a client. Every
+call to action states what happens on click, and its colour says what kind
+of action it is.
+
+- **Accent (rust): work with me.** Plan your project, Start a project, Plan a
+  similar project/product/store, and the assistant launcher. All open the
+  assistant's planner (`OpenChatButton mode="discovery"`), which ends in a
+  brief and "Copy brief and message me".
+- **Primary (bone): the main action of a product flow.** Create an account,
+  Buy now, Continue to checkout, Save, Log in on its form.
+- **Secondary (outline): the alternative route** beside either: See the
+  work, Log in, Message me on LinkedIn.
+- Text links (`link` utility) for routes inside content: See all work, Try
+  the assistant, Explore the dashboard, Browse the store.
+- At most one accent and one primary per view. Pair a main action with one
+  secondary, never three equal buttons.
+
+Wording:
+
+- Verb first and the outcome named: "Plan your project", "Continue to
+  checkout", "Copy brief and message me". No "Learn more", "Submit", "Click
+  here".
+- A short line under a conversion CTA says what happens and how long it
+  takes ("About 2 minutes. You get a project brief to keep."). Payments say
+  where checkout happens ("Secure checkout on Stripe"); never invent a price.
+- Links that leave the site show ArrowUpRight and say "(opens in a new tab)"
+  to screen readers. Buttons that open the assistant carry
+  `aria-haspopup="dialog"`, and focus returns to them when it closes.
+
+Where they sit (one contextual CTA where intent peaks, not on every block):
+
+| Place | Call to action |
+| --- | --- |
+| Header (every page) | Start a project (`.btn-bracket`); mobile menu adds Message me on LinkedIn |
+| Home hero | Plan your project + See the work |
+| Case study | Need something like this? Plan a similar project (type preselected from its stack) + Ask how it was built (question placed in the chat box). Sticky beside the write-up on desktop, after it on phones (`ProjectCta`) |
+| SaaS page | Create an account (try it) + Plan a similar product (build one) |
+| Shop | Plan a similar store, after the products |
+| Footer (every page) | Plan your project + Message me on LinkedIn |
+| Assistant, chat | Planning a project? card in the empty state; Plan it in 2 minutes bar after an answer |
+| Assistant, brief | Copy brief and message me (copies, then opens LinkedIn), Copy only, Ask a question first |
+
+`requestOpenChat(mode, { build, question })` (`chat-events.ts`) is the one
+way in: `build` preselects the planner's first answer when nothing is in
+progress, `question` places text in the chat box (never sent for the
+visitor). The copy in "Copy brief and message me" is synchronous
+(`lib/copy-text.ts`) so it completes before LinkedIn's tab takes focus.
+
 ## Components
 
 - Buttons (`components/ui/button-styles.ts`): rectangular (`rounded-xs`),
-  mono uppercase text. Primary is Bone on Charcoal.
+  mono uppercase text; variants accent, primary, secondary, ghost, danger
+  and sizes sm, md, lg (see "Calls to action").
 - `.btn-bracket`: the outlined rust button with corner brackets, used only
-  for Contact (header and mobile menu).
+  for the header's Start a project.
 - `.stripe-meter`: the striped header bar; its cover slides with page
   scroll (`scroll(root)`), so it doubles as a reading-progress meter.
 - `HeroSystem` + `TechnologyStackOrbit` (server components, no client

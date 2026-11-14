@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { ArrowUp, X } from 'lucide-react';
+import { ArrowRight, ArrowUp, X } from 'lucide-react';
 import { getChatHistory, getOrCreateSessionId, streamChatMessage } from '@/lib/ai-chat-client';
 import type { ChatMessage, RetrievedSource } from '@/types/chat';
 import type { AssistantMode } from './chat-events';
@@ -18,6 +18,10 @@ interface ChatPanelProps {
   onClose: () => void;
   mode: AssistantMode;
   onModeChange: (mode: AssistantMode) => void;
+  /** Discovery's preselected project type; a new nonce restarts discovery with it. */
+  seed?: { build: string; nonce: number } | null;
+  /** A question to place in the chat box; a new nonce places it again. */
+  prompt?: { text: string; nonce: number } | null;
 }
 
 const MODES: Array<{ id: AssistantMode; label: string }> = [
@@ -34,7 +38,7 @@ const SUGGESTIONS = ['What stack do you use?', 'What certifications do you have?
  * in localStorage, history on first open, streamed answers with retrieved
  * sources) and project discovery (DiscoveryFlow).
  */
-export default function ChatPanel({ isOpen, onClose, mode, onModeChange }: ChatPanelProps) {
+export default function ChatPanel({ isOpen, onClose, mode, onModeChange, seed, prompt }: ChatPanelProps) {
   // The panel is only ever mounted in the browser, after the visitor opens
   // it, so reading localStorage during the first render is safe.
   const [sessionId] = useState(getOrCreateSessionId);
@@ -44,6 +48,16 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange }: ChatP
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // A prefilled question ("Ask how it was built") replaces the draft once
+  // per request. Adjusted during render, React's pattern for state that
+  // follows a prop, so no effect re-renders the panel.
+  // Starts at 0 so a question that opened the panel for the first time is placed too.
+  const [placedPrompt, setPlacedPrompt] = useState(0);
+  if (prompt && prompt.nonce !== placedPrompt) {
+    setPlacedPrompt(prompt.nonce);
+    setInput(prompt.text);
+  }
 
   // Load the visitor's previous thread once, when the panel first mounts.
   useEffect(() => {
@@ -66,13 +80,20 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange }: ChatP
     };
   }, [sessionId]);
 
-  // On open or mode switch, focus where the visitor acts next: the message
-  // box, or the current discovery question (marked data-autofocus).
+  // On open, mode switch or a placed question, focus where the visitor acts
+  // next: the message box (caret at the end, ready to send), or the current
+  // discovery question (marked data-autofocus).
+  const promptNonce = prompt?.nonce;
   useEffect(() => {
     if (!isOpen) return;
-    if (mode === 'chat') inputRef.current?.focus();
-    else panelRef.current?.querySelector<HTMLElement>('[data-autofocus]')?.focus({ preventScroll: true });
-  }, [isOpen, mode]);
+    if (mode === 'chat') {
+      const box = inputRef.current;
+      box?.focus();
+      box?.setSelectionRange(box.value.length, box.value.length);
+    } else {
+      panelRef.current?.querySelector<HTMLElement>('[data-autofocus]')?.focus({ preventScroll: true });
+    }
+  }, [isOpen, mode, promptNonce]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -174,7 +195,9 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange }: ChatP
       </div>
 
       {mode === 'discovery' ? (
-        <DiscoveryFlow />
+        // Keyed by the seed so "Plan a similar project" re-reads saved
+        // progress and applies its preselection.
+        <DiscoveryFlow key={seed?.nonce ?? 0} seed={seed?.build} onAsk={() => onModeChange('chat')} />
       ) : (
         <>
       <div
@@ -203,6 +226,23 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange }: ChatP
                 </li>
               ))}
             </ul>
+            <button
+              type="button"
+              onClick={() => onModeChange('discovery')}
+              className="group mt-6 flex w-full items-center gap-3 rounded-lg border border-accent/40 bg-accent/[0.06] px-4 py-3.5 text-left transition-colors hover:border-accent hover:bg-accent/10"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium">Planning a project?</span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                  Answer a few questions and get a project brief. About 2 minutes.
+                </span>
+              </span>
+              <ArrowRight
+                aria-hidden="true"
+                className="h-4 w-4 shrink-0 text-accent transition-transform duration-200 group-hover:translate-x-0.5"
+                strokeWidth={1.75}
+              />
+            </button>
           </div>
         )}
 
@@ -232,6 +272,21 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange }: ChatP
           );
         })}
       </div>
+
+      {/* After an answer: from learning what I can do to planning the project. */}
+      {!isStreaming && messages.some((message) => message.role === 'assistant' && message.content) && (
+        <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-2">
+          <p className="text-xs text-muted-foreground">Have a project in mind?</p>
+          <button
+            type="button"
+            onClick={() => onModeChange('discovery')}
+            className="inline-flex h-8 items-center gap-1 text-xs font-medium text-accent transition-colors hover:text-accent-bright"
+          >
+            Plan it in 2 minutes
+            <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
+          </button>
+        </div>
+      )}
 
       <form
         onSubmit={(e) => {

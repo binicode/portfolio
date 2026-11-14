@@ -63,7 +63,7 @@ function SelectedWork({ projects }: { projects: Project[] }) {
           <div className="lg:col-span-5">
             <p className="max-w-[30rem] text-muted-foreground">Built end to end. Shown as the systems they are.</p>
             <Link href="/projects" className="link mt-4 inline-block text-body-sm font-medium">
-              {projects.length > FEATURED_COUNT ? `All ${projects.length} projects` : 'All work'}
+              {projects.length > FEATURED_COUNT ? `See all ${projects.length} projects` : 'See all work'}
             </Link>
           </div>
         </div>
@@ -98,7 +98,9 @@ function Systems({ id }: { id: string }) {
                 <p className="mt-3 flex-1 text-body-sm leading-relaxed text-muted-foreground">{system.body}</p>
                 <div className="mt-6">
                   {system.action.kind === 'chat' ? (
-                    <OpenChatButton className="link text-body-sm font-medium">{system.action.label}</OpenChatButton>
+                    <OpenChatButton mode="chat" className="link text-body-sm font-medium">
+                      {system.action.label}
+                    </OpenChatButton>
                   ) : (
                     <Link href={system.action.href} className="link text-body-sm font-medium">
                       {system.action.label}
@@ -122,7 +124,10 @@ function About() {
       label: 'Live products',
       detail: (
         <>
-          <OpenChatButton className="link text-left">AI assistant</OpenChatButton>,{' '}
+          <OpenChatButton mode="chat" className="link text-left">
+            AI assistant
+          </OpenChatButton>
+          ,{' '}
           <Link href="/saas" className="link">
             SaaS dashboard
           </Link>

@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, ArrowUpRight, Check, Copy, Pencil } from 'lucide-react';
 import { streamDiscovery } from '@/lib/ai-chat-client';
+import { copyText } from '@/lib/copy-text';
 import {
   NOT_SURE,
   OTHER,
@@ -12,6 +13,7 @@ import {
   describe,
   fallbackBrief,
   fallbackInsight,
+  isBuildType,
   nextQuestion,
   parseBrief,
   progress,
@@ -84,14 +86,24 @@ function keep(record: Record<string, string>, answers: Answers, except?: string)
  * Nothing is sent anywhere but the AI request; progress stays in this
  * browser's localStorage.
  */
-export default function DiscoveryFlow() {
+interface DiscoveryFlowProps {
+  /** A project type to preselect, from "Plan a similar project". Used only with nothing in progress. */
+  seed?: string;
+  /** Switches the panel to chat, for a question before (or instead of) sending the brief. */
+  onAsk?: () => void;
+}
+
+export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
   const [initial] = useState(load);
   const [answers, setAnswers] = useState(initial.answers);
   const [other, setOther] = useState(initial.other);
   const [insights, setInsights] = useState(initial.insights);
   const [brief, setBrief] = useState(initial.brief);
   const [streaming, setStreaming] = useState<{ kind: Kind; id: string; text: string } | null>(null);
-  const [draft, setDraft] = useState<string[]>([]);
+  // Preselected, not answered: the visitor confirms it with one tap.
+  const [draft, setDraft] = useState<string[]>(() =>
+    Object.keys(initial.answers).length === 0 && isBuildType(seed) ? [seed] : [],
+  );
   const [otherDraft, setOtherDraft] = useState('');
   const [copied, setCopied] = useState<'idle' | 'done' | 'failed'>('idle');
   /** Answers from before an edit, offered again as each later question returns. */
@@ -259,13 +271,10 @@ export default function DiscoveryFlow() {
     });
   }
 
+  // Called from the click itself (see lib/copy-text): the LinkedIn link
+  // opens its tab only after this returns.
   async function copyBrief() {
-    try {
-      await navigator.clipboard.writeText(`Project brief\n\n${brief}`);
-      setCopied('done');
-    } catch {
-      setCopied('failed');
-    }
+    setCopied((await copyText(`Project brief\n\n${brief}`)) ? 'done' : 'failed');
   }
 
   const last = answered[answered.length - 1];
@@ -275,7 +284,10 @@ export default function DiscoveryFlow() {
     <>
       <div ref={scrollRef} tabIndex={-1} className="relative flex-1 overflow-y-auto overscroll-contain px-5 py-5 outline-none">
         <div role="log" aria-live="polite" aria-busy={streaming?.kind === 'insight'} className="space-y-3">
-          <Bubble>A few quick choices, and you’ll get a project brief to keep. Tap any answer to change it.</Bubble>
+          <Bubble>
+            A few quick questions, about 2 minutes. You get a project brief to keep and send. Tap any answer to change
+            it.
+          </Bubble>
 
           {answered.map((item) => (
             <Fragment key={item.id}>
@@ -339,34 +351,52 @@ export default function DiscoveryFlow() {
 
             {!streaming && brief && (
               <div className="mt-4 border-t border-border pt-4">
-                <p className="text-xs leading-relaxed text-muted-foreground">Copy it, then send it to me on LinkedIn.</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <h4 className="text-sm font-medium">Send it to me</h4>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  The button copies your brief and opens my LinkedIn. Press Message there, then paste.
+                </p>
+                {/* One click: the copy finishes inside the click (lib/copy-text), then the link opens. */}
+                <a
+                  href={contactHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-autofocus
+                  onClick={() => void copyBrief()}
+                  className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-bright"
+                >
+                  Copy brief and message me
+                  <ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                  <span className="sr-only"> (opens LinkedIn in a new tab)</span>
+                </a>
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-4">
                   <button
                     type="button"
-                    data-autofocus
-                    onClick={copyBrief}
-                    className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                    onClick={() => void copyBrief()}
+                    className="inline-flex h-9 items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {copied === 'done' ? (
-                      <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+                      <Check aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
                     ) : (
-                      <Copy aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
+                      <Copy aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
                     )}
-                    {copied === 'done' ? 'Copied' : 'Copy brief'}
+                    {copied === 'done' ? 'Copied' : 'Copy only'}
                   </button>
-                  <a
-                    href={contactHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-4 text-sm transition-colors hover:border-foreground/50"
-                  >
-                    Message me on LinkedIn
-                    <ArrowUpRight aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
-                  </a>
+                  {onAsk && (
+                    <button
+                      type="button"
+                      onClick={onAsk}
+                      className="inline-flex h-9 items-center text-xs text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Ask a question first
+                    </button>
+                  )}
                 </div>
+                <p role="status" className="text-xs text-muted-foreground">
+                  {copied === 'done' ? 'Brief copied. Paste it into your message.' : ''}
+                </p>
                 {copied === 'failed' && (
-                  <p role="alert" className="mt-2 text-xs text-muted-foreground">
-                    Couldn’t copy. Select the brief and copy it instead.
+                  <p role="alert" className="text-xs text-muted-foreground">
+                    Couldn’t copy. Select the brief above and copy it.
                   </p>
                 )}
               </div>

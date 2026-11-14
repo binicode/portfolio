@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { contactHref, site } from '@/lib/site';
+import { site } from '@/lib/site';
+import OpenChatButton from '@/components/chat/OpenChatButton';
 import SiteNav from './SiteNav';
 
 export default function SiteHeader() {
@@ -20,12 +21,15 @@ export default function SiteHeader() {
         <span aria-hidden="true" className="stripe-meter hidden lg:block">
           <span className="stripe-meter-cover" />
         </span>
-        {/* Wrapper carries the responsive visibility: .btn-bracket's own display
-            would otherwise win over the layered `hidden` utility. */}
+        {/* The one call to action on every page: plan a project with the
+            assistant (it stays on the site; LinkedIn is in the footer and
+            at the end of planning). The wrapper carries the responsive
+            visibility: .btn-bracket's own display would otherwise win over
+            the layered `hidden` utility. */}
         <div className="ml-auto hidden md:block lg:ml-0">
-          <a href={contactHref} target="_blank" rel="noopener noreferrer" className="btn-bracket">
-            Contact
-          </a>
+          <OpenChatButton mode="discovery" className="btn-bracket">
+            Start a project
+          </OpenChatButton>
         </div>
       </nav>
       <span aria-hidden="true" className="scroll-meter" />

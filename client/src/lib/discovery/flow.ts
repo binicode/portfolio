@@ -59,6 +59,23 @@ const BUILD_NOUN: Record<string, string> = {
   ai: 'AI product',
 };
 
+/**
+ * The project type a "Plan a similar project" button preselects, read from
+ * a project's tech stack. Most specific first: a Shopify build is a store
+ * even if it also uses AI.
+ */
+export function buildFromStack(techStack: readonly string[]): string {
+  const stack = techStack.join(' ').toLowerCase();
+  if (/shopify|woocommerce|storefront/.test(stack)) return 'ecommerce';
+  if (/stripe|subscription|billing/.test(stack)) return 'saas';
+  if (/gemini|openai|claude|voyage|vector|rag|llm|langchain/.test(stack)) return 'ai';
+  if (/react native|expo|swift|kotlin|flutter/.test(stack)) return 'mobile';
+  return 'web';
+}
+
+/** True for an id that names a project type on the first question. */
+export const isBuildType = (id: string | undefined): id is string => BUILD.some((option) => option.id === id);
+
 /** "your SaaS platform", or "it" when the type isn't known. */
 function subject(answers: Answers): string {
   const noun = BUILD_NOUN[pick(answers, 'build')[0]];

@@ -1,14 +1,11 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import OpenChatButton from '@/components/chat/OpenChatButton';
+import { buttonClasses } from '@/components/ui/button-styles';
 import { contactHref, primaryNav, site, socials } from '@/lib/site';
 
-interface SiteFooterProps {
-  /** False where the assistant isn't mounted (the root 404), so no dead button shows. */
-  assistant?: boolean;
-}
-
-export default function SiteFooter({ assistant = true }: SiteFooterProps) {
+/** Every page ends here, so this is the site's closing call to action. */
+export default function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
@@ -17,32 +14,24 @@ export default function SiteFooter({ assistant = true }: SiteFooterProps) {
       <div className="container-page pb-24 pt-[calc(var(--section)*0.8)]">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
           <p className="text-h1 font-medium text-balance lg:col-span-8">Have something that needs to hold up?</p>
-          <div className="flex flex-wrap gap-3 lg:col-span-4 lg:w-64 lg:flex-col lg:justify-self-end">
-            {assistant && (
-              <OpenChatButton
-                mode="discovery"
-                className="inline-flex h-12 items-center justify-center rounded-xs bg-primary px-6 font-mono text-xs uppercase tracking-[0.04em] text-primary-foreground transition-colors duration-200 hover:bg-primary/85"
-              >
+          <div className="lg:col-span-4 lg:w-64 lg:justify-self-end">
+            <div className="flex flex-wrap gap-3 lg:flex-col">
+              <OpenChatButton mode="discovery" className={buttonClasses('accent', 'lg')}>
                 Plan your project
               </OpenChatButton>
-            )}
-            <a
-              href={contactHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`group inline-flex h-12 items-center justify-center gap-2 rounded-xs px-6 font-mono text-xs uppercase tracking-[0.04em] transition-colors duration-200 ${
-                assistant
-                  ? 'border border-border text-foreground hover:border-foreground/50'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/85'
-              }`}
-            >
-              Message me on LinkedIn
-              <ArrowUpRight
-                aria-hidden="true"
-                className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                strokeWidth={1.75}
-              />
-            </a>
+              <a href={contactHref} target="_blank" rel="noopener noreferrer" className={buttonClasses('secondary', 'lg')}>
+                Message me on LinkedIn
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="h-4 w-4 transition-transform duration-200 group-hover/button:-translate-y-0.5 group-hover/button:translate-x-0.5"
+                  strokeWidth={1.75}
+                />
+                <span className="sr-only">(opens in a new tab)</span>
+              </a>
+            </div>
+            <p className="mt-4 max-w-[22rem] text-body-sm text-muted-foreground">
+              Planning takes about 2 minutes and ends with a brief you can send me.
+            </p>
           </div>
         </div>
 

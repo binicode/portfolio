@@ -9,6 +9,7 @@ import { clientEnv } from '@/lib/config';
 import { site } from '@/lib/site';
 import JsonLdScript from '@/components/site/JsonLd';
 import StackMap from '@/components/work/StackMap';
+import ProjectCta from '@/components/work/ProjectCta';
 
 
 interface ProjectPageProps {
@@ -113,7 +114,8 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       <div className="container-page mt-12 lg:mt-16">
         <div className="grid gap-12 border-t border-foreground/80 pt-10 lg:grid-cols-12 lg:gap-8">
         <aside className="lg:col-span-3">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-6 text-body-sm lg:sticky lg:top-[calc(var(--header-h)+var(--frame)+2rem)] lg:grid-cols-1">
+          <div className="lg:sticky lg:top-[calc(var(--header-h)+var(--frame)+2rem)]">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-6 text-body-sm lg:grid-cols-1">
             <div>
               <dt className="label text-muted-foreground">Year</dt>
               <dd className="mt-1 tabular-nums">{projectYear(project)}</dd>
@@ -140,6 +142,13 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
               </div>
             )}
           </dl>
+          {/* Desktop: beside the write-up, sticky with the facts. Phones get it after the write-up. */}
+          <ProjectCta
+            title={project.title}
+            techStack={project.techStack}
+            className="mt-8 hidden border-t border-border pt-6 lg:block"
+          />
+          </div>
         </aside>
 
         <div className="lg:col-span-7 lg:col-start-5">
@@ -171,6 +180,11 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
               Full write-up coming soon.
             </p>
           )}
+          <ProjectCta
+            title={project.title}
+            techStack={project.techStack}
+            className="mt-12 border-t border-border pt-8 lg:hidden"
+          />
         </div>
         </div>
       </div>

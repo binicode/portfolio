@@ -24,7 +24,7 @@ export default function LiveSystemsList() {
             <p className="mt-3 max-w-[40rem] text-muted-foreground">{system.body}</p>
             <div className="mt-auto pt-6">
               {system.action.kind === 'chat' ? (
-                <OpenChatButton className="label inline-flex items-center gap-1.5 transition-colors hover:text-accent">
+                <OpenChatButton mode="chat" className="label inline-flex items-center gap-1.5 transition-colors hover:text-accent">
                   {system.action.label}
                 </OpenChatButton>
               ) : (
