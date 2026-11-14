@@ -1,7 +1,11 @@
 # Checks every pull request and every push to main.
 #
-# client: clean install, lint, type-check and a production build.
-# server: clean install and type-check.
+# client: clean install, lint, type-check, unit tests and a production build.
+# server: clean install, type-check and unit tests.
+#
+# Unit tests use Node's built-in runner (`npm test` in each package): the
+# client's run on Node's native TypeScript stripping, the server's through
+# tsx. They cover pure modules only, so they need no services or secrets.
 #
 # No secrets are used. The client build gets placeholder public values that
 # point nowhere: build-time data fetches (projects API, Shopify) fail soft and
@@ -26,7 +30,7 @@ concurrency:
 
 jobs:
   client:
-    name: Client (lint, types, build)
+    name: Client (lint, types, tests, build)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -56,6 +60,10 @@ jobs:
       - name: Type-check
         run: npx tsc --noEmit
 
+      # Before the build: tests take about a second and fail faster.
+      - name: Unit tests
+        run: npm test
+
       # Next.js reuses compiled output between builds from .next/cache.
       - name: Restore Next.js build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -69,7 +77,7 @@ jobs:
         run: npm run build
 
   server:
-    name: Server (types)
+    name: Server (types, tests)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -89,3 +97,6 @@ jobs:
 
       - name: Type-check
         run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npm test
