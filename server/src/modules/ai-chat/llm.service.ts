@@ -62,7 +62,7 @@ function buildSystemInstruction(retrievedChunks: RetrievedChunk[]): string {
  * ai-chat.service.ts, the client types), so Gemini's naming convention
  * doesn't leak outside this file.
  */
-function toGeminiContents(history: ChatMessage[]) {
+export function toGeminiContents(history: ChatMessage[]) {
   return history.map((message) => ({
     role: message.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: message.content }],
@@ -107,24 +107,24 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Streams a chat completion grounded in the retrieved RAG context.
- * Yields ChatStreamEvent frames suitable for forwarding directly over
- * SSE to the client. Same external contract as before this file
- * switched providers — ai-chat.service.ts calls this exactly the same
- * way regardless of what's underneath.
- */
-export async function* streamChatCompletion(
-  history: ChatMessage[],
-  retrievedChunks: RetrievedChunk[],
-): AsyncGenerator<ChatStreamEvent> {
-  const systemInstruction = buildSystemInstruction(retrievedChunks);
-  const contents = toGeminiContents(history);
-  const retrievedSources = retrievedChunks.map((chunk) => ({
-    sourceTitle: chunk.metadata.sourceTitle,
-    sourceType: chunk.metadata.sourceType,
-  }));
+export type TextStreamEvent =
+  | { type: 'token'; content: string }
+  | { type: 'done'; usage: { inputTokens: number; outputTokens: number } }
+  | { type: 'error'; message: string };
 
+/**
+ * Streams one Gemini completion with the resilience every assistant feature
+ * shares: the models in GEMINI_MODELS tried in order, one retry per model
+ * for transient errors, a first-chunk and a total timeout, and visitor-safe
+ * error messages (provider details are logged here only). Never switches
+ * model mid-answer.
+ */
+export async function* streamText(
+  systemInstruction: string,
+  contents: ReturnType<typeof toGeminiContents>,
+  maxOutputTokens: number,
+  logLabel: string,
+): AsyncGenerator<TextStreamEvent> {
   let hasYieldedToken = false;
 
   for (const model of GEMINI_MODELS) {
@@ -144,7 +144,7 @@ export async function* streamChatCompletion(
           contents,
           config: {
             systemInstruction,
-            maxOutputTokens: MAX_OUTPUT_TOKENS,
+            maxOutputTokens,
             abortSignal: controller.signal,
           },
         });
@@ -170,21 +170,16 @@ export async function* streamChatCompletion(
         }
 
         if (model !== GEMINI_MODELS[0]) {
-          console.warn(`streamChatCompletion: answered with fallback model ${model}`);
+          console.warn(`${logLabel}: answered with fallback model ${model}`);
         }
 
-        yield {
-          type: 'done',
-          usage: { inputTokens, outputTokens },
-          retrievedSources,
-        };
-
+        yield { type: 'done', usage: { inputTokens, outputTokens } };
         return;
       } catch (error) {
         // Logged here because this error never reaches errorHandler.ts;
         // without it a failing provider is invisible server-side.
         console.error(
-          `streamChatCompletion: ${model} attempt ${attempt + 1} failed`,
+          `${logLabel}: ${model} attempt ${attempt + 1} failed`,
           timedOut ? `(no response within ${FIRST_CHUNK_TIMEOUT_MS / 1000}s)` : error,
         );
 
@@ -217,4 +212,29 @@ export async function* streamChatCompletion(
   }
 
   yield { type: 'error', message: BUSY_MESSAGE };
+}
+
+/**
+ * Streams a chat completion grounded in the retrieved RAG context.
+ * Yields ChatStreamEvent frames suitable for forwarding directly over
+ * SSE to the client. Same external contract as before: the shared
+ * streaming loop lives in streamText; this adds the sources to `done`.
+ */
+export async function* streamChatCompletion(
+  history: ChatMessage[],
+  retrievedChunks: RetrievedChunk[],
+): AsyncGenerator<ChatStreamEvent> {
+  const retrievedSources = retrievedChunks.map((chunk) => ({
+    sourceTitle: chunk.metadata.sourceTitle,
+    sourceType: chunk.metadata.sourceType,
+  }));
+
+  for await (const event of streamText(
+    buildSystemInstruction(retrievedChunks),
+    toGeminiContents(history),
+    MAX_OUTPUT_TOKENS,
+    'streamChatCompletion',
+  )) {
+    yield event.type === 'done' ? { ...event, retrievedSources } : event;
+  }
 }

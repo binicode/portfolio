@@ -13,7 +13,7 @@ export default async function SettingsPage() {
     <div className="container-page py-[clamp(2.5rem,6vw,4.5rem)]">
       <div className="max-w-xl">
         <h1 className="text-h2 font-medium">Settings</h1>
-        <p className="mt-3 text-muted-foreground">Choose the accounts this dashboard tracks.</p>
+        <p className="mt-3 text-muted-foreground">Choose what to track.</p>
         <SettingsForm
           initialGithubUsername={me.githubUsername ?? ''}
           initialYoutubeChannelId={me.youtubeChannelId ?? ''}

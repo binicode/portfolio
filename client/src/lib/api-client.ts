@@ -57,7 +57,7 @@ async function apiFetch<T>(path: string, method: string, body?: unknown, init?: 
     // fetch() itself throws on network failure (server down, no
     // connection, CORS rejection) — normalized into the same ApiError
     // type as an HTTP error response.
-    throw new ApiError('Unable to reach the server. Check your connection and try again.', 0);
+    throw new ApiError('Can’t reach the server. Check your connection.', 0);
   }
 
   if (!response.ok) {

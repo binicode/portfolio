@@ -27,7 +27,7 @@ export default function ShopError({ error, reset }: ShopErrorPageProps) {
         </>
       }
     >
-      <p>Products come from Shopify, which didn’t respond. Try again in a moment.</p>
+      <p>Shopify didn’t respond. Try again in a moment.</p>
     </StatusMessage>
   );
 }

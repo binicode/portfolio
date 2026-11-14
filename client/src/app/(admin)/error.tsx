@@ -27,7 +27,7 @@ export default function AdminError({ error, reset }: ErrorPageProps) {
         </>
       }
     >
-      <p>The API didn’t respond or your session expired. Try again, or sign in again if it keeps happening.</p>
+      <p>The API didn’t respond, or your session expired. Try again.</p>
     </StatusMessage>
   );
 }

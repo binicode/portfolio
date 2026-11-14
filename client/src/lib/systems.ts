@@ -6,22 +6,27 @@ export type LiveSystem = {
   name: string;
   body: string;
   action: { kind: 'chat'; label: string } | { kind: 'link'; label: string; href: string };
+  /** What it runs on, for its architecture map (`StackMap`). */
+  stack: string[];
 };
 
 export const LIVE_SYSTEMS: LiveSystem[] = [
   {
     name: 'Portfolio assistant',
-    body: 'Retrieval-augmented chat. Questions are matched against my notes with Voyage AI embeddings and MongoDB Atlas Vector Search, then Gemini streams the answer with its sources.',
+    body: 'Chat with my notes. Answers stream in, with sources.',
     action: { kind: 'chat', label: 'Ask the assistant' },
+    stack: ['Next.js', 'Express', 'SSE', 'MongoDB Atlas Vector Search', 'Voyage AI', 'Gemini', 'TypeScript'],
   },
   {
     name: 'Creator Dashboard',
-    body: 'A paid SaaS product: accounts, Stripe Checkout subscriptions with verified webhooks, and one dashboard for GitHub, YouTube and Hacker News numbers.',
+    body: 'A paid SaaS. Stripe billing, one dashboard for your reach.',
     action: { kind: 'link', label: 'See the product', href: '/saas' },
+    stack: ['Next.js', 'Express', 'MongoDB', 'Stripe', 'TypeScript'],
   },
   {
     name: 'Headless storefront',
-    body: 'Products come from the Shopify Storefront API and are rendered on the server. Checkout is handed to Shopify.',
+    body: 'Shopify products, rendered on the server. Shopify checkout.',
     action: { kind: 'link', label: 'Visit the shop', href: '/shop' },
+    stack: ['Next.js', 'Shopify Storefront API', 'TypeScript'],
   },
 ];

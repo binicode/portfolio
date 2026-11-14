@@ -83,7 +83,7 @@ export default function NewProjectPage() {
             setSlug(e.target.value);
             setSlugManuallyEdited(true);
           }}
-          hint="Lowercase letters, numbers, and hyphens only."
+          hint="Lowercase, numbers and hyphens."
         />
 
         <Textarea label="Summary" required rows={3} value={summary} onChange={(e) => setSummary(e.target.value)} />
@@ -103,7 +103,7 @@ export default function NewProjectPage() {
 
         <Textarea
           label="Case study (optional)"
-          hint="One paragraph per line. Start a line with ## for a heading or - for a list item."
+          hint="One paragraph per line. ## for headings, - for lists."
           rows={8}
           value={caseStudyBody}
           onChange={(e) => setCaseStudyBody(e.target.value)}

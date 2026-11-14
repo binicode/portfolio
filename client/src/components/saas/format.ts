@@ -20,6 +20,14 @@ export function formatShortDate(iso: string): string {
   return shortDate.format(new Date(iso));
 }
 
+/** Two letters for an avatar from a handle or email: "jane.doe@x.io" → "JD", "octocat" → "OC". */
+export function initials(nameOrEmail: string): string {
+  const local = nameOrEmail.split('@')[0].trim();
+  const parts = local.split(/[._\-\s]+/).filter(Boolean);
+  const letters = parts.length >= 2 ? parts[0][0] + parts[1][0] : local.slice(0, 2);
+  return letters.toUpperCase() || '?';
+}
+
 const UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
   ['year', 365 * 24 * 3600],
   ['month', 30 * 24 * 3600],

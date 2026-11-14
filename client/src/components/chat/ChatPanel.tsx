@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ArrowUp, X } from 'lucide-react';
 import { getChatHistory, getOrCreateSessionId, streamChatMessage } from '@/lib/ai-chat-client';
 import type { ChatMessage, RetrievedSource } from '@/types/chat';
+import type { AssistantMode } from './chat-events';
+import DiscoveryFlow from './DiscoveryFlow';
 
 interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -14,18 +16,25 @@ interface DisplayMessage {
 interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  mode: AssistantMode;
+  onModeChange: (mode: AssistantMode) => void;
 }
+
+const MODES: Array<{ id: AssistantMode; label: string }> = [
+  { id: 'chat', label: 'Ask a question' },
+  { id: 'discovery', label: 'Plan a project' },
+];
 
 // Each suggestion maps to a knowledge-base source (server/src/modules/ai-chat/
 // knowledge-base.content.ts), so a first click always gets a grounded answer.
 const SUGGESTIONS = ['What stack do you use?', 'What certifications do you have?', 'What is your background?'];
 
 /**
- * Loaded on demand by ChatLauncher. Behaviour matches the original widget:
- * per-visitor session id in localStorage, history on first open, streamed
- * answers with retrieved sources.
+ * Loaded on demand by ChatLauncher. Two modes: chat (per-visitor session id
+ * in localStorage, history on first open, streamed answers with retrieved
+ * sources) and project discovery (DiscoveryFlow).
  */
-export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
+export default function ChatPanel({ isOpen, onClose, mode, onModeChange }: ChatPanelProps) {
   // The panel is only ever mounted in the browser, after the visitor opens
   // it, so reading localStorage during the first render is safe.
   const [sessionId] = useState(getOrCreateSessionId);
@@ -34,6 +43,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
   const [isStreaming, setIsStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // Load the visitor's previous thread once, when the panel first mounts.
   useEffect(() => {
@@ -56,11 +66,13 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
     };
   }, [sessionId]);
 
+  // On open or mode switch, focus where the visitor acts next: the message
+  // box, or the current discovery question (marked data-autofocus).
   useEffect(() => {
-    if (isOpen) {
-      inputRef.current?.focus();
-    }
-  }, [isOpen]);
+    if (!isOpen) return;
+    if (mode === 'chat') inputRef.current?.focus();
+    else panelRef.current?.querySelector<HTMLElement>('[data-autofocus]')?.focus({ preventScroll: true });
+  }, [isOpen, mode]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -104,7 +116,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
     } catch {
       updateLast((last) => ({
         ...last,
-        content: last.content || 'The assistant is unreachable right now. Try again in a moment.',
+        content: last.content || 'The assistant is offline. Try again soon.',
       }));
       setIsStreaming(false);
     }
@@ -119,6 +131,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
 
   return (
     <div
+      ref={panelRef}
       id="assistant-panel"
       role="dialog"
       aria-modal="false"
@@ -129,23 +142,41 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
       }}
       className="theme-ink animate-fade-in fixed bottom-[calc(max(1rem,env(safe-area-inset-bottom))+3.5rem+var(--frame))] right-[calc(0.75rem+var(--frame))] z-40 flex h-[min(34rem,calc(100dvh-7rem-2*var(--frame)))] w-[calc(100vw-1.5rem-2*var(--frame))] flex-col overflow-hidden rounded-xl border border-border shadow-[0_30px_60px_-30px_rgb(0_0_0/0.8)] sm:right-[calc(1.5rem+var(--frame))] sm:w-[24rem]"
     >
-      <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-        <div>
+      <div className="border-b border-border px-5 pb-3 pt-2.5">
+        <div className="flex items-center justify-between">
           <h2 id="assistant-title" className="text-sm font-semibold">
             Portfolio assistant
           </h2>
-          <p className="text-xs text-muted-foreground">Answers from my own notes, with sources.</p>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close assistant"
+            className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-xs text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+          >
+            <X aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close assistant"
-          className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-xs text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
-        >
-          <X aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
-        </button>
+        <div role="group" aria-label="Assistant mode" className="mt-1.5 grid grid-cols-2 gap-1 rounded-lg bg-foreground/[0.06] p-1">
+          {MODES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={mode === item.id}
+              onClick={() => onModeChange(item.id)}
+              className={`h-9 rounded-md text-xs font-medium transition-colors ${
+                mode === item.id ? 'bg-card text-foreground shadow-[0_1px_0_0_var(--border)]' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {mode === 'discovery' ? (
+        <DiscoveryFlow />
+      ) : (
+        <>
       <div
         ref={scrollRef}
         role="log"
@@ -156,7 +187,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
         {messages.length === 0 && (
           <div>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Ask about my projects, the stack behind this site, or my background.
+              Ask about my projects, stack or background. Answers come from my notes, with sources.
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
               {SUGGESTIONS.map((suggestion) => (
@@ -192,7 +223,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
                   {isPending ? <span className="text-muted-foreground">Thinking…</span> : message.content}
                 </div>
                 {message.sources && message.sources.length > 0 && (
-                  <p className="ml-1 text-[0.6875rem] leading-snug text-muted-foreground">
+                  <p className="ml-1 text-micro leading-snug text-muted-foreground">
                     Sources: {message.sources.map((s) => s.sourceTitle).join(', ')}
                   </p>
                 )}
@@ -232,6 +263,8 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
           <ArrowUp aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
         </button>
       </form>
+        </>
+      )}
     </div>
   );
 }

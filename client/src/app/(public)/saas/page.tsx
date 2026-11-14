@@ -12,41 +12,17 @@ export const metadata: Metadata = {
 };
 
 const STEPS = [
-  {
-    title: 'Create an account',
-    body: 'Sign up with an email address and a password of at least 8 characters.',
-  },
-  {
-    title: 'Subscribe',
-    body: 'Checkout runs on Stripe. The price is shown on the Stripe page before you pay.',
-  },
-  {
-    title: 'Connect your sources',
-    body: 'Add a GitHub username, a YouTube channel ID and a Hacker News search query in Settings.',
-  },
-  {
-    title: 'Read one dashboard',
-    body: 'Followers, stars, subscribers, views and mentions, side by side.',
-  },
+  { title: 'Sign up', body: 'Email and password.' },
+  { title: 'Subscribe', body: 'Stripe Checkout.' },
+  { title: 'Connect', body: 'GitHub, YouTube, Hacker News.' },
+  { title: 'Read', body: 'Your reach, side by side.' },
 ];
 
 const ENGINEERING = [
-  {
-    title: 'Payments are verified',
-    body: 'Every Stripe webhook is checked against the signing secret before a subscription changes state.',
-  },
-  {
-    title: 'Access is enforced on the server',
-    body: 'The stats API checks the account’s subscription on every request. The page redirect is a convenience, not the lock.',
-  },
-  {
-    title: 'One failing source stays contained',
-    body: 'GitHub, YouTube and Hacker News are fetched separately, so an outage at one provider leaves the other panels working.',
-  },
-  {
-    title: 'Sessions stay out of reach of scripts',
-    body: 'Sign-in uses an httpOnly, SameSite=Strict cookie that is marked Secure in production.',
-  },
+  { title: 'Verified payments', body: 'Every Stripe webhook is signature-checked.' },
+  { title: 'Server-side access', body: 'The API checks the subscription on every request.' },
+  { title: 'Contained failures', body: 'One provider down, the rest keep working.' },
+  { title: 'Script-proof sessions', body: 'httpOnly, SameSite=Strict, Secure cookies.' },
 ];
 
 export default function SaasPage() {
@@ -58,15 +34,10 @@ export default function SaasPage() {
             <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
               <h1 id="saas-title" className="lg:col-span-8">
                 <span className="label block text-accent">Creator Dashboard</span>
-                <span className="mt-5 block text-h1 font-medium">
-                  Your GitHub, YouTube and Hacker News numbers in one place.
-                </span>
+                <span className="mt-5 block text-h1 font-medium">Your reach, in one place.</span>
               </h1>
               <div className="lg:col-span-4 lg:pb-1">
-                <p className="text-[1.0625rem] leading-relaxed text-muted-foreground">
-                  A working subscription product built for this portfolio, with real accounts, real Stripe billing and a
-                  dashboard that keeps working when a provider doesn’t.
-                </p>
+                <p className="text-lead text-muted-foreground">GitHub, YouTube and Hacker News. Real accounts, real billing.</p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <ButtonLink href="/saas/signup">Create an account</ButtonLink>
                   <ButtonLink href="/saas/login" variant="secondary">
@@ -89,11 +60,9 @@ export default function SaasPage() {
           <ol className="mt-12 grid gap-px border-y border-foreground/80 bg-border sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
             {STEPS.map((step, index) => (
               <li key={step.title} className="bg-background py-7 sm:pr-6 sm:even:pl-6 lg:pl-6 lg:first:pl-0">
-                <span className="label tabular-nums text-accent">
-                  Step {index + 1}
-                </span>
+                <span className="label tabular-nums text-accent">{String(index + 1).padStart(2, '0')}</span>
                 <h3 className="mt-6 text-h3 font-semibold">{step.title}</h3>
-                <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted-foreground">{step.body}</p>
+                <p className="mt-1.5 text-body-sm text-muted-foreground">{step.body}</p>
               </li>
             ))}
           </ol>
@@ -106,9 +75,6 @@ export default function SaasPage() {
             <h2 id="engineering-title" className="text-h2 font-medium">
               Built like a real product
             </h2>
-            <p className="mt-5 max-w-[24rem] text-muted-foreground">
-              The parts you don’t see are where a SaaS earns trust. These are the decisions behind them.
-            </p>
           </div>
           <dl className="border-t border-border lg:col-span-7 lg:col-start-6">
             {ENGINEERING.map((item) => (
@@ -125,12 +91,12 @@ export default function SaasPage() {
         <div className="container-page">
           <div className="flex flex-col gap-8 border-y border-border py-12 lg:flex-row lg:items-center lg:justify-between lg:py-16">
             <h2 id="start-title" className="text-h2 font-medium">
-              Try it with your own accounts.
+              Try it with your accounts.
             </h2>
             <div className="flex flex-wrap gap-3">
               <ButtonLink href="/saas/signup">Create an account</ButtonLink>
               <ButtonLink href="/projects" variant="secondary">
-                See the rest of my work
+                More work
               </ButtonLink>
             </div>
           </div>

@@ -1,8 +1,14 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
+import OpenChatButton from '@/components/chat/OpenChatButton';
 import { contactHref, primaryNav, site, socials } from '@/lib/site';
 
-export default function SiteFooter() {
+interface SiteFooterProps {
+  /** False where the assistant isn't mounted (the root 404), so no dead button shows. */
+  assistant?: boolean;
+}
+
+export default function SiteFooter({ assistant = true }: SiteFooterProps) {
   const year = new Date().getFullYear();
 
   return (
@@ -11,12 +17,24 @@ export default function SiteFooter() {
       <div className="container-page pb-24 pt-[calc(var(--section)*0.8)]">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
           <p className="text-h1 font-medium text-balance lg:col-span-8">Have something that needs to hold up?</p>
-          <div className="lg:col-span-4 lg:justify-self-end">
+          <div className="flex flex-wrap gap-3 lg:col-span-4 lg:w-64 lg:flex-col lg:justify-self-end">
+            {assistant && (
+              <OpenChatButton
+                mode="discovery"
+                className="inline-flex h-12 items-center justify-center rounded-xs bg-primary px-6 font-mono text-xs uppercase tracking-[0.04em] text-primary-foreground transition-colors duration-200 hover:bg-primary/85"
+              >
+                Plan your project
+              </OpenChatButton>
+            )}
             <a
               href={contactHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex h-12 items-center gap-2 rounded-xs bg-primary px-6 font-mono text-xs uppercase tracking-[0.04em] text-primary-foreground transition-colors duration-200 hover:bg-primary/85"
+              className={`group inline-flex h-12 items-center justify-center gap-2 rounded-xs px-6 font-mono text-xs uppercase tracking-[0.04em] transition-colors duration-200 ${
+                assistant
+                  ? 'border border-border text-foreground hover:border-foreground/50'
+                  : 'bg-primary text-primary-foreground hover:bg-primary/85'
+              }`}
             >
               Message me on LinkedIn
               <ArrowUpRight

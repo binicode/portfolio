@@ -29,13 +29,13 @@ export default async function ShopPage() {
       <header className="grid gap-6 lg:grid-cols-12 lg:items-end">
         <h1 className="text-h1 font-medium lg:col-span-7">Shop</h1>
         <p className="max-w-[30rem] text-lead text-muted-foreground lg:col-span-5">
-          A headless storefront: products come from the Shopify Storefront API, and checkout is handled by Shopify.
+          Live from Shopify. Checkout by Shopify.
         </p>
       </header>
 
       {products.length === 0 ? (
         <p className="mt-14 border-y border-border py-12 text-lead text-muted-foreground">
-          No products are listed right now. Check back soon.
+          No products right now.
         </p>
       ) : (
         <ul className="mt-14 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">

@@ -30,7 +30,7 @@ export default function PublicError({ error, reset }: ErrorPageProps) {
         </>
       }
     >
-      <p>A service behind it didn’t respond. This is usually temporary, so try again in a moment.</p>
+      <p>A service didn’t respond. Try again in a moment.</p>
     </StatusMessage>
   );
 }

@@ -91,7 +91,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
           required
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
-          hint="Lowercase letters, numbers, and hyphens only."
+          hint="Lowercase, numbers and hyphens."
         />
 
         <Textarea label="Summary" required rows={3} value={summary} onChange={(e) => setSummary(e.target.value)} />
@@ -111,7 +111,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
 
         <Textarea
           label="Case study (optional)"
-          hint="One paragraph per line. Start a line with ## for a heading or - for a list item."
+          hint="One paragraph per line. ## for headings, - for lists."
           rows={8}
           value={caseStudyBody}
           onChange={(e) => setCaseStudyBody(e.target.value)}

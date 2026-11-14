@@ -21,10 +21,10 @@ export default function RootNotFound() {
             </>
           }
         >
-          <p>Check the address for a typo, or start from one of these pages.</p>
+          <p>Check the address, or start here.</p>
         </StatusMessage>
       </main>
-      <SiteFooter />
+      <SiteFooter assistant={false} />
     </div>
   );
 }

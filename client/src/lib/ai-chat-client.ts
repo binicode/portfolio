@@ -25,16 +25,9 @@ export function getChatHistory(sessionId: string): Promise<ChatHistoryResponse> 
 }
 
 /**
- * Streams a chat completion by manually parsing the SSE response body.
- * The browser's native EventSource API cannot be used here — it only
- * supports GET requests, and this endpoint is a POST — so this reads
- * the fetch response body as a stream and parses each `data: {...}\n\n`
- * frame by hand, matching the exact format ai-chat.controller.ts
- * writes on the server.
- *
- * onEvent fires once per parsed ChatStreamEvent, in order, as they
- * arrive — inherently a callback-based operation, not a single awaited
- * value, so it doesn't go through apiClient.
+ * Streams a chat completion. onEvent fires once per ChatStreamEvent, in
+ * order, as they arrive — inherently callback-based, so it doesn't go
+ * through apiClient.
  */
 export async function streamChatMessage(
   sessionId: string,
@@ -49,15 +42,62 @@ export async function streamChatMessage(
     },
     body: JSON.stringify({ sessionId, message }),
   });
+  await readEventStream(response, onEvent);
+}
 
-  if (!response.body) {
-    onEvent({ type: 'error', message: 'No response body received from the server.' });
+export type DiscoveryEvent =
+  | { type: 'token'; content: string }
+  | { type: 'done' }
+  | { type: 'error'; message: string };
+
+/**
+ * Project discovery: streams a short recommendation ('insight') or the
+ * project brief ('brief') for the answers so far. Stateless on the
+ * server; the transcript is the questions and answers the visitor saw.
+ */
+export async function streamDiscovery(
+  kind: 'insight' | 'brief',
+  transcript: Array<{ q: string; a: string[] }>,
+  onEvent: (event: DiscoveryEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const response = await fetch(`${clientEnv.NEXT_PUBLIC_API_URL}/ai-chat/discovery`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kind, transcript }),
+    signal,
+  });
+  await readEventStream(response, onEvent);
+}
+
+type StreamError = { type: 'error'; message: string };
+
+/**
+ * Reads a Server-Sent Events body by hand. EventSource only supports GET
+ * and these endpoints are POSTs, so this parses each `data: {...}\n\n`
+ * frame from the fetch body, matching what the server writes.
+ *
+ * Always ends in a terminal event: a rejected request (rate limit,
+ * validation) or a stream that closes early becomes an error event, so
+ * callers never wait on an answer that isn't coming.
+ */
+async function readEventStream<E extends { type: string }>(
+  response: Response,
+  onEvent: (event: E | StreamError) => void,
+): Promise<void> {
+  if (!response.ok || !response.body) {
+    onEvent({
+      type: 'error',
+      message:
+        response.status === 429 ? 'You’ve reached the assistant’s limit for now. Try again in a few minutes.' : 'The assistant can’t answer right now.',
+    });
     return;
   }
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  let finished = false;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -80,15 +120,18 @@ export async function streamChatMessage(
         continue;
       }
 
-      const jsonPayload = dataLine.slice('data: '.length);
+      let event: E;
       try {
-        const event = JSON.parse(jsonPayload) as ChatStreamEvent;
-        onEvent(event);
+        event = JSON.parse(dataLine.slice('data: '.length)) as E;
       } catch {
         // Malformed frame — skip it rather than crash the whole stream
         // over one bad chunk.
         continue;
       }
+      if (event.type === 'done' || event.type === 'error') finished = true;
+      onEvent(event);
     }
   }
+
+  if (!finished) onEvent({ type: 'error', message: 'The answer was cut off. Try again.' });
 }
