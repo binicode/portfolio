@@ -12,7 +12,7 @@ export default function SiteHeader() {
         Skip to content
       </a>
       <nav aria-label="Primary" className="container-page flex h-[var(--header-h)] items-center gap-6 lg:gap-8">
-        <Link href="/" className="shrink-0 text-[0.9375rem] font-semibold tracking-[-0.02em]">
+        <Link href="/" className="shrink-0 text-body-sm font-semibold tracking-[-0.02em]">
           {site.name}
         </Link>
         <SiteNav />

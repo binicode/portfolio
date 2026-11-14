@@ -15,7 +15,7 @@ export default function NotFound() {
         </>
       }
     >
-      <p>It may have been moved or unpublished. Check the address, or start from one of these pages.</p>
+      <p>It may have moved. Try one of these.</p>
     </StatusMessage>
   );
 }

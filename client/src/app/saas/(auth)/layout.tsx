@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 };
 
 const POINTS = [
-  'GitHub followers, repositories and stars',
-  'YouTube subscribers, views and videos',
-  'Hacker News mentions for any search term',
+  'GitHub stars and followers',
+  'YouTube subscribers and views',
+  'Hacker News mentions',
 ];
 
 export default function SaasAuthLayout({ children }: { children: ReactNode }) {
@@ -22,7 +22,7 @@ export default function SaasAuthLayout({ children }: { children: ReactNode }) {
           <p className="label text-accent">Creator Dashboard</p>
           <div>
             <p className="max-w-[16ch] text-h2 font-medium">Your reach, in one dashboard.</p>
-            <ul className="mt-10 space-y-3 border-t border-border pt-8 text-[0.9375rem] text-muted-foreground">
+            <ul className="mt-10 space-y-3 border-t border-border pt-8 text-body-sm text-muted-foreground">
               {POINTS.map((point) => (
                 <li key={point}>{point}</li>
               ))}

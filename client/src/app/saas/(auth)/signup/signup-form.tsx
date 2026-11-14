@@ -35,7 +35,7 @@ export default function SaasSignupForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <h1 className="text-h2 font-medium">Create an account</h1>
-        <p className="mt-2 text-muted-foreground">You’ll choose a subscription on the next screen.</p>
+        <p className="mt-2 text-muted-foreground">Subscription comes next.</p>
       </div>
 
       {error && <Alert variant="error">{error}</Alert>}

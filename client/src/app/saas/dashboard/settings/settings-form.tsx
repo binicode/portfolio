@@ -64,7 +64,7 @@ export default function SettingsForm({
         value={youtubeChannelId}
         onChange={(e) => setYoutubeChannelId(e.target.value)}
         placeholder="UCxxxxxxxxxxxxxxxxxxxxxx"
-        hint="Not your @handle — the channel ID starting with 'UC', found on the channel's About page."
+        hint="Starts with UC. Not your @handle."
       />
 
       <Input

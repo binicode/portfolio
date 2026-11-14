@@ -5,8 +5,8 @@ import { getProjects } from '@/lib/projects';
 import { getGithubActivity } from '@/lib/github-activity';
 import { clientEnv } from '@/lib/config';
 import { site, socials } from '@/lib/site';
-import ProjectLedger from '@/components/work/ProjectLedger';
-import DashboardPreview from '@/components/saas/DashboardPreview';
+import ProjectShowcase from '@/components/work/ProjectShowcase';
+import DashboardPoster from '@/components/saas/DashboardPoster';
 import PointerLight from '@/components/effects/PointerLight';
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import JsonLdScript from '@/components/site/JsonLd';
@@ -56,24 +56,20 @@ function SelectedWork({ projects }: { projects: Project[] }) {
   return (
     <section id="work" aria-labelledby="work-title" className="py-section">
       <div className="container-page">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <h2 id="work-title" className="text-h2 font-medium">
-              Selected work
-            </h2>
-            <p className="mt-4 max-w-[30rem] text-muted-foreground">
-              Products I designed and built, with notes on the decisions behind them.
-            </p>
-          </div>
-          {projects.length > FEATURED_COUNT && (
-            <Link href="/projects" className="link text-[0.9375rem] font-medium">
-              All {projects.length} projects
+        <div className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
+          <h2 id="work-title" className="text-h2 font-medium lg:col-span-7">
+            Selected work
+          </h2>
+          <div className="lg:col-span-5">
+            <p className="max-w-[30rem] text-muted-foreground">Built end to end. Shown as the systems they are.</p>
+            <Link href="/projects" className="link mt-4 inline-block text-body-sm font-medium">
+              {projects.length > FEATURED_COUNT ? `All ${projects.length} projects` : 'All work'}
             </Link>
-          )}
+          </div>
         </div>
 
-        <div className="mt-12 lg:mt-16">
-          <ProjectLedger projects={projects.slice(0, FEATURED_COUNT)} />
+        <div className="mt-10 lg:mt-14">
+          <ProjectShowcase projects={projects.slice(0, FEATURED_COUNT)} />
         </div>
       </div>
     </section>
@@ -90,23 +86,21 @@ function Systems({ id }: { id: string }) {
               <h2 id="systems-title" className="text-h2 font-medium">
                 Working systems, not mockups
               </h2>
-              <p className="mt-5 max-w-[28rem] text-muted-foreground">
-                Three products run on this site, each with its own backend. Try them while you read.
-              </p>
+              <p className="mt-5 max-w-[28rem] text-muted-foreground">Three live products. Try them here.</p>
             </div>
-            <DashboardPreview compact className="reveal lg:col-span-7" />
+            <DashboardPoster className="reveal lg:col-span-7" />
           </div>
 
           <ul className="mt-16 grid gap-px border-y border-border bg-border lg:mt-24 lg:grid-cols-3">
             {LIVE_SYSTEMS.map((system) => (
               <li key={system.name} className="flex flex-col bg-background py-8 lg:px-8 lg:first:pl-0 lg:last:pr-0">
                 <h3 className="text-h3 font-semibold">{system.name}</h3>
-                <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-muted-foreground">{system.body}</p>
+                <p className="mt-3 flex-1 text-body-sm leading-relaxed text-muted-foreground">{system.body}</p>
                 <div className="mt-6">
                   {system.action.kind === 'chat' ? (
-                    <OpenChatButton className="link text-[0.9375rem] font-medium">{system.action.label}</OpenChatButton>
+                    <OpenChatButton className="link text-body-sm font-medium">{system.action.label}</OpenChatButton>
                   ) : (
-                    <Link href={system.action.href} className="link text-[0.9375rem] font-medium">
+                    <Link href={system.action.href} className="link text-body-sm font-medium">
                       {system.action.label}
                     </Link>
                   )}
@@ -125,7 +119,7 @@ function About() {
   const stats = [
     {
       value: '3',
-      label: 'Products running on this site',
+      label: 'Live products',
       detail: (
         <>
           <OpenChatButton className="link text-left">AI assistant</OpenChatButton>,{' '}
@@ -141,13 +135,13 @@ function About() {
     },
     {
       value: '2',
-      label: 'Professional certificates',
-      detail: 'Meta Front-End Developer, IBM JavaScript Back-End Developer',
+      label: 'Certificates',
+      detail: 'Meta Front-End, IBM JavaScript Back-End',
     },
     {
       value: '1',
       label: 'Engineer, end to end',
-      detail: 'Interface, API and database, with a civil engineering background',
+      detail: 'Interface, API, database',
     },
   ];
 
@@ -158,7 +152,7 @@ function About() {
           From structures to software
         </h2>
         <p className="mt-6 max-w-[32ch] text-statement font-medium">
-          <RevealWords text="A civil engineer’s discipline, applied to software: systems that are planned, measured and built to keep working." />
+          <RevealWords text="A civil engineer’s discipline, applied to software." />
         </p>
 
         <dl className="mt-16 grid gap-10 sm:grid-cols-3 sm:gap-6 lg:mt-24">
@@ -166,27 +160,16 @@ function About() {
             <div key={stat.label} className="border-l border-border pl-5">
               <dt className="label text-muted-foreground">{stat.label}</dt>
               <dd className="mt-5 text-stat font-normal tabular-nums">{stat.value}</dd>
-              <dd className="mt-5 max-w-[22rem] text-[0.9375rem] leading-relaxed text-muted-foreground">{stat.detail}</dd>
+              <dd className="mt-5 max-w-[22rem] text-body-sm leading-relaxed text-muted-foreground">{stat.detail}</dd>
             </div>
           ))}
         </dl>
 
         <div className="mt-16 grid gap-10 border-t border-border pt-12 lg:mt-24 lg:grid-cols-12 lg:gap-8">
           <p className="label text-muted-foreground lg:col-span-4">Background</p>
-          <div className="space-y-6 lg:col-span-7 lg:col-start-6">
-            <p className="text-lead">
-              I am a full-stack software engineer with a background in civil engineering, combining engineering
-              discipline, systems thinking and modern software development to build reliable digital products.
-            </p>
-            <p className="text-muted-foreground">
-              Certified through the Meta Front-End Developer and IBM JavaScript Back-End Developer professional
-              certificates, I build end-to-end applications with Next.js, TypeScript, Node.js, Express and MongoDB,
-              from polished user interfaces and modular REST APIs to secure, scalable backend systems.
-            </p>
-            <p className="text-muted-foreground">
-              I care about more than making software work. I focus on clean, resilient, maintainable and
-              high-performance systems, with thoughtful architecture, responsive experiences and real-world usability.
-            </p>
+          <div className="space-y-4 lg:col-span-7 lg:col-start-6">
+            <p className="text-lead">Full-stack engineer, trained in civil engineering. I build web products that hold up.</p>
+            <p className="text-muted-foreground">Next.js, TypeScript, Node.js, Express, MongoDB.</p>
           </div>
         </div>
       </div>
@@ -211,7 +194,7 @@ async function Activity() {
             href={`https://github.com/${site.githubUsername}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-1 text-[0.9375rem] text-muted-foreground transition-colors hover:text-foreground"
+            className="mt-3 inline-flex items-center gap-1 text-body-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             github.com/{site.githubUsername}
             <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -219,7 +202,7 @@ async function Activity() {
         </div>
         <ol className="border-t border-border lg:col-span-7 lg:col-start-6">
           {activity.map((item) => (
-            <li key={item.id} className="grid grid-cols-[4.5rem_1fr] gap-4 border-b border-border py-3.5 text-[0.9375rem]">
+            <li key={item.id} className="grid grid-cols-[4.5rem_1fr] gap-4 border-b border-border py-3.5 text-body-sm">
               <time dateTime={item.createdAt} className="label pt-1 text-muted-foreground">
                 {dateFormat.format(new Date(item.createdAt))}
               </time>

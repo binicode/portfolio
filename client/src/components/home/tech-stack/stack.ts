@@ -30,21 +30,21 @@ export const STACK: readonly StackCategory[] = [
       { name: 'React', logo: 'react' },
       { name: 'TypeScript', logo: 'typescript' },
     ],
-    description: 'Server-rendered pages that load fast and ship little JavaScript.',
+    description: 'Server-rendered. Light on JavaScript.',
   },
   {
     key: 'B',
     slug: 'api',
     name: 'API',
     technologies: [{ name: 'Node.js', logo: 'nodejs' }, { name: 'Express.js', logo: 'express' }, { name: 'REST API' }],
-    description: 'Every input validated, every protected request checked on the server.',
+    description: 'Validated input. Server-side access checks.',
   },
   {
     key: 'C',
     slug: 'data',
     name: 'Data',
     technologies: [{ name: 'MongoDB Atlas', logo: 'mongodb' }, { name: 'Vector Search' }],
-    description: 'Accounts, content and AI search in one database.',
+    description: 'Accounts, content and AI search.',
   },
   {
     key: 'D',
@@ -56,6 +56,6 @@ export const STACK: readonly StackCategory[] = [
       { name: 'Google Gemini', logo: 'gemini' },
       { name: 'Voyage AI', logo: 'voyage' },
     ],
-    description: 'Billing, commerce and AI that keeps answering when a provider fails.',
+    description: 'Billing, commerce and AI, with fallbacks.',
   },
 ];

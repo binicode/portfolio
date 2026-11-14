@@ -8,7 +8,7 @@ export default function ShopNotFound() {
       title="This product isn’t available."
       actions={<ButtonLink href="/shop">Browse the shop</ButtonLink>}
     >
-      <p>It may have sold out or been removed from the store.</p>
+      <p>It may have sold out.</p>
     </StatusMessage>
   );
 }

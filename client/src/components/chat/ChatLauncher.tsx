@@ -1,7 +1,7 @@
 'use client';
 
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { OPEN_CHAT_EVENT } from './chat-events';
+import { OPEN_CHAT_EVENT, type AssistantMode } from './chat-events';
 
 // The panel (and the chat client it imports) is fetched only when a
 // visitor shows intent: hover, focus or click on the launcher.
@@ -11,6 +11,7 @@ const ChatPanel = lazy(loadPanel);
 export default function ChatLauncher() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
+  const [mode, setMode] = useState<AssistantMode>('chat');
   const launcherRef = useRef<HTMLButtonElement>(null);
 
   const open = useCallback(() => {
@@ -24,8 +25,13 @@ export default function ChatLauncher() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener(OPEN_CHAT_EVENT, open);
-    return () => window.removeEventListener(OPEN_CHAT_EVENT, open);
+    const onRequest = (event: Event) => {
+      const requested = (event as CustomEvent<{ mode?: AssistantMode } | null>).detail?.mode;
+      if (requested) setMode(requested);
+      open();
+    };
+    window.addEventListener(OPEN_CHAT_EVENT, onRequest);
+    return () => window.removeEventListener(OPEN_CHAT_EVENT, onRequest);
   }, [open]);
 
   return (
@@ -53,7 +59,7 @@ export default function ChatLauncher() {
 
       {hasOpened && (
         <Suspense fallback={null}>
-          <ChatPanel isOpen={isOpen} onClose={close} />
+          <ChatPanel isOpen={isOpen} onClose={close} mode={mode} onModeChange={setMode} />
         </Suspense>
       )}
     </>

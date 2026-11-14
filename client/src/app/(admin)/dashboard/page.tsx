@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
       {projects.length === 0 ? (
         <p className="mt-8 border-y border-border py-10 text-muted-foreground">
-          No projects yet. Create your first one to publish it on the portfolio.
+          No projects yet.
         </p>
       ) : (
         <ul className="mt-8 border-t border-border">

@@ -8,7 +8,7 @@ import { parseCaseStudy } from '@/lib/case-study';
 import { clientEnv } from '@/lib/config';
 import { site } from '@/lib/site';
 import JsonLdScript from '@/components/site/JsonLd';
-import ProjectPlate from '@/components/work/ProjectPlate';
+import StackMap from '@/components/work/StackMap';
 
 
 interface ProjectPageProps {
@@ -103,11 +103,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
             </ViewTransition>
             <p className="mt-6 max-w-[42rem] text-lead text-muted-foreground">{project.summary}</p>
           </div>
+          {/* The project's architecture: the same map as on the work list (shared view-transition name). */}
           <ViewTransition name={`project-plate-${project.slug}`}>
-            <div className="overflow-hidden rounded-md border border-border bg-card lg:col-span-5">
-              {/* Same plate as on the work list (position in the newest-first list). */}
-              <ProjectPlate variant={Math.max(index, 0)} className="p-5" />
-            </div>
+            <StackMap techStack={project.techStack} className="lg:col-span-5" />
           </ViewTransition>
         </div>
       </header>
@@ -115,7 +113,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       <div className="container-page mt-12 lg:mt-16">
         <div className="grid gap-12 border-t border-foreground/80 pt-10 lg:grid-cols-12 lg:gap-8">
         <aside className="lg:col-span-3">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-6 text-[0.9375rem] lg:sticky lg:top-[calc(var(--header-h)+var(--frame)+2rem)] lg:grid-cols-1">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-6 text-body-sm lg:sticky lg:top-[calc(var(--header-h)+var(--frame)+2rem)] lg:grid-cols-1">
             <div>
               <dt className="label text-muted-foreground">Year</dt>
               <dd className="mt-1 tabular-nums">{projectYear(project)}</dd>
@@ -170,8 +168,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
             </div>
           ) : (
             <p className="max-w-[36rem] text-muted-foreground">
-              The full write-up for this project is in progress. The summary, stack and links above describe what was
-              built.
+              Full write-up coming soon.
             </p>
           )}
         </div>

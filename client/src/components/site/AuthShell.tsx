@@ -15,7 +15,7 @@ export default function AuthShell({ children, backHref, backLabel, aside }: Auth
     <div className={`grid min-h-dvh ${aside ? 'lg:grid-cols-2' : ''}`}>
       <div className="flex flex-col">
         <header className="container-page flex h-[var(--header-h)] items-center justify-between gap-6 border-b border-border lg:max-w-none">
-          <Link href="/" className="whitespace-nowrap text-[0.9375rem] font-semibold tracking-tight">
+          <Link href="/" className="whitespace-nowrap text-body-sm font-semibold tracking-tight">
             {site.name}
           </Link>
           <Link
