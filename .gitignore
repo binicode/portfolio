@@ -7,5 +7,10 @@ build/
 *.log
 .DS_Store
 
+# Playwright output
+test-results/
+playwright-report/
+blob-report/
+
 # curl cookie jars from local API testing (may contain session tokens)
 *cookies.txt
