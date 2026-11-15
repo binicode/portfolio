@@ -5,9 +5,9 @@ The source of truth for the frontend's visual language. Tokens live in
 
 ## Concept
 
-Weathering: a dark, precise interface for a civil engineer who builds
-software, coloured like two materials that age well, Corten steel (rust)
-and copper patina (verdigris), on petrol ink instead of black. The tight
+A precise interface for a civil engineer who builds software, in two
+glazed materials, a Deep Teal body on a Soft Sand field, with Burnt
+Terracotta as the one action (see Color). The tight
 grotesk headlines and the mono micro-labels follow the reference the owner
 chose (an Awwwards product site with a pinned, scroll-driven hero). The
 content and drawings stay specific to this portfolio: structures as a
@@ -37,7 +37,7 @@ carries the name), and no filler.
   project is drawn as the system it is: `components/work/StackMap.tsx`
   places its CMS tech stack on the same four layers (Interface, API, Data,
   Services; `lib/stack-layers.ts`, tested) with real technology marks,
-  joined by a rust request path. See "Work" below.
+  joined by a terracotta request path. See "Work" below.
 - Inline SVG only, one `<path>` per layer, `vector-effect: non-scaling-stroke`
   for crisp hairlines. Styles live in `globals.css` (`.d-*` classes).
 - Drawings are static. Animated SVG transforms cannot be composited and
@@ -47,88 +47,105 @@ carries the name), and no filler.
 
 ## Color
 
-Three colours, three jobs. Rust is the one action (start a project),
-verdigris is where the eye should land, ink gives depth. Contrast ratios are
-the worst case across every surface they sit on (checked by script for all
-pairs, then by axe on every route).
+Deep Teal and Soft Sand, from the owner's reference: two glazed bodies, one
+teal and one sand, on a sand field, with the type inverted between them.
+Burnt Terracotta is the one action.
+
+**Proportion.** The reference measures about two thirds sand to one third
+teal (scratchpad script: render, classify every pixel). Every screen keeps
+that balance: sand is the field, teal is the concentrated body.
+
+| Screen | Teal bodies | Teal share (1280px) |
+| --- | --- | --- |
+| Home | Header, the hero's stack frame, footer | 28% |
+| Work, case study, shop | Header, footer | 34–38% |
+| SaaS | Header, the Deep Teal hero band (the sand demo window sits in it), window bar, footer | 37% |
+| Sign-in (SaaS) | The product aside beside the sand form | 51% (the reference's two halves) |
+| Admin sign-in | Header bar | 9% |
+| Dashboards | The rail (mobile: the top bar) beside the sand work area | 16–20% |
+
+Sand is the default (`:root`), so any screen without a theme is the field;
+teal is always applied on purpose (`theme-deep`, `theme-patina`,
+`theme-ink`, `theme-ember`). The home hero's first screen is sand with the
+headline in teal; the teal body arrives with the scroll, when the frame
+zooms in to fill the stage.
 
 | Token | Value | Role |
 | --- | --- | --- |
-| Ink deep | `#0b1215` | Deepest surface: hero stage, header, dashboard rail |
-| Ink | `#10191e` | Page background |
-| Ink card | `#16232a` | Cards (`card`) |
-| Ink high | `#1d2d36` | Raised: hover, tracks, popovers, active segments (`raised`, `muted`) |
-| Line | `#283a44` | Hairlines and dividers (decorative) |
-| Input | `#6f8792` | Control borders (3.7:1, WCAG 1.4.11) |
-| Patina / card / high / line | `#0d201f` / `#132c2a` / `#1a3835` / `#24453f` | The patina section theme |
-| Ember / line | `#1b110d` / `#40291e` | The footer's surface (`theme-ember`) and its warm hairline |
-| Bone | `#ede7dc` | Text, primary buttons (10:1 or more) |
-| Ash | `#a9b6bb` | Secondary text (6:1 or more) |
-| Smoke | `#7f8f96` | Dim meta text only (`text-dim`, 4.8:1 or more) |
-| Rust | `#e8642f` | **The action and the brand**: "start a project" calls to action, the launcher, the header (bracket button, nav underline, scroll meter), focus ring, selection, the site frame (4.8:1 as text on cards) |
-| Rust bright | `#f47b4c` | Rust text on raised surfaces (the hero legend keys) |
-| Verdigris | `#62c2ab` | **Where the eye lands** (`signal`): the promise in a leading headline (`emph`), links and every non-primary hover, section labels, featured and high-value markers, the dashboard's data and the reader's name, live status, healthy state (`success`), status badges (5.9:1 or more) |
-| Rose | `#ff7088` | Errors (`destructive`), a different hue from rust so an error never reads as the brand accent |
-| Chart muted | `#6c7f88` | Comparison marks in charts (3.4:1 or more) |
-| Rust deep / shadow, verdigris deep | `#8a3a1a` / `#5c2814`, `#1d4f46` | Stops of the site frame only; never text |
+| Teal lit | `#136f6e` | The key light on teal: gloss and rims only. On sand: the promise in a headline (`emph`, 4.7:1) |
+| Teal glow | `#0f6262` | The brightest teal any text sits on (centre of a body's light). On sand: `signal`, labels and links (5.1:1 or more) |
+| Deep Teal | `#084c4c` | Bodies (`theme-patina`, `theme-ember`); the solid button on sand (sand text 8.1:1) |
+| Teal deep / abyss | `#032c2c` / `#011b1b` | Header, rails, window bars (`theme-deep`); the deepest shade, in gradients only |
+| Teal ink / card / raised | `#063d3d` / `#0c5858` / `#0d5a5a` | The assistant (`theme-ink`); cards on teal (glass at 66%); raised |
+| Teal line / input | `#2a6b69` / `#86b0ac` | Hairlines on teal (decorative); control borders on teal (3:1 or more) |
+| Sand field | `#efe4d4`, lit `#f7efe4` to `#e7d8c3` | The page, lit per section like the reference's backdrop |
+| Sand body / lit / raised | `#f3e9da` / `#f7ecdc` / `#e9dcc8` | Cards on sand, lit in the middle; raised (hover, tracks) |
+| Soft Sand | `#e7d4b9` | The solid button on teal (teal text 6.9:1) |
+| Sand deep / shadow | `#cbb393` / `#b09675` | Hairlines and shade; rims only |
+| Sand text / muted | `#ece1ce` / `#d9cdb8` | Type on teal: 5.5:1 / 4.5:1 at the lit centre |
+| Teal text / muted | `#0b4a4a` / `#3e5c59` | Type on sand: 7.2:1 / 5:1 or more at the field's darkest edge |
+| Burnt Terracotta | `#d96b52` | **The action**: filled calls to action (ink text `#062224`, 4.9:1), the launcher, selection |
+| Terracotta light / hover | `#f2a28c` / `#e4826b` | Terracotta text and the focus ring, only on deep teal (4.8:1 or more); the hover fill |
+| Sea glass | `#9fdfd2` | On teal: `signal` and `emph` (4.7:1 or more) |
+| Rose / red | `#ffa8b2` / `#8f2424` | Errors on teal / on sand, never the terracotta hue |
+| Chart muted | `#8db3b0` / `#7d705b` | Comparison marks on teal / on sand (3:1 or more) |
 
 Rules:
 
-- Rust is the one thing to do; verdigris is what to notice. A data series,
-  a status, a label or a link is never rust; a filled button is never
-  verdigris. In a hero or closing band they pair up: the promise in
-  verdigris, the action under it in rust.
-- Emphasis, not ornament: the accent lives in the content and its states,
-  never in added shapes, lines or illustrations.
-  - `emph` (on `<em>`) marks the promise in a leading headline: the few
-    words that say what the reader gets. One phrase per headline, only in
-    leading headlines: hero "to *hold up*", About "*applied to software*",
-    SaaS hero "*in one place*", footer "needs to *hold up*". "Hold up"
-    opens and closes every visit, and that echo is deliberate. The dashboard
-    and its preview greet the reader with their name in `emph`.
-  - Links (`link`): text keeps its colour, the underline is verdigris and
-    fills in on hover. Secondary buttons, project cards (title and "Case
-    study"), external links and inline actions turn verdigris on hover.
-  - Labels that lead a section, and "Featured", are verdigris.
-  - In `RevealWords`, emphasised words start brighter (0.6, not 0.45) so
-    they stay above 3:1 while they reveal.
+- Inverted type: sand on teal, teal on sand. The promise in a headline
+  (`emph`) is the lighter step of the same family: sea glass on teal, the
+  lit teal on sand.
+- Terracotta is the one thing to do, and only that: filled calls to action,
+  the launcher, the legend's keys. Never decoration, never a glow.
+- Emphasis, not ornament: no added shapes, curves or motifs. The reference's
+  interlocking form is not reproduced; its proportion, tone and light are.
 - Charts: the series that matters in `signal`, the comparison in
   `chart-muted`. Status always carries an icon or word, never colour alone.
-- Solid colour, about 90/10. Depth comes from surface steps, hairlines,
-  spacing and type, never from glows or washes:
-  - Surface steps: deep, page, card, raised. Each layer is one step above
-    the one it sits on (the hero: deep stage, page-ink frame, card-coloured
-    stack cards). `.bg-card` and `.bg-raised` get the lit top edge and soft
-    drop (`--elevation-card`) automatically; floating panels use
-    `shadow-pop`. Recessed wells (`.stack-map`) go one step down instead.
-  - Materials: section themes re-point the surfaces for everything inside
-    them, with a hairline in the material's own line colour at each edge:
-    `theme-deep` (hero, header, dashboard rail), `theme-ink` (page),
-    `theme-patina` (Systems on the home page, the SaaS hero, the sign-in
-    panel; `border-y`/`border-b`), `theme-ember` (the footer; `border-t`).
-  - Marked items (the featured repository) get a brighter surface and a
-    verdigris hairline, not a glow.
-  - Charts: a flat 10% area under a line, not a fade.
-- The justified 10%: the site frame, rust at the top of the screen through
-  deep ink to patina at the bottom. It's the identity's signature, sits
-  outside the content, and is the only decorative gradient. Hard-edged
-  patterns drawn with gradient functions (the stack-map dot grid, the
-  header's stripe meter, the hero's column guides) read as solid lines and
-  dots, and the column guides' mask fade only keeps them from ending
-  abruptly. Anything else needs the same justification before it ships.
+- In `RevealWords`, unread words start at 0.45 on teal and 0.7 on sand,
+  emphasised words at 0.6 and 0.8, so the statement stays above 3:1 at every
+  scroll position.
+- Light, as in the reference (`globals.css`, "Semantic roles"):
+  - A teal body is lit from the upper left: glow, Deep Teal through the
+    middle, shade to the lower right (`--surface-lighting` on the teal
+    themes). The brightest point under text is the glow, which is what the
+    text ratios above are checked against.
+  - The sand field is the reference's backdrop, per section: lighter in the
+    middle, warmer at the edges.
+  - A sand body (`.bg-card`) is lit toward the middle and shaded toward its
+    corners; `--glass-surface` adds a gloss band along the top and a window
+    reflection down the right edge, both inside the padding, where no text
+    sits. Teal glass carries the same two at lower strength.
+  - Edges (`--elevation-card`, `--elevation-pop`): a bright rim along the top
+    and left (the softboxes), a darker rim along the bottom and right.
+  - Shadows on the field are the reference's warm studio shadow (`#3a2e21`),
+    never grey: under sand cards, under the hero frame, the assistant and
+    the demo window, and where a teal section meets the sand.
+  - The hero frame is the glossiest object: a gloss band, a right-edge
+    reflection and a left rim light over its volume.
+  - `.btn-glaze` on filled buttons: a reflection across the top half with a
+    soft horizon, light pooled at the base, a lit rim.
+  - Real blur only where content passes behind: the sticky header on screens
+    64rem and wider is 90% deep teal with an 18px backdrop blur (7.5:1 or
+    more with sand behind it). Phones, and `prefers-reduced-transparency`,
+    keep it solid.
+  - Hover is a step to a lighter fill, never an opacity fade. No frosted
+    cards, no grain.
+- The site frame is lit like the reference: teal at the upper left, through
+  the shade, to sand at the lower right. It sits outside the content.
 
 Components use semantic names only (`background`, `foreground`, `card`,
 `raised`, `muted-foreground`, `dim`, `border`, `input`, `primary`,
-`accent`, `signal`, `ring`…). The raw palette appears only in
-`globals.css` and in `opengraph-image.tsx` (ImageResponse can't read CSS
-variables).
+`primary-hover`, `accent`, `signal`, `emph`, `ring`…). The raw palette
+appears only in `globals.css` and in `opengraph-image.tsx` (ImageResponse
+can't read CSS variables). Every teal theme restates the full role set, and
+`theme-sand` restates the sand set, so a body keeps its own colours wherever
+it sits.
 
 Never use `text-muted` or `text-secondary` for text: `muted` and
 `secondary` are surface colors.
 
-With solid surfaces, axe checks every text pair directly (it can't over
-gradients). The hero legend on the page-ink frame: `accent-bright` keys
-6.6:1, Ash 8.6:1; text on the ember footer: Ash 8.9:1, verdigris 8.7:1.
+Axe can't check text over gradients, so the lighting is kept within the
+ratios above by construction, and the solid fallbacks are checked by axe.
 
 ## Type
 
@@ -188,7 +205,7 @@ things and gives the one fact the interface can't show.
 
 `label` (uppercase mono, 11px, +0.04em) is the system's one all-caps
 style. Use it for navigation and metadata, not for sentences, and not as
-an eyebrow above every heading. A rust `label` kicker is reserved for a
+an eyebrow above every heading. A terracotta `label` kicker is reserved for a
 page's or section's identity (for example "Creator Dashboard").
 
 Avoid: colouring words for effect (the only coloured words are the promise
@@ -201,17 +218,17 @@ The site's job is to turn a visitor with an idea into a client. Every
 call to action states what happens on click, and its colour says what kind
 of action it is.
 
-- **Accent (rust): work with me.** Plan your project, Start a project, Plan a
+- **Accent (terracotta): work with me.** Plan your project, Start a project, Plan a
   similar project/product/store, and the assistant launcher. All open the
   assistant's planner (`OpenChatButton mode="discovery"`), which ends in a
   brief and "Copy brief and message me".
 - **Primary (bone): the main action of a product flow.** Create an account,
   Buy now, Continue to checkout, Save, Log in on its form.
 - **Secondary (outline): the alternative route** beside either: See the
-  work, Log in, Message me on LinkedIn. Its border and text turn verdigris
+  work, Log in, Message me on LinkedIn. Its border and text turn the signal colour
   on hover.
 - Text links (`link` utility) for routes inside content: See all work, Try
-  the assistant, Explore the dashboard, Browse the store. Verdigris
+  the assistant, Explore the dashboard, Browse the store. The signal colour
   underline.
 - At most one accent and one primary per view. Pair a main action with one
   secondary, never three equal buttons.
@@ -252,7 +269,7 @@ visitor). The copy in "Copy brief and message me" is synchronous
 - Buttons (`components/ui/button-styles.ts`): rectangular (`rounded-xs`),
   mono uppercase text; variants accent, primary, secondary, ghost, danger
   and sizes sm, md, lg (see "Calls to action").
-- `.btn-bracket`: the outlined rust button with corner brackets, used only
+- `.btn-bracket`: the outlined terracotta button with corner brackets, used only
   for the header's Start a project.
 - `.stripe-meter`: the striped header bar; its cover slides with page
   scroll (`scroll(root)`), so it doubles as a reading-progress meter.
@@ -293,7 +310,7 @@ visitor). The copy in "Copy brief and message me" is synchronous
   (`::after`, `z-[1]`, focus ring drawn inside the card because the card
   clips its edge); "Live site" and "Source" sit above it as separate links
   with accessible names. Hover lifts the card's edge, brightens the request
-  path to full rust and slides the "Case study" arrow.
+  path to full terracotta and slides the "Case study" arrow.
 - The title and the map share view-transition names with the case study,
   whose header shows the same map, so both carry across the navigation.
 - `LiveSystemsList` (the work page while the CMS has nothing published)
@@ -305,7 +322,7 @@ visitor). The copy in "Copy brief and message me" is synchronous
 
 - Frame: from `lg`, a 17rem sidebar (`DashboardSidebar`): product name and
   plan, the pages (Dashboard, Settings), the sources (each jumps to its
-  section, or to Settings with "Not set" in rust when it isn't
+  section, or to Settings with "Not set" in terracotta when it isn't
   configured), a link back to the portfolio, and the account with Log out.
   Below `lg` the sidebar is hidden and the compact top bar (`SaasNav`)
   carries the same pages and account. Only the page links (current-page
@@ -347,7 +364,7 @@ visitor). The copy in "Copy brief and message me" is synchronous
 - Repository showcase (`RepoShowcase`, `showcaseRepos`): a curated
   portfolio, not a table. The creator's own live work only (no forks,
   archived or never-pushed repositories), most stars first. The top one is
-  a wide feature tile, a step brighter with a verdigris hairline
+  a wide feature tile, a step brighter with a signal-colour hairline
   (`.repo-feature`), and its share of all stars as a thin meter; then six
   compact tiles (four on phones): name, two-line description, language,
   stars and forks. No borders: a quiet fill that lifts on hover while an
@@ -415,7 +432,7 @@ the UI frames them instead of changing them.
   variants' prices differ; a "Sold out" chip on the photo and a muted price
   when no variant can be bought (`lib/shop-display.ts`, tested). A product
   without a photo gets a quiet "No photo" plate, not a repeated title.
-- Hover and focus: the card border and the title turn verdigris; the photo
+- Hover and focus: the card border and the title turn the signal colour; the photo
   scales 4% inside its plate. The whole card is one link.
 - A slim toolbar above the grid says what's there ("15 products", "Prices
   in USD"), so the space before the grid carries information.
@@ -448,7 +465,7 @@ writes a brief at the end.
 - The AI writes two things, through `POST /ai-chat/discovery`, which is
   stateless and rate-limited with chat. It adds a one-sentence
   recommendation after the stage and integrations answers (shown with a
-  rust rule), and the brief. If no first word arrives within 4 s (6 s for
+  terracotta rule), and the brief. If no first word arrives within 4 s (6 s for
   the brief), or the request fails, built-in text replaces it
   (`fallbackInsight`, `fallbackBrief`), so the flow never stalls.
 - The brief is light markdown rendered as elements, never as HTML
@@ -465,8 +482,9 @@ writes a brief at the end.
 ## Layout
 
 - `.site-frame`: the public site (and the 404 page) sits inside a
-  weathered frame, `--frame` wide (6px on phones, up to 18px on desktop),
-  rust at the top of the screen through deep ink to patina at the bottom.
+  frame, `--frame` wide (6px on phones, up to 18px on desktop), lit like
+  the reference: teal at the upper left, through the shade, to sand at the
+  lower right.
   The wrapper is padded by `--frame`; the frame is
   a fixed, pointer-transparent `::after` overlay. Anything sticky or fixed
   adds `var(--frame)` to its offset (header, hero stage, mobile menu, chat
@@ -517,7 +535,7 @@ One orchestrated moment per page; no time-based entrance animations on load.
   minifier expands a multi-animation shorthand with `animation-duration: 0s`,
   which makes scroll-driven animations jump straight to their end state.
 - All motion is disabled under `prefers-reduced-motion: reduce`.
-- No blur filters or `backdrop-filter`.
+- No blur filters. One `backdrop-filter`: the sticky header on wide screens (see Color, "Glass"), where content passes behind it.
 
 ## Performance rules
 

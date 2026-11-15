@@ -43,7 +43,7 @@ export default async function SaasDashboardLayout({ children }: { children: Reac
             <SaasNav email={session.email} subscriptionStatus={session.subscriptionStatus} />
           </div>
         </header>
-        <main id="main" className="flex-1">
+        <main id="main" className="theme-sand flex-1">
           {children}
         </main>
       </div>

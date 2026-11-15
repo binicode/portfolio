@@ -7,7 +7,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="site-frame flex min-h-dvh flex-col">
       <SiteHeader />
-      <main id="main" className="flex-1">
+      {/* Soft Sand for the reading sections; the teal sections inside keep their teal. */}
+      <main id="main" className="theme-sand flex-1">
         {children}
       </main>
       <SiteFooter />

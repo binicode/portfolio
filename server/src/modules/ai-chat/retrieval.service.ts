@@ -1,5 +1,35 @@
 import { KnowledgeChunkModel, VECTOR_INDEX_NAME } from './ai-chat.model.js';
+import { ProjectModel } from '../admin/content.model.js';
+import type { PublishedProjectSummary } from './chat-context.js';
 import type { RetrievedChunk, VectorSearchOptions } from './ai-chat.types.js';
+
+// Both lookups below change only when content is seeded or published, so a
+// short cache keeps them off the per-message path.
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+function cached<T>(load: () => Promise<T>): () => Promise<T> {
+  let value: { data: T; at: number } | null = null;
+  return async () => {
+    if (value && Date.now() - value.at < CACHE_TTL_MS) return value.data;
+    const data = await load();
+    value = { data, at: Date.now() };
+    return data;
+  };
+}
+
+/** The knowledge-base sources present in the vector store (seeded). */
+export const seededSourceIds = cached(async () => {
+  const ids = await KnowledgeChunkModel.distinct('metadata.sourceId');
+  return new Set(ids.map(String));
+});
+
+/** The case studies published in the CMS (read-only). */
+export const publishedProjects = cached(() =>
+  ProjectModel.find({ published: true }, { _id: 0, title: 1, slug: 1, summary: 1, techStack: 1 })
+    .sort({ createdAt: -1 })
+    .limit(12)
+    .lean<PublishedProjectSummary[]>(),
+);
 
 // Retrieval-quality defaults, tuned by experimentation rather than by
 // environment — deliberately not env vars. Override per-call via options.

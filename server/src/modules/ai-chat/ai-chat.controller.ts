@@ -1,8 +1,7 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { asyncHandler, AppError } from '../../core/middleware/errorHandler.js';
-import { sendChatMessage } from './ai-chat.service.js';
-import { ChatSessionModel } from './ai-chat.model.js';
+import { getSessionMessages, sendChatMessage } from './ai-chat.service.js';
 import type { ChatStreamEvent } from './ai-chat.types.js';
 
 const sendMessageBodySchema = z.object({
@@ -77,10 +76,8 @@ export const postChatMessage = asyncHandler(async (req: Request, res: Response) 
 export const getChatHistory = asyncHandler(async (req: Request, res: Response) => {
   const sessionId = z.string().uuid().parse(req.params.sessionId);
 
-  const session = await ChatSessionModel.findOne({ sessionId }).lean();
+  // From MongoDB, or the in-memory store while the database is unreachable.
+  const messages = await getSessionMessages(sessionId);
 
-  res.status(200).json({
-    sessionId,
-    messages: session?.messages ?? [],
-  });
+  res.status(200).json({ sessionId, messages });
 });

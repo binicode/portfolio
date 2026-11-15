@@ -9,9 +9,11 @@ export default function PreviewWindow({ inert = false, children }: { inert?: boo
   return (
     <div
       inert={inert}
-      className="overflow-hidden rounded-xl border border-border bg-background shadow-[0_40px_80px_-40px_rgb(0_0_0/0.6)]"
+      className="theme-sand overflow-hidden rounded-xl border border-border bg-background shadow-pop"
     >
-      <div className="flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3">
+      {/* A sand window with a teal title bar, as the product is a sand work
+          area beside a teal rail, whichever section it sits in. */}
+      <div className="theme-deep flex items-center justify-between gap-4 border-b border-border px-4 py-3">
         <p className="text-caption font-semibold">Creator Dashboard</p>
         <div className="label flex items-center gap-4 text-muted-foreground">
           <span className="rounded-xs border border-signal/40 px-2 py-0.5 text-signal-bright">Sample data</span>
