@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
-import Link from 'next/link';
 import { preconnect } from 'react-dom';
-import ShopifyImage from '@/components/shop/ShopifyImage';
+import ProductCard from '@/components/shop/ProductCard';
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import { buttonClasses } from '@/components/ui/button-styles';
 import { getProducts } from '@/lib/shopify-products';
-import { formatPrice } from '@/lib/format';
+import { sharedCurrency } from '@/lib/shop-display';
 
 // Shopify is queried with POST, which the fetch cache doesn't store, so the
 // page itself is regenerated in the background at most every 5 minutes.
@@ -45,10 +44,11 @@ export default async function ShopPage() {
   preconnect('https://cdn.shopify.com');
 
   const products = await loadProducts();
+  const currency = sharedCurrency(products);
 
   return (
-    <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
-      <header className="grid gap-6 lg:grid-cols-12 lg:items-end">
+    <div className="container-page pb-section pt-[clamp(2.5rem,5vw,4.5rem)]">
+      <header className="grid gap-4 lg:grid-cols-12 lg:items-end lg:gap-8">
         <h1 className="text-h1 font-medium lg:col-span-7">Shop</h1>
         <p className="max-w-[30rem] text-lead text-muted-foreground lg:col-span-5">
           Live from Shopify. Checkout by Shopify.
@@ -56,56 +56,36 @@ export default async function ShopPage() {
       </header>
 
       {products.length === 0 ? (
-        <p className="mt-14 border-y border-border py-12 text-lead text-muted-foreground">
+        <p className="mt-10 border-y border-border py-12 text-lead text-muted-foreground">
           No products right now.
         </p>
       ) : (
-        <ul className="mt-14 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
-          {products.map((product, index) => (
-            <li key={product.id}>
-              <Link href={`/shop/${product.handle}`} className="group block">
-                <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
-                  {!product.featuredImage && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-0 flex items-center justify-center p-8 text-center text-h3 font-semibold text-muted-foreground"
-                    >
-                      {product.title}
-                    </span>
-                  )}
-                  {product.featuredImage && (
-                    <ShopifyImage
-                      src={product.featuredImage.url}
-                      alt={product.featuredImage.altText ?? product.title}
-                      fill
-                      sizes="(min-width: 1344px) 432px, (min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
-                      // Only the first card is the LCP candidate (one column on phones);
-                      // giving three images high priority made them compete for bandwidth.
-                      loading={index === 0 ? 'eager' : 'lazy'}
-                      fetchPriority={index === 0 ? 'high' : 'auto'}
-                      className="object-cover transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.03]"
-                    />
-                  )}
-                </div>
-                <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-border pt-3">
-                  <h2 className="font-medium">{product.title}</h2>
-                  <p className="shrink-0 tabular-nums text-muted-foreground">
-                    {formatPrice(
-                      product.priceRange.minVariantPrice.amount,
-                      product.priceRange.minVariantPrice.currencyCode,
-                    )}
-                  </p>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <>
+          {/* The grid's own toolbar: what's here, and in which currency. */}
+          <div className="mt-8 flex items-baseline justify-between gap-4 border-t border-border pt-4 lg:mt-12">
+            <p className="label text-muted-foreground">
+              {products.length} {products.length === 1 ? 'product' : 'products'}
+            </p>
+            {currency && <p className="label text-muted-foreground">Prices in {currency}</p>}
+          </div>
+          {/* Compact on purpose: 2 columns on phones up to 5 on wide screens,
+              so the photos stay objects in a catalogue, not walls of white. */}
+          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+            {products.map((product, index) => (
+              <li key={product.id}>
+                {/* Only the first photo is an LCP candidate; more high-priority
+                    images would compete for bandwidth. */}
+                <ProductCard product={product} priority={index === 0} />
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {/* The store is a working demo; a visitor here may want one of their own. */}
       <section
         aria-labelledby="store-cta-title"
-        className="mt-[var(--section)] flex flex-col gap-6 border-y border-border py-10 lg:flex-row lg:items-center lg:justify-between lg:py-12"
+        className="mt-16 flex flex-col gap-6 border-y border-border py-10 lg:mt-24 lg:flex-row lg:items-center lg:justify-between lg:py-12"
       >
         <div>
           <h2 id="store-cta-title" className="text-h3 font-medium">
