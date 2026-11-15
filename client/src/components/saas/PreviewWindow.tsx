@@ -24,7 +24,9 @@ export default function PreviewWindow({ inert = false, children }: { inert?: boo
         </div>
       </div>
       <div className="p-3 sm:p-4">
-        <p className="text-h3 font-medium">Welcome back, octocat</p>
+        <p className="text-h3 font-medium">
+          Welcome back, <em className="emph">octocat</em>
+        </p>
         <p className="mb-4 mt-1 text-sm text-muted-foreground">All 3 sources are live.</p>
         {children}
       </div>

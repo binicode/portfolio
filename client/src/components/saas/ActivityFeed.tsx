@@ -64,7 +64,7 @@ export default function ActivityFeed({ stats, limit, links = true, className = '
                 </span>
                 <p className="truncate text-sm">
                   {links ? (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-accent-bright">
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-signal-bright">
                       {title}
                     </a>
                   ) : (

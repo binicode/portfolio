@@ -157,7 +157,7 @@ function About() {
           From structures to software
         </h2>
         <p className="mt-6 max-w-[32ch] text-statement font-medium">
-          <RevealWords text="A civil engineer’s discipline, applied to software." />
+          <RevealWords text="A civil engineer’s discipline, applied to software." emphasis="applied to software" />
         </p>
 
         <dl className="mt-16 grid gap-10 sm:grid-cols-3 sm:gap-6 lg:mt-24">

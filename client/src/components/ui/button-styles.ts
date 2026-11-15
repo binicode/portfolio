@@ -14,7 +14,7 @@ const BASE =
 const VARIANTS: Record<ButtonVariant, string> = {
   accent: 'bg-accent text-accent-foreground hover:bg-accent-bright',
   primary: 'bg-primary text-primary-foreground hover:bg-primary/85',
-  secondary: 'border border-foreground/25 text-foreground hover:border-foreground hover:bg-foreground/[0.04]',
+  secondary: 'border border-foreground/25 text-foreground hover:border-signal hover:bg-signal/[0.06] hover:text-signal-bright',
   ghost: 'text-foreground hover:bg-foreground/[0.06]',
   danger: 'border border-destructive/40 text-destructive hover:bg-destructive/[0.08]',
 };

@@ -24,13 +24,13 @@ export default function LiveSystemsList() {
             <p className="mt-3 max-w-[40rem] text-muted-foreground">{system.body}</p>
             <div className="mt-auto pt-6">
               {system.action.kind === 'chat' ? (
-                <OpenChatButton mode="chat" className="label inline-flex items-center gap-1.5 transition-colors hover:text-accent">
+                <OpenChatButton mode="chat" className="label inline-flex items-center gap-1.5 transition-colors hover:text-signal-bright">
                   {system.action.label}
                 </OpenChatButton>
               ) : (
                 <Link
                   href={system.action.href}
-                  className="label group inline-flex items-center gap-1.5 transition-colors hover:text-accent"
+                  className="label group inline-flex items-center gap-1.5 transition-colors hover:text-signal-bright"
                 >
                   {system.action.label}
                   <ArrowUpRight

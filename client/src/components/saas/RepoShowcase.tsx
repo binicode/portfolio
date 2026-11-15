@@ -24,7 +24,7 @@ function Arrow({ show }: { show: boolean }) {
     <ArrowUpRight
       aria-hidden="true"
       strokeWidth={2}
-      className="size-3.5 shrink-0 translate-y-0.5 text-muted-foreground opacity-0 transition duration-200 ease-out group-hover:translate-y-0 group-hover:text-accent-bright group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+      className="size-3.5 shrink-0 translate-y-0.5 text-muted-foreground opacity-0 transition duration-200 ease-out group-hover:translate-y-0 group-hover:text-signal-bright group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
     />
   );
 }

@@ -13,7 +13,7 @@ export default function SiteFooter() {
       {/* Extra bottom padding keeps the last row clear of the fixed assistant button. */}
       <div className="container-page pb-24 pt-[calc(var(--section)*0.8)]">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
-          <p className="text-h1 font-medium text-balance lg:col-span-8">Have something that needs to hold up?</p>
+          <p className="text-h1 font-medium text-balance lg:col-span-8">Have something that needs to <em className="emph">hold up</em>?</p>
           <div className="lg:col-span-4 lg:w-64 lg:justify-self-end">
             <div className="flex flex-wrap gap-3 lg:flex-col">
               <OpenChatButton mode="discovery" className={buttonClasses('accent', 'lg')}>
