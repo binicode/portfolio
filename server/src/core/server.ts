@@ -25,7 +25,7 @@ async function bootstrap(): Promise<void> {
   }
 
   // Check the Gemini models in the background, so the first visitors don't
-  // wait on one that isn't answering (llm.service.ts, "Model health").
+  // wait on one that isn't answering (model-health.ts).
   checkAllModels();
 
   const app = createApp();

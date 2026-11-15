@@ -9,7 +9,8 @@ import {
   staticKnowledgeChunks,
   withUnseededSources,
 } from './chat-context.js';
-import { backoffMs, buildSystemInstruction, modelsDueForCheck, modelsToTry } from './llm.service.js';
+import { buildSystemInstruction } from './chat.prompt.js';
+import { backoffMs, modelsDueForCheck, modelsToTry } from './model-health.js';
 import { appendMemoryMessage, clearMemorySessions, getMemorySession, MEMORY_LIMITS } from './session-store.js';
 import { knowledgeBaseSources } from './knowledge-base.content.js';
 import type { ChatMessage } from './ai-chat.types.js';
