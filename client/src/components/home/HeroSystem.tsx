@@ -18,7 +18,7 @@ import CursorReadout from './CursorReadout';
  */
 export default function HeroSystem() {
   return (
-    <section aria-labelledby="hero-title" className="hs theme-ink hero-glow">
+    <section aria-labelledby="hero-title" className="hs theme-deep hero-glow">
       <div className="hs-stage">
         <div aria-hidden="true" className="hs-guides">
           <div className="container-page h-full">

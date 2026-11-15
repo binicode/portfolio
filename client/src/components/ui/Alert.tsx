@@ -11,7 +11,7 @@ interface AlertProps {
 const VARIANT_STYLES: Record<AlertVariant, string> = {
   success: 'border-success/40 text-success',
   error: 'border-destructive/40 text-destructive',
-  info: 'border-accent/40 text-accent',
+  info: 'border-signal/40 text-signal',
 };
 
 const ICONS = {

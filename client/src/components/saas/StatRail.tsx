@@ -19,7 +19,7 @@ function Cell({ icon, label, value, title, children, className = '' }: { icon: R
   return (
     <div className={`flex min-w-0 flex-col bg-card px-4 py-3.5 sm:px-5 sm:py-4 ${className}`}>
       <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <span aria-hidden="true" className="text-accent-bright">
+        <span aria-hidden="true" className="text-signal">
           {icon}
         </span>
         {label}

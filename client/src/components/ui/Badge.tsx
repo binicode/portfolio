@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
-export type BadgeVariant = 'primary' | 'muted' | 'success';
+/** Status chips are information, so the highlighted one uses signal, not the action colour. */
+export type BadgeVariant = 'signal' | 'muted' | 'success';
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -10,7 +11,7 @@ interface BadgeProps {
 }
 
 const VARIANT_STYLES: Record<BadgeVariant, string> = {
-  primary: 'border-accent/35 text-accent',
+  signal: 'border-signal/40 text-signal',
   muted: 'border-border text-muted-foreground',
   success: 'border-success/40 text-success',
 };

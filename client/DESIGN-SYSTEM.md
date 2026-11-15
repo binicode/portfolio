@@ -5,11 +5,13 @@ The source of truth for the frontend's visual language. Tokens live in
 
 ## Concept
 
-Charcoal and rust: a dark, precise interface for a civil engineer who
-builds software. The palette, the tight grotesk headlines and the mono
-micro-labels follow the reference the owner chose (an Awwwards product
-site with a pinned, scroll-driven hero). The content and drawings stay
-specific to this portfolio: structures as a metaphor for the stack.
+Weathering: a dark, precise interface for a civil engineer who builds
+software, coloured like two materials that age well, Corten steel (rust)
+and copper patina (verdigris), on petrol ink instead of black. The tight
+grotesk headlines and the mono micro-labels follow the reference the owner
+chose (an Awwwards product site with a pinned, scroll-driven hero). The
+content and drawings stay specific to this portfolio: structures as a
+metaphor for the stack.
 
 Spend boldness in one place per page. On the home page that is the hero:
 a pinned scene where the headline clears away, a frame zooms in, and the
@@ -45,26 +47,60 @@ carries the name), and no filler.
 
 ## Color
 
+Three colours, three jobs. Rust is action, verdigris is information, ink
+gives depth. Contrast ratios are the worst case across every surface
+they sit on (checked by script for all pairs, then by axe on every route).
+
 | Token | Value | Role |
 | --- | --- | --- |
-| Charcoal 950 | `#0c0c0d` | Page background |
-| Charcoal 900 / 850 | `#141315` / `#1c1b1e` | Cards, panels, muted surfaces |
-| Line | `#29282c` | Hairlines and dividers (decorative) |
-| Bone | `#e4e3e4` | Text, primary buttons (15:1) |
-| Ash | `#a3a2a4` | Secondary text (7.4:1) |
-| Smoke | `#7d7c7e` | Dim meta text only (`text-dim`, 4.7:1) |
-| Rust | `#dd5226` | The single accent: active states, kickers, focus ring, launcher (4.9:1) |
-| Rust deep / shadow | `#873417` / `#5f2814` | Gradient stops only (hero frame, footer glow); never text |
+| Ink deep | `#0b1215` | Deepest surface: hero stage, header, dashboard rail |
+| Ink | `#10191e` | Page background |
+| Ink card | `#16232a` | Cards (`card`) |
+| Ink high | `#1d2d36` | Raised: hover, tracks, popovers, active segments (`raised`, `muted`) |
+| Line | `#283a44` | Hairlines and dividers (decorative) |
+| Input | `#6f8792` | Control borders (3.7:1, WCAG 1.4.11) |
+| Patina / card / high / line | `#0d201f` / `#132c2a` / `#1a3835` / `#24453f` | The patina section theme |
+| Ember | `#1b110d` | Under the footer's glow |
+| Bone | `#ede7dc` | Text, primary buttons (10:1 or more) |
+| Ash | `#a9b6bb` | Secondary text (6:1 or more) |
+| Smoke | `#7f8f96` | Dim meta text only (`text-dim`, 4.8:1 or more) |
+| Rust | `#e8642f` | **Action**: calls to action, active navigation, focus ring, selection, the launcher (4.8:1 as text on cards) |
+| Rust bright | `#f47b4c` | Rust text on raised surfaces and over the rust gradients |
+| Verdigris | `#62c2ab` | **Information and state** (`signal`): section labels, live status, architecture maps, dashboard data, healthy state (`success`), status badges (5.9:1 or more) |
+| Rose | `#ff7088` | Errors (`destructive`), a different hue from rust so an error never reads as the brand accent |
+| Chart muted | `#6c7f88` | Comparison marks in charts (3.4:1 or more) |
+| Rust deep / shadow, verdigris deep | `#8a3a1a` / `#5c2814`, `#1d4f46` | Gradient stops only; never text |
+
+Rules:
+
+- Rust marks what you can do; verdigris marks what something is or how
+  it's doing. A data series, a status or a label is never rust; a button
+  is never verdigris.
+- Charts: the series that matters in `signal`, the comparison in
+  `chart-muted`. Status always carries an icon or word, never colour alone.
+- Depth comes from surface steps, not shadows alone: deep, page, card,
+  raised. `.bg-card` and `.bg-raised` get the lit top edge and soft drop
+  (`--elevation-card`) automatically; floating panels use `shadow-pop`.
+- Section themes re-point the surfaces for everything inside them:
+  `theme-deep` (hero, header, dashboard rail), `theme-ink` (page),
+  `theme-patina` with `patina-glow` (Systems on the home page, the SaaS
+  hero). The footer is ink into ember (`footer-glow`). `PointerLight`
+  follows the section (`--glow`): rust by default, verdigris in patina.
+- The site frame weathers from rust at the top of the screen to patina at
+  the bottom; the hero frame from patina at the top to rust at the bottom.
 
 Components use semantic names only (`background`, `foreground`, `card`,
-`muted-foreground`, `dim`, `border`, `input`, `primary`, `accent`, `ring`…).
+`raised`, `muted-foreground`, `dim`, `border`, `input`, `primary`,
+`accent`, `signal`, `ring`…). The raw palette appears only in
+`globals.css` and in `opengraph-image.tsx` (ImageResponse can't read CSS
+variables).
 
 Never use `text-muted` or `text-secondary` for text: `muted` and
 `secondary` are surface colors.
 
-Text over the rust gradients needs checking by hand (axe skips gradients):
-small accent text there uses `accent-bright` (`--rust-bright`, #f47b4c) and
-secondary text stays Ash, both at 4.5:1 or better over the deepest stop.
+Text over gradients needs checking by hand (axe skips gradients): the hero
+frame keeps its two rust stops dark enough for `accent-bright` legend keys
+(4.6:1) and Ash (6:1); the footer glow keeps Ash above 6:1.
 
 ## Type
 
@@ -369,9 +405,10 @@ writes a brief at the end.
 
 ## Layout
 
-- `.site-frame`: the public site (and the 404 page) sits inside a rust
-  frame, `--frame` wide (6px on phones, up to 18px on desktop), rust at the
-  top fading to near-black. The wrapper is padded by `--frame`; the frame is
+- `.site-frame`: the public site (and the 404 page) sits inside a
+  weathered frame, `--frame` wide (6px on phones, up to 18px on desktop),
+  rust at the top of the screen through deep ink to patina at the bottom.
+  The wrapper is padded by `--frame`; the frame is
   a fixed, pointer-transparent `::after` overlay. Anything sticky or fixed
   adds `var(--frame)` to its offset (header, hero stage, mobile menu, chat
   launcher and panel, sticky sidebars). Dashboards and sign-in pages are

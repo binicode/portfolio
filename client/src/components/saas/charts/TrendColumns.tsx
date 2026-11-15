@@ -5,7 +5,7 @@ import { niceMax } from '../insights';
 
 interface TrendColumnsProps {
   points: TrendPoint[];
-  /** Index of the one column drawn in the accent (the newest). */
+  /** Index of the one column drawn in the signal colour (the newest). */
   emphasis: number;
   summary: string;
   unit: string;
@@ -37,7 +37,7 @@ export default function TrendColumns({ points, emphasis, summary, unit, Frame, h
         {points.map((point, index) => (
           <div key={point.key} data-slot className="chart-slot relative flex h-full flex-1 items-end justify-center px-1 sm:px-1.5">
             <span
-              className={`chart-bar block w-full max-w-11 rounded-t-[4px] ${index === emphasis ? 'bg-accent' : 'bg-chart-muted'}`}
+              className={`chart-bar block w-full max-w-11 rounded-t-[4px] ${index === emphasis ? 'bg-signal' : 'bg-chart-muted'}`}
               style={{ height: `${Math.max((point.value / top) * 100, point.value > 0 ? 1.5 : 0)}%` }}
             />
             {Frame && (
@@ -80,7 +80,7 @@ export default function TrendColumns({ points, emphasis, summary, unit, Frame, h
           // wider than its slot overflows inward, never past the card).
           <span
             key={point.key}
-            className={`flex min-w-0 flex-1 justify-center whitespace-nowrap ${index === emphasis ? 'font-medium text-accent-bright' : ''} ${
+            className={`flex min-w-0 flex-1 justify-center whitespace-nowrap ${index === emphasis ? 'font-medium text-signal-bright' : ''} ${
               index !== 0 && index !== emphasis && index !== Math.floor(n / 2) ? '@max-md:invisible' : ''
             } ${index === 0 ? '@max-md:justify-start' : ''} ${index === n - 1 ? '@max-md:justify-end' : ''}`}
           >

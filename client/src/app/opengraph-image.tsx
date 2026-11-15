@@ -5,10 +5,11 @@ export const alt = 'Biniyam Abera, full-stack software engineer. Software engine
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-const INK = '#0c0c0d';
-const CONCRETE = '#e4e3e4';
-const STEEL = '#a3a2a4';
-const RUST = '#dd5226';
+// The palette from globals.css (ImageResponse can't read CSS variables).
+const INK = '#10191e';
+const BONE = '#ede7dc';
+const ASH = '#a9b6bb';
+const RUST = '#e8642f';
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -22,8 +23,8 @@ export default function OpengraphImage() {
           justifyContent: 'space-between',
           padding: '72px 80px',
           backgroundColor: INK,
-          backgroundImage: 'linear-gradient(180deg, #0c0c0d 45%, #3d1a0e 80%, #873417 100%)',
-          color: CONCRETE,
+          backgroundImage: 'linear-gradient(180deg, #132b29 0%, #10191e 42%, #3d1a0e 80%, #8a3a1a 100%)',
+          color: BONE,
         }}
       >
         <div style={{ display: 'flex', fontSize: 26, color: RUST, letterSpacing: 2 }}>BINIYAM ABERA · FULL-STACK ENGINEER</div>
@@ -35,12 +36,12 @@ export default function OpengraphImage() {
             to hold up.
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, color: STEEL, fontSize: 24 }}>
-          <div style={{ display: 'flex', width: 2, height: 22, backgroundColor: STEEL }} />
-          <div style={{ display: 'flex', flex: 1, height: 2, backgroundColor: STEEL }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, color: ASH, fontSize: 24 }}>
+          <div style={{ display: 'flex', width: 2, height: 22, backgroundColor: ASH }} />
+          <div style={{ display: 'flex', flex: 1, height: 2, backgroundColor: ASH }} />
           <div style={{ display: 'flex' }}>Civil engineering to software engineering</div>
-          <div style={{ display: 'flex', flex: 1, height: 2, backgroundColor: STEEL }} />
-          <div style={{ display: 'flex', width: 2, height: 22, backgroundColor: STEEL }} />
+          <div style={{ display: 'flex', flex: 1, height: 2, backgroundColor: ASH }} />
+          <div style={{ display: 'flex', width: 2, height: 22, backgroundColor: ASH }} />
         </div>
       </div>
     ),

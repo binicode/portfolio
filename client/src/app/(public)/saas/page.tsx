@@ -30,12 +30,12 @@ const ENGINEERING = [
 export default function SaasPage() {
   return (
     <>
-      <section aria-labelledby="saas-title" className="theme-ink overflow-hidden">
+      <section aria-labelledby="saas-title" className="theme-patina patina-glow overflow-hidden">
         <PointerLight>
           <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
             <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
               <h1 id="saas-title" className="lg:col-span-8">
-                <span className="label block text-accent">Creator Dashboard</span>
+                <span className="label block text-signal">Creator Dashboard</span>
                 <span className="mt-5 block text-h1 font-medium">Your reach, in one place.</span>
               </h1>
               <div className="lg:col-span-4 lg:pb-1">
@@ -65,7 +65,7 @@ export default function SaasPage() {
           <ol className="mt-12 grid gap-px border-y border-foreground/80 bg-border sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
             {STEPS.map((step, index) => (
               <li key={step.title} className="bg-background py-7 sm:pr-6 sm:even:pl-6 lg:pl-6 lg:first:pl-0">
-                <span className="label tabular-nums text-accent">{String(index + 1).padStart(2, '0')}</span>
+                <span className="label tabular-nums text-signal">{String(index + 1).padStart(2, '0')}</span>
                 <h3 className="mt-6 text-h3 font-semibold">{step.title}</h3>
                 <p className="mt-1.5 text-body-sm text-muted-foreground">{step.body}</p>
               </li>

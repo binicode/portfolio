@@ -78,7 +78,7 @@ function SelectedWork({ projects }: { projects: Project[] }) {
 
 function Systems({ id }: { id: string }) {
   return (
-    <section id={id} aria-labelledby="systems-title" className="theme-ink overflow-hidden">
+    <section id={id} aria-labelledby="systems-title" className="theme-patina patina-glow overflow-hidden">
       <PointerLight>
         <div className="container-page py-section">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
@@ -153,7 +153,7 @@ function About() {
   return (
     <section id="about" aria-labelledby="about-title" className="py-section">
       <div className="container-page">
-        <h2 id="about-title" className="label text-accent">
+        <h2 id="about-title" className="label text-signal">
           From structures to software
         </h2>
         <p className="mt-6 max-w-[32ch] text-statement font-medium">

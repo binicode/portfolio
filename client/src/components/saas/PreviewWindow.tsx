@@ -14,7 +14,7 @@ export default function PreviewWindow({ inert = false, children }: { inert?: boo
       <div className="flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3">
         <p className="text-caption font-semibold">Creator Dashboard</p>
         <div className="label flex items-center gap-4 text-muted-foreground">
-          <span className="rounded-xs border border-accent/40 px-2 py-0.5 text-accent-bright">Sample data</span>
+          <span className="rounded-xs border border-signal/40 px-2 py-0.5 text-signal-bright">Sample data</span>
           <span aria-hidden="true" className="hidden text-foreground sm:inline">
             Dashboard
           </span>

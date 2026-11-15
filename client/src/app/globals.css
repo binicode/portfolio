@@ -3,12 +3,14 @@
 @import "./orbit-keyframes.css";
 
 /*
- * Design system — charcoal and burnt orange.
- * Palette and type hierarchy follow the reference the site is styled after:
- * near-black surfaces, off-white tight grotesk headlines, small uppercase
- * mono labels, one burnt-orange accent and rust-coloured glow gradients.
- * Components use the semantic names (background, foreground,
- * muted-foreground, border…); the raw palette is only referenced here.
+ * Design system — "Weathering": Corten rust and copper patina on petrol ink.
+ * Two materials that age well, like the structures the site is named for:
+ * rust is action, verdigris is information and state, petrol ink (not
+ * black) gives four visible depth steps, warm bone carries the text. Type
+ * stays the reference's: tight grotesk headlines, small uppercase mono labels.
+ * Components use the semantic names (background, card, raised, foreground,
+ * muted-foreground, accent, signal, border…); the raw palette is only
+ * referenced here and in the section themes below.
  */
 
 @theme inline {
@@ -16,6 +18,7 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--foreground);
+  --color-raised: var(--raised);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-dim: var(--dim);
@@ -27,12 +30,18 @@
   --color-accent: var(--accent);
   --color-accent-bright: var(--accent-bright);
   --color-accent-foreground: var(--accent-foreground);
+  --color-signal: var(--signal);
+  --color-signal-bright: var(--signal-bright);
+  --color-signal-foreground: var(--signal-foreground);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
-  --color-success-foreground: var(--accent-foreground);
+  --color-success-foreground: var(--signal-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --shadow-card: var(--elevation-card);
+  --shadow-pop: var(--elevation-pop);
 
   --font-sans: var(--font-sans-face), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -104,42 +113,76 @@
 :root {
   color-scheme: dark;
 
-  /* Palette (sampled from the reference, adjusted for WCAG contrast) */
-  --char-950: #0c0c0d;
-  --char-900: #141315;
-  --char-850: #1c1b1e;
-  --char-line: #29282c;
-  --bone: #e4e3e4;
-  --ash: #a3a2a4;
-  --smoke: #7d7c7e;
-  /* Burnt orange: 4.9:1 on charcoal, so it works for small text too. */
-  --rust: #dd5226;
-  --rust-deep: #873417;
-  --rust-shadow: #5f2814;
-  /* Small accent text over the rust end of the hero frame (4.7:1 there). */
-  --rust-bright: #f47b4c;
+  /* Palette. Every text pair is checked against WCAG AA; the ratios quoted
+     are the worst case across the surfaces (DESIGN-SYSTEM.md, Color). */
 
-  /* Semantic roles */
-  --background: var(--char-950);
+  /* Ink: petrol-tinted, never black. Four depth steps, deepest first. */
+  --ink-deep: #0b1215; /* hero stage, header */
+  --ink: #10191e; /* page */
+  --ink-card: #16232a; /* cards */
+  --ink-high: #1d2d36; /* raised: hover, popovers, tracks, active segments */
+  --ink-line: #283a44;
+  --ink-input: #6f8792; /* control borders: 3.7:1 or more (WCAG 1.4.11) */
+
+  /* Patina: verdigris-tinted ink, for sections about systems and data. */
+  --patina: #0d201f;
+  --patina-card: #132c2a;
+  --patina-high: #1a3835;
+  --patina-line: #24453f;
+
+  /* Ember: rust-tinted ink, under the footer's closing call to action. */
+  --ember: #1b110d;
+
+  /* Text */
+  --bone: #ede7dc; /* body: 10:1 or more */
+  --ash: #a9b6bb; /* muted: 6:1 or more */
+  --smoke: #7f8f96; /* dim: decorative and large text only (4.8:1 or more) */
+
+  /* Rust (Corten steel): action. 4.8:1 as small text on cards. */
+  --rust: #e8642f;
+  --rust-bright: #f47b4c; /* text over rust gradients: 4.7:1 or more */
+  --rust-deep: #8a3a1a;
+  --rust-shadow: #5c2814;
+
+  /* Verdigris (copper patina): information and state. 5.9:1 or more. */
+  --verdigris: #62c2ab;
+  --verdigris-bright: #8ad6c3;
+  --verdigris-deep: #1d4f46;
+
+  /* Text on rust (5.8:1), verdigris (9:1) and bone (15:1) fills. */
+  --on-color: #0a0f12;
+
+  /* Semantic roles: components use only these. */
+  --background: var(--ink);
   --foreground: var(--bone);
-  --card: var(--char-900);
-  --muted: var(--char-850);
+  --card: var(--ink-card);
+  --raised: var(--ink-high);
+  --muted: var(--ink-high);
   --muted-foreground: var(--ash);
   --dim: var(--smoke);
   --primary: var(--bone);
-  --primary-foreground: var(--char-950);
+  --primary-foreground: var(--on-color);
   --accent: var(--rust);
   --accent-bright: var(--rust-bright);
-  --accent-foreground: var(--char-950);
-  --destructive: #ff7b6b;
-  --success: #6fcf97;
-  --border: var(--char-line);
-  --input: #6a696d;
+  --accent-foreground: var(--on-color);
+  --signal: var(--verdigris);
+  --signal-bright: var(--verdigris-bright);
+  --signal-foreground: var(--on-color);
+  /* Rose, not red: an error never reads as the rust accent. */
+  --destructive: #ff7088;
+  /* Healthy state is the patina; it ships with an icon or word, never alone. */
+  --success: var(--verdigris);
+  --border: var(--ink-line);
+  --input: var(--ink-input);
   --ring: var(--rust);
 
-  /* De-emphasis hue for chart marks: one series in gray, the current or top
-     value in the accent. 3.7:1 against the card surface. */
-  --chart-muted: #6f6e72;
+  /* Comparison marks in charts (the earlier period, the rest of a series):
+     3.4:1 or more against cards. The series that matters is in signal. */
+  --chart-muted: #6c7f88;
+
+  /* Depth: a hairline of light along the top edge and a soft drop below. */
+  --elevation-card: inset 0 1px 0 rgb(255 255 255 / 0.045), 0 18px 40px -28px rgb(0 0 0 / 0.8);
+  --elevation-pop: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.9);
 
   --gutter: clamp(1.25rem, 0.6rem + 3vw, 3rem);
   --section: clamp(5rem, 3rem + 7vw, 10rem);
@@ -149,16 +192,38 @@
   --frame: clamp(0.375rem, 1.25vw, 1.125rem);
 }
 
-/* Structural marker for full-bleed dark sections (hero, product, footer).
-   The whole site is dark now, so it only pins the surface colours. */
-.theme-ink {
+/* Section themes. Each one re-points the semantic surfaces, so everything
+   inside (cards, borders, tracks) follows without its own colours. Sections
+   alternate between them to give the page rhythm:
+     theme-deep    the deepest ink: hero stage and header
+     theme-ink     the page surface
+     theme-patina  verdigris-tinted: systems, products, data
+   The footer is ink warming into an ember glow (.footer-glow). */
+.theme-ink,
+.theme-deep,
+.theme-patina {
   color-scheme: dark;
   background-color: var(--background);
   color: var(--foreground);
 }
 
-/* The rust frame around the public site, after the reference's presentation
-   border: rust at the top fading to near-black at the bottom. The wrapper is
+.theme-deep {
+  --background: var(--ink-deep);
+}
+
+.theme-patina {
+  --background: var(--patina);
+  --card: var(--patina-card);
+  --raised: var(--patina-high);
+  --muted: var(--patina-high);
+  --border: var(--patina-line);
+  /* PointerLight's colour inside the section. */
+  --glow: var(--verdigris);
+}
+
+/* The frame around the public site, after the reference's presentation
+   border, weathered: rust at the top, through deep ink, to patina at the
+   bottom (the frame is fixed, so that's the top and bottom of the screen). The wrapper is
    padded by the frame width so no content sits under it; the frame itself is
    a fixed, pointer-transparent overlay that is painted once and composited,
    so scrolling never repaints it. */
@@ -173,7 +238,14 @@
   z-index: 45;
   pointer-events: none;
   border: var(--frame) solid transparent;
-  border-image: linear-gradient(180deg, #b44c1d 0%, #8f3a16 32%, #4f2111 70%, #1f100a 100%) 1;
+  border-image: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--rust) 82%, var(--ink-deep)) 0%,
+      var(--rust-deep) 30%,
+      var(--ink-deep) 62%,
+      var(--verdigris-deep) 100%
+    )
+    1;
   /* A hairline where the frame meets the page, like a bezel. */
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.6);
 }
@@ -408,9 +480,16 @@
   padding: var(--hs-pad);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  /* Charcoal warming into rust at the bottom. Static gradient: painted once.
-     Kept dark enough under the legend for muted text to stay above 4.5:1. */
-  background-image: linear-gradient(180deg, #121113 0%, #171112 52%, #3d1a0e 82%, #5a2412 100%);
+  /* Weathered: patina at the top, through ink, into rust at the bottom.
+     Static gradient: painted once. The two rust stops stay this dark because
+     the legend sits on them: muted text 6:1, the rust-bright keys 4.6:1. */
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--patina-card) 85%, var(--ink-deep)) 0%,
+    var(--ink) 50%,
+    #3d1a0e 82%,
+    #5a2412 100%
+  );
 }
 
 /* Progress legend (pinned scene only): four layers in a row, an accent bar
@@ -479,8 +558,9 @@
   padding: 1.25rem;
   border: 1px solid color-mix(in srgb, var(--foreground) 11%, transparent);
   border-radius: var(--radius-md);
-  background-color: rgb(18 17 19 / 0.94);
+  background-color: color-mix(in srgb, var(--ink-card) 94%, transparent);
   background-image: linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 40%);
+  box-shadow: var(--elevation-card);
 }
 
 .stack-card-art {
@@ -834,6 +914,14 @@
    [data-active]. Transform and opacity, plus one brightness filter on a
    small bar. In the components layer so utilities can still override. */
 @layer components {
+  /* Depth: anything on the card or raised surface gets the lit top edge and
+     soft drop, so elevation is the same everywhere without each component
+     asking. A `shadow-*` utility on the element still wins. */
+  .bg-card,
+  .bg-raised {
+    box-shadow: var(--elevation-card);
+  }
+
   /* Readout for a chart point. Text in text tokens, never the series colour;
      hidden from assistive tech (the chart announces values itself). */
   .chart-tip {
@@ -920,7 +1008,7 @@
     padding: 1rem 1.125rem 1.125rem;
     background-color: var(--background);
     background-image:
-      radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 55%),
+      radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--signal) 9%, transparent), transparent 55%),
       radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--foreground) 9%, transparent) 1px, transparent 0);
     background-size:
       auto,
@@ -947,13 +1035,13 @@
   }
 
   .stack-layer:last-child .stack-node {
-    background-color: var(--accent);
+    background-color: var(--signal);
   }
 
   .stack-layer:not(:last-child)::after {
     content: "";
     position: absolute;
-    background-color: color-mix(in srgb, var(--accent) 38%, transparent);
+    background-color: color-mix(in srgb, var(--signal) 38%, transparent);
     transition: background-color 250ms var(--ease-out);
   }
 
@@ -1015,7 +1103,7 @@
     display: none;
     flex: 1;
     height: 1px;
-    background-color: color-mix(in srgb, var(--accent) 38%, transparent);
+    background-color: color-mix(in srgb, var(--signal) 38%, transparent);
     transition: background-color 250ms var(--ease-out);
   }
 
@@ -1045,12 +1133,12 @@
   .group:focus-within .stack-layer:not(:last-child)::after,
   .group:hover .stack-line,
   .group:focus-within .stack-line {
-    background-color: var(--accent);
+    background-color: var(--signal);
   }
 
   .group:hover .stack-node,
   .group:focus-within .stack-node {
-    background-color: var(--accent);
+    background-color: var(--signal);
   }
 
   .group:hover .stack-chip {
@@ -1077,7 +1165,7 @@
 
   .repo-feature {
     background-color: color-mix(in srgb, var(--muted) 70%, transparent);
-    background-image: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 11%, transparent), transparent 62%);
+    background-image: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--signal) 11%, transparent), transparent 62%);
     transition: background-color 160ms var(--ease-out);
   }
 
@@ -1236,16 +1324,28 @@
   }
 }
 
-/* Footer: charcoal warming into a rust glow behind the closing line, like the
-   reference's gradient sections. Static; text above it stays on dark. */
+/* Footer: ember warming into a rust glow behind the closing line, with a
+   low patina light opposite, like the reference's gradient sections. Static;
+   muted text stays above 6:1 at the brightest point of the glow. */
 .footer-glow {
-  background-image: radial-gradient(80% 70% at 30% 0%, rgb(135 52 23 / 0.45), transparent 70%),
-    linear-gradient(180deg, #120d0c 0%, var(--background) 65%);
+  background-image:
+    radial-gradient(80% 70% at 30% 0%, color-mix(in srgb, var(--rust-deep) 45%, transparent), transparent 70%),
+    radial-gradient(60% 55% at 95% 100%, color-mix(in srgb, var(--verdigris-deep) 45%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--ember) 0%, var(--background) 65%);
 }
 
-/* A soft rust light behind the hero. Static: painted once. */
+/* Two soft lights behind the hero: rust where the orbit sits, patina low on
+   the opposite side. Static: painted once. */
 .hero-glow {
-  background-image: radial-gradient(55% 60% at 74% 42%, rgb(221 82 38 / 0.08), transparent 70%);
+  background-image:
+    radial-gradient(55% 60% at 74% 42%, color-mix(in srgb, var(--rust) 9%, transparent), transparent 70%),
+    radial-gradient(45% 50% at 12% 88%, color-mix(in srgb, var(--verdigris) 7%, transparent), transparent 70%);
+}
+
+/* Patina sections: a verdigris light from the top corner, so the tint reads
+   as light on a surface rather than a flat fill. */
+.patina-glow {
+  background-image: radial-gradient(70% 60% at 85% 0%, color-mix(in srgb, var(--verdigris) 10%, transparent), transparent 70%);
 }
 
 /* Faint column guides, used once on the hero. */
