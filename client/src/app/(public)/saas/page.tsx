@@ -36,7 +36,9 @@ export default function SaasPage() {
             <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
               <h1 id="saas-title" className="lg:col-span-8">
                 <span className="label block text-signal">Creator Dashboard</span>
-                <span className="mt-5 block text-h1 font-medium">Your reach, in one place.</span>
+                <span className="mt-5 block text-h1 font-medium">
+                  Your reach, <em className="emph">in one place</em>.
+                </span>
               </h1>
               <div className="lg:col-span-4 lg:pb-1">
                 <p className="text-lead text-muted-foreground">GitHub, YouTube and Hacker News. Real accounts, real billing.</p>

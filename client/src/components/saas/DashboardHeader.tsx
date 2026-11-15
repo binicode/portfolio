@@ -9,7 +9,9 @@ export default function DashboardHeader({ name, summary, children }: { name: str
   return (
     <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="min-w-0">
-        <h1 className="text-title font-medium">Welcome back, {name}</h1>
+        <h1 className="text-title font-medium">
+          Welcome back, <em className="emph">{name}</em>
+        </h1>
         <div className="mt-1.5 flex min-h-6 items-center text-muted-foreground">{summary}</div>
       </div>
       <div className="flex min-h-9 items-center">{children}</div>

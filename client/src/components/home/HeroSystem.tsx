@@ -34,7 +34,7 @@ export default function HeroSystem() {
 
         <div className="hs-intro container-page">
           <h1 id="hero-title" className="mx-auto max-w-[16ch] text-h1 font-medium">
-            Software engineered to hold up.
+            Software engineered to <em className="emph">hold up</em>.
           </h1>
           <p className="mx-auto mt-6 max-w-[30rem] text-muted-foreground sm:text-lead">
             I design and build web apps and SaaS products, from interface to database.

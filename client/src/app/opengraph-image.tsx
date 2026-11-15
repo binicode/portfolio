@@ -10,6 +10,7 @@ const INK = '#10191e';
 const BONE = '#ede7dc';
 const ASH = '#a9b6bb';
 const RUST = '#e8642f';
+const VERDIGRIS = '#62c2ab';
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -33,7 +34,9 @@ export default function OpengraphImage() {
             Software engineered
           </div>
           <div style={{ display: 'flex', fontSize: 108, fontWeight: 500, lineHeight: 0.95, letterSpacing: -5 }}>
-            to hold up.
+            <span>to&nbsp;</span>
+            <span style={{ color: VERDIGRIS }}>hold up</span>
+            <span>.</span>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, color: ASH, fontSize: 24 }}>

@@ -323,17 +323,30 @@
   text-transform: uppercase;
 }
 
-/* Text link: quiet hairline underline that strengthens on hover. */
+/* Text link: the text keeps its colour (and its contrast); the underline is
+   verdigris, so anything you can follow reads as one family across the
+   site. It fills in on hover. Calls to action stay rust buttons. */
 @utility link {
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.25em;
-  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
-  transition: text-decoration-color 160ms var(--ease-out);
+  text-decoration-color: color-mix(in srgb, var(--signal) 60%, transparent);
+  transition:
+    text-decoration-color 160ms var(--ease-out),
+    color 160ms var(--ease-out);
 
   &:hover {
-    text-decoration-color: currentColor;
+    color: var(--signal-bright);
+    text-decoration-color: var(--signal);
   }
+}
+
+/* The promise in a headline: the few words that say what the reader gets
+   ("to hold up", "in one place"). One phrase per leading headline, never a
+   whole line, never body text. Use on <em> so it's emphasis, not styling. */
+@utility emph {
+  font-style: normal;
+  color: var(--signal);
 }
 
 /* ---- Drawing devices ---------------------------------------------------- */
@@ -1304,7 +1317,9 @@
 }
 
 /* Scroll-linked reading: words brighten as they reach the middle of the view.
-   The statement is large text (24px+), and 0.45 keeps unread words at 3.7:1. */
+   The statement is large text (24px+), and 0.45 keeps unread words at 3.7:1.
+   Emphasised words (verdigris) are darker to begin with, so they start at
+   0.6, which keeps them at 3.8:1. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .reveal-word {
@@ -1312,6 +1327,19 @@
       animation-timeline: view();
       animation-range: cover 10% cover 40%;
     }
+
+    .emph .reveal-word {
+      animation-name: word-in-emph;
+    }
+  }
+}
+
+@keyframes word-in-emph {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
   }
 }
 

@@ -19,7 +19,7 @@ function TitleLink({ project, as: Heading, className }: { project: Project; as: 
         <Link
           href={`/projects/${project.slug}`}
           // The ring is drawn inside the card: the card clips anything outside its edge.
-          className="after:absolute after:inset-0 after:z-[1] after:rounded-xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-4 focus-visible:after:outline-ring"
+          className="transition-colors duration-200 group-hover:text-signal-bright group-focus-within:text-signal-bright after:absolute after:inset-0 after:z-[1] after:rounded-xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-4 focus-visible:after:outline-ring"
         >
           {project.title}
         </Link>
@@ -42,7 +42,7 @@ function ExternalLinks({ project }: { project: Project }) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-signal-bright"
         >
           {link.label}
           <ArrowUpRight aria-hidden="true" className="size-3.5" strokeWidth={1.75} />
@@ -59,7 +59,7 @@ function CaseStudyCue({ strong = false }: { strong?: boolean }) {
     <span
       aria-hidden="true"
       className={`inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
-        strong ? 'text-accent-bright' : 'text-foreground group-hover:text-accent-bright'
+        strong ? 'text-signal' : 'text-foreground group-hover:text-signal-bright'
       }`}
     >
       Case study
@@ -74,7 +74,7 @@ function Featured({ project, heading }: { project: Project; heading: HeadingLeve
       <div className="grid gap-5 lg:grid-cols-12 lg:items-end lg:gap-10">
         <div className="lg:col-span-7">
           <p className="label flex items-center gap-3">
-            <span className="text-accent-bright">Featured</span>
+            <span className="text-signal">Featured</span>
             <span aria-hidden="true" className="h-px w-6 bg-border" />
             <span className="text-muted-foreground">{projectYear(project)}</span>
           </p>

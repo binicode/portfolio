@@ -47,9 +47,10 @@ carries the name), and no filler.
 
 ## Color
 
-Three colours, three jobs. Rust is action, verdigris is information, ink
-gives depth. Contrast ratios are the worst case across every surface
-they sit on (checked by script for all pairs, then by axe on every route).
+Three colours, three jobs. Rust is the one action (start a project),
+verdigris is where the eye should land, ink gives depth. Contrast ratios are
+the worst case across every surface they sit on (checked by script for all
+pairs, then by axe on every route).
 
 | Token | Value | Role |
 | --- | --- | --- |
@@ -64,18 +65,33 @@ they sit on (checked by script for all pairs, then by axe on every route).
 | Bone | `#ede7dc` | Text, primary buttons (10:1 or more) |
 | Ash | `#a9b6bb` | Secondary text (6:1 or more) |
 | Smoke | `#7f8f96` | Dim meta text only (`text-dim`, 4.8:1 or more) |
-| Rust | `#e8642f` | **Action**: calls to action, active navigation, focus ring, selection, the launcher (4.8:1 as text on cards) |
+| Rust | `#e8642f` | **The action and the brand**: "start a project" calls to action, the launcher, the header (bracket button, nav underline, scroll meter), focus ring, selection, the site frame (4.8:1 as text on cards) |
 | Rust bright | `#f47b4c` | Rust text on raised surfaces and over the rust gradients |
-| Verdigris | `#62c2ab` | **Information and state** (`signal`): section labels, live status, architecture maps, dashboard data, healthy state (`success`), status badges (5.9:1 or more) |
+| Verdigris | `#62c2ab` | **Where the eye lands** (`signal`): the promise in a leading headline (`emph`), links and every non-primary hover, section labels, featured and high-value markers, the dashboard's data and the reader's name, live status, healthy state (`success`), status badges (5.9:1 or more) |
 | Rose | `#ff7088` | Errors (`destructive`), a different hue from rust so an error never reads as the brand accent |
 | Chart muted | `#6c7f88` | Comparison marks in charts (3.4:1 or more) |
 | Rust deep / shadow, verdigris deep | `#8a3a1a` / `#5c2814`, `#1d4f46` | Gradient stops only; never text |
 
 Rules:
 
-- Rust marks what you can do; verdigris marks what something is or how
-  it's doing. A data series, a status or a label is never rust; a button
-  is never verdigris.
+- Rust is the one thing to do; verdigris is what to notice. A data series,
+  a status, a label or a link is never rust; a filled button is never
+  verdigris. In a hero or closing band they pair up: the promise in
+  verdigris, the action under it in rust.
+- Emphasis, not ornament: the accent lives in the content and its states,
+  never in added shapes, lines or illustrations.
+  - `emph` (on `<em>`) marks the promise in a leading headline: the few
+    words that say what the reader gets. One phrase per headline, only in
+    leading headlines: hero "to *hold up*", About "*applied to software*",
+    SaaS hero "*in one place*", footer "needs to *hold up*". "Hold up"
+    opens and closes every visit, and that echo is deliberate. The dashboard
+    and its preview greet the reader with their name in `emph`.
+  - Links (`link`): text keeps its colour, the underline is verdigris and
+    fills in on hover. Secondary buttons, project cards (title and "Case
+    study"), external links and inline actions turn verdigris on hover.
+  - Labels that lead a section, and "Featured", are verdigris.
+  - In `RevealWords`, emphasised words start brighter (0.6, not 0.45) so
+    they stay above 3:1 while they reveal.
 - Charts: the series that matters in `signal`, the comparison in
   `chart-muted`. Status always carries an icon or word, never colour alone.
 - Depth comes from surface steps, not shadows alone: deep, page, card,
@@ -163,7 +179,8 @@ style. Use it for navigation and metadata, not for sentences, and not as
 an eyebrow above every heading. A rust `label` kicker is reserved for a
 page's or section's identity (for example "Creator Dashboard").
 
-Avoid: accenting one word in a headline, numbered markers on content
+Avoid: colouring words for effect (the only coloured words are the promise
+in a leading headline, `emph`, see Color), numbered markers on content
 that isn't a sequence.
 
 ## Calls to action
@@ -179,9 +196,11 @@ of action it is.
 - **Primary (bone): the main action of a product flow.** Create an account,
   Buy now, Continue to checkout, Save, Log in on its form.
 - **Secondary (outline): the alternative route** beside either: See the
-  work, Log in, Message me on LinkedIn.
+  work, Log in, Message me on LinkedIn. Its border and text turn verdigris
+  on hover.
 - Text links (`link` utility) for routes inside content: See all work, Try
-  the assistant, Explore the dashboard, Browse the store.
+  the assistant, Explore the dashboard, Browse the store. Verdigris
+  underline.
 - At most one accent and one primary per view. Pair a main action with one
   secondary, never three equal buttons.
 

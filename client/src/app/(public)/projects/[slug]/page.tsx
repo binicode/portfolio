@@ -48,7 +48,7 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 font-medium transition-colors hover:text-accent"
+      className="inline-flex items-center gap-1 font-medium transition-colors hover:text-signal-bright"
     >
       {children}
       <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
