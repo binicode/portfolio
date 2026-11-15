@@ -25,6 +25,7 @@
   --color-chart-muted: var(--chart-muted);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--muted);
   --color-secondary-foreground: var(--foreground);
   --color-accent: var(--accent);
@@ -111,131 +112,270 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Palette. Every text pair is checked against WCAG AA; the ratios quoted
-     are the worst case across the surfaces (DESIGN-SYSTEM.md, Color). */
+  /* Palette: Deep Teal and Soft Sand as in the reference, two glazed bodies
+     on a sand field. Sand is the field and the larger share of every
+     screen, about two thirds; teal is the concentrated body, about a third:
+     the header, the hero's stack frame, the footer, the assistant, rails
+     and window bars. Type is inverted between them (sand on teal, teal on
+     sand). Each body is lit the same way: a key light from the upper left,
+     a gloss along the top and a reflection down the right edge, shade to
+     the lower right, and a warm studio shadow on the field below it. Burnt
+     Terracotta is only the action. Every text pair is checked against WCAG
+     AA at its worst case, lighting included (DESIGN-SYSTEM.md, Color). */
 
-  /* Ink: petrol-tinted, never black. Four depth steps, deepest first. */
-  --ink-deep: #0b1215; /* hero stage, header */
-  --ink: #10191e; /* page */
-  --ink-card: #16232a; /* cards */
-  --ink-high: #1d2d36; /* raised: hover, popovers, tracks, active segments */
-  --ink-line: #283a44;
-  --ink-input: #6f8792; /* control borders: 3.7:1 or more (WCAG 1.4.11) */
+  /* Teal, lit to shaded (the reference's ramp). */
+  --teal-lit: #136f6e; /* the key light: gloss, rims, and emphasis on sand */
+  --teal-glow: #0f6262; /* the brightest teal any text sits on */
+  --teal: #084c4c; /* Deep Teal: bodies, the solid button on sand */
+  --teal-ink: #063d3d;
+  --teal-deep: #032c2c; /* header, rails */
+  --teal-abyss: #011b1b; /* the deepest shade, in gradients only */
+  --teal-card: #0c5858; /* cards on teal; the solid button's hover */
+  --teal-raised: #0d5a5a;
+  --teal-line: #2a6b69; /* hairlines on teal (decorative) */
+  --teal-input: #86b0ac; /* control borders on teal: 3:1 or more (WCAG 1.4.11) */
 
-  /* Patina: verdigris-tinted ink, for sections about systems and data. */
-  --patina: #0d201f;
-  --patina-card: #132c2a;
-  --patina-high: #1a3835;
-  --patina-line: #24453f;
+  /* Sand, lit to shaded (the reference's ramp), and the field. */
+  --sand-lit: #f7ecdc;
+  --sand-body: #f3e9da; /* cards on sand */
+  --sand-field: #efe4d4; /* the page */
+  --sand-field-lit: #f7efe4;
+  --sand-field-edge: #e7d8c3;
+  --sand-raised: #e9dcc8; /* raised on sand: hover, tracks, active segments */
+  --sand: #e7d4b9; /* Soft Sand: the solid button on teal */
+  --sand-deep: #cbb393; /* shade and hairlines */
+  --sand-shadow: #b09675; /* rims only */
 
-  /* Ember: rust-tinted ink, the footer's surface (text: bone 15:1, muted
-     8.9:1, rust 5.6:1, verdigris 8.7:1), with its own warm hairline. */
-  --ember: #1b110d;
-  --ember-line: #40291e;
+  /* Inverted type. */
+  --sand-text: #ece1ce; /* on teal: 5.5:1 at the lit centre, 7.5:1 on Deep Teal */
+  --sand-text-muted: #d9cdb8; /* on teal: 4.5:1 or more */
+  --teal-text: #0b4a4a; /* on sand: 7.2:1 at the field's edge */
+  --teal-text-muted: #3e5c59; /* on sand: 5:1 or more */
 
-  /* Text */
-  --bone: #ede7dc; /* body: 10:1 or more */
-  --ash: #a9b6bb; /* muted: 6:1 or more */
-  --smoke: #7f8f96; /* dim: decorative and large text only (4.8:1 or more) */
+  /* Burnt Terracotta: the action. A fill with ink text (4.9:1); as text or
+     a focus ring, only on deep teal (the light step, 4.8:1 or more). */
+  --terracotta: #d96b52;
+  --terracotta-light: #f2a28c;
+  --terracotta-hover: #e4826b; /* the fill on hover, ink text 6.1:1 */
 
-  /* Rust (Corten steel): action. 4.8:1 as small text on cards. */
-  --rust: #e8642f;
-  --rust-bright: #f47b4c; /* text over rust gradients: 4.7:1 or more */
-  --rust-deep: #8a3a1a;
-  --rust-shadow: #5c2814;
+  /* Sea glass: information and state on teal (4.7:1 or more). */
+  --sea: #9fdfd2;
+  --sea-bright: #b5e8de;
 
-  /* Verdigris (copper patina): information and state. 5.9:1 or more. */
-  --verdigris: #62c2ab;
-  --verdigris-bright: #8ad6c3;
-  --verdigris-deep: #1d4f46;
+  /* Text on terracotta (4.9:1) and sea-glass fills. */
+  --on-color: #062224;
 
-  /* Text on rust (5.8:1), verdigris (9:1) and bone (15:1) fills. */
-  --on-color: #0a0f12;
-
-  /* Semantic roles: components use only these. */
-  --background: var(--ink);
-  --foreground: var(--bone);
-  --card: var(--ink-card);
-  --raised: var(--ink-high);
-  --muted: var(--ink-high);
-  --muted-foreground: var(--ash);
-  --dim: var(--smoke);
-  --primary: var(--bone);
-  --primary-foreground: var(--on-color);
-  --accent: var(--rust);
-  --accent-bright: var(--rust-bright);
-  --accent-foreground: var(--on-color);
-  --signal: var(--verdigris);
-  --signal-bright: var(--verdigris-bright);
-  --signal-foreground: var(--on-color);
-  /* Rose, not red: an error never reads as the rust accent. */
-  --destructive: #ff7088;
-  /* Healthy state is the patina; it ships with an icon or word, never alone. */
-  --success: var(--verdigris);
-  --border: var(--ink-line);
-  --input: var(--ink-input);
-  --ring: var(--rust);
-
-  /* Comparison marks in charts (the earlier period, the rest of a series):
-     3.4:1 or more against cards. The series that matters is in signal. */
-  --chart-muted: #6c7f88;
-
-  /* Depth: a hairline of light along the top edge and a soft drop below. */
-  --elevation-card: inset 0 1px 0 rgb(255 255 255 / 0.045), 0 18px 40px -28px rgb(0 0 0 / 0.8);
-  --elevation-pop: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.9);
+  /* The warm studio shadow a body casts on the field (the reference's
+     #3a2e21). */
+  --shadow-warm: 58 46 33;
 
   --gutter: clamp(1.25rem, 0.6rem + 3vw, 3rem);
   --section: clamp(5rem, 3rem + 7vw, 10rem);
   --header-h: 4rem;
-  /* Width of the rust frame around the public site (.site-frame). Sticky and
+  /* Width of the frame around the public site (.site-frame). Sticky and
      fixed elements add it to their offsets. */
   --frame: clamp(0.375rem, 1.25vw, 1.125rem);
 }
 
-/* Section themes. Solid surfaces only: each one re-points the semantic
-   surfaces, so everything inside (cards, borders, tracks) follows without
-   its own colours, and the page gets its rhythm from changes of material
-   with a hairline at each edge rather than from glows:
-     theme-deep    the deepest ink: hero stage, header, dashboard rail
-     theme-ink     the page surface
-     theme-patina  verdigris-tinted: systems, products, data
-     theme-ember   rust-tinted: the footer's close */
+/* Semantic roles: components use only these. Sand is the default, the
+   field every screen stands on; the teal themes restate the teal set, so a
+   teal body keeps its own colours wherever it sits, and theme-sand puts
+   the sand set back inside one. */
+:root,
+.theme-sand {
+  --background: var(--sand-field);
+  --foreground: var(--teal-text);
+  --card: var(--sand-body);
+  --raised: var(--sand-raised);
+  --muted: var(--sand-raised);
+  --muted-foreground: var(--teal-text-muted);
+  --dim: var(--teal-text-muted);
+  --primary: var(--teal);
+  --primary-hover: var(--teal-card);
+  --primary-foreground: var(--sand-body); /* 8.1:1, 6.9:1 on hover */
+  --accent: var(--terracotta);
+  --accent-bright: var(--terracotta-hover);
+  --accent-foreground: var(--on-color);
+  --signal: var(--teal-glow); /* 5.1:1 or more */
+  --signal-bright: var(--teal-text);
+  --signal-foreground: var(--sand-body);
+  /* The promise in a headline, in the lit teal: 4.7:1 on the page. */
+  --emph: var(--teal-lit);
+  --destructive: #8f2424; /* 6.1:1 or more */
+  --success: var(--teal-glow);
+  --border: var(--sand-deep);
+  --input: #74674f; /* 3.9:1 or more */
+  --ring: var(--teal-text);
+  /* Comparison marks in charts: 3.5:1 or more against cards. */
+  --chart-muted: #7d705b;
+
+  /* A sand body's edges: a bright rim along the top and left (the
+     softboxes), a darker sand rim along the bottom and right, then the
+     warm studio shadow. */
+  --elevation-card:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 1px 0 0 rgb(255 255 255 / 0.55),
+    inset 0 -1px 0 rgb(176 150 117 / 0.5),
+    inset -1px 0 0 rgb(176 150 117 / 0.3),
+    0 22px 36px -22px rgb(var(--shadow-warm) / 0.24);
+  --elevation-pop:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(176 150 117 / 0.5),
+    0 2px 6px rgb(var(--shadow-warm) / 0.06),
+    0 30px 56px -26px rgb(var(--shadow-warm) / 0.3);
+  /* A sand body's surface, as the reference's sand drop: lit toward the
+     middle (#f7ecdc), shaded toward the corners (#cbb393), with a gloss
+     band along the top and a window reflection down the right edge, both
+     inside the padding. Muted text stays 5:1 or more at the darkest corner.
+     The lit middle and the shaded corners are one gradient (they meet at
+     55%, both clear there), so each card paints three layers, not four. */
+  --glass-surface:
+    linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0) 14px),
+    linear-gradient(90deg, rgb(255 255 255 / 0) calc(100% - 15px), rgb(255 255 255 / 0.4) calc(100% - 7px), rgb(255 255 255 / 0) calc(100% - 2px)),
+    radial-gradient(farthest-corner at 58% 60%, rgb(247 236 220 / 0.85), rgb(247 236 220 / 0) 55%, rgb(203 179 147 / 0) 55%, rgb(203 179 147 / 0.35) 100%);
+  /* The field: the reference's backdrop, lit in the middle and warmer at
+     the edges. */
+  --surface-lighting: radial-gradient(circle at 50% 45%, var(--sand-field-lit), var(--sand-field-edge));
+}
+
+/* The teal body. Its roles, and the reference's volume: lit from the upper
+   left (the glow), Deep Teal through the middle, shade to the lower right. */
 .theme-ink,
 .theme-deep,
 .theme-patina,
 .theme-ember {
   color-scheme: dark;
+  --background: var(--teal);
+  --foreground: var(--sand-text);
+  /* Cards on teal are glass: teal-card at 66%, so the body's light shows through. */
+  --card: rgb(12 88 88 / 0.66);
+  --raised: var(--teal-raised);
+  --muted: var(--teal-raised);
+  --muted-foreground: var(--sand-text-muted);
+  --dim: var(--sand-text-muted);
+  --primary: var(--sand);
+  --primary-hover: var(--sand-lit);
+  --primary-foreground: var(--teal-text); /* 6.9:1 */
+  --accent: var(--terracotta);
+  --accent-bright: var(--terracotta-light);
+  --accent-foreground: var(--on-color);
+  --signal: var(--sea);
+  --signal-bright: var(--sea-bright);
+  --signal-foreground: var(--on-color);
+  --emph: var(--sea);
+  /* Rose, not red: an error never reads as the terracotta accent. */
+  --destructive: #ffa8b2;
+  /* Healthy state is sea glass; it ships with an icon or word, never alone. */
+  --success: var(--sea);
+  --border: var(--teal-line);
+  --input: var(--teal-input);
+  --ring: var(--terracotta-light);
+  --chart-muted: #8db3b0;
+
+  /* Glass edges on teal: a lit rim along the top and left, shade along the
+     bottom and right, then a deep teal drop. Floating teal (the assistant,
+     menus) casts the warm studio shadow, since it floats over the field. */
+  --elevation-card:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 1px 0 0 rgb(255 255 255 / 0.06),
+    inset 0 -1px 0 rgb(0 0 0 / 0.26),
+    inset -1px 0 0 rgb(0 0 0 / 0.12),
+    0 22px 40px -28px rgb(1 27 27 / 0.85);
+  --elevation-pop:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    inset 1px 0 0 rgb(255 255 255 / 0.06),
+    inset 0 -1px 0 rgb(0 0 0 / 0.28),
+    0 2px 6px rgb(var(--shadow-warm) / 0.12),
+    0 34px 60px -26px rgb(var(--shadow-warm) / 0.38);
+  /* Teal glass: the top gloss band and the right-edge reflection, inside
+     the padding, where no text sits. */
+  --glass-surface:
+    linear-gradient(180deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0) 14px),
+    linear-gradient(90deg, rgb(255 255 255 / 0) calc(100% - 15px), rgb(255 255 255 / 0.06) calc(100% - 7px), rgb(255 255 255 / 0) calc(100% - 2px));
+  --surface-lighting: radial-gradient(farthest-corner at 38% 18%, var(--teal-glow), var(--teal) 45%, var(--teal-deep) 85%, var(--teal-abyss));
+}
+
+/* Section themes. Each one re-points the semantic surfaces, so everything
+   inside (cards, borders, tracks) follows without its own colours:
+     theme-sand    the field: every page, unless a body says otherwise
+     theme-patina  a Deep Teal body: the hero's stack frame, the sign-in aside
+     theme-deep    the darker teal: header, dashboard rails, window bars
+     theme-ink     the assistant
+     theme-ember   the footer, the close */
+.theme-ink,
+.theme-deep,
+.theme-patina,
+.theme-ember,
+.theme-sand {
   background-color: var(--background);
+  background-image: var(--surface-lighting);
   color: var(--foreground);
 }
 
+.theme-sand {
+  color-scheme: light;
+}
+
+/* The darker teal, lit from the upper left: header, rails, window bars. */
 .theme-deep {
-  --background: var(--ink-deep);
+  --background: var(--teal-deep);
+  --surface-lighting: radial-gradient(farthest-corner at 18% 0%, var(--teal) 0%, var(--teal-deep) 55%, var(--teal-abyss));
 }
 
-.theme-patina {
-  --background: var(--patina);
-  --card: var(--patina-card);
-  --raised: var(--patina-high);
-  --muted: var(--patina-high);
-  --border: var(--patina-line);
-}
-
+/* The footer: the same body, its light from the upper left across the
+   close, its deepest shade in the far corner. */
 .theme-ember {
-  --background: var(--ember);
-  --border: var(--ember-line);
+  --surface-lighting: radial-gradient(farthest-corner at 30% 0%, var(--teal-glow), var(--teal) 40%, var(--teal-deep) 80%, var(--teal-abyss));
 }
 
-/* The frame around the public site, after the reference's presentation
-   border, weathered: rust at the top, through deep ink, to patina at the
-   bottom (the frame is fixed, so that's the top and bottom of the screen).
-   The site's one decorative gradient, kept on purpose: it is the identity's
-   signature and sits outside the content, at the edge of every page. The wrapper is
-   padded by the frame width so no content sits under it; the frame itself is
-   a fixed, pointer-transparent overlay that is painted once and composited,
-   so scrolling never repaints it. */
+/* The assistant: a little deeper, so its cards and bubbles stand off it. */
+.theme-ink {
+  --background: var(--teal-ink);
+  --surface-lighting: radial-gradient(farthest-corner at 30% 0%, var(--teal), var(--teal-ink) 50%, var(--teal-deep));
+}
+
+@layer components {
+  /* The field is lit per section, as the reference's backdrop: light in the
+     middle, warmer at the edges, so no screen is one flat colour. */
+  .site-frame main > section:not([class*="theme-"]) {
+    background-image: var(--surface-lighting);
+  }
+}
+
+/* The public <main> keeps the sand roles but paints nothing where its
+   sections paint the field (a background here would only be overdraw);
+   on pages built without sections (work, shop, case study, product) it
+   paints the field itself, once. */
+.site-frame main.theme-sand {
+  background: none;
+}
+
+.site-frame main.theme-sand:not(:has(> section)) {
+  background-image: var(--surface-lighting);
+}
+
+@layer components {
+
+  /* A teal section sits over the field and casts the warm studio shadow
+     onto the sand around it. (Components layer, so a section's own position
+     utilities still win.) */
+  .site-frame :is(section, footer):is(.theme-deep, .theme-patina, .theme-ember) {
+    position: relative;
+    z-index: 1;
+    box-shadow:
+      0 30px 60px -36px rgb(var(--shadow-warm) / 0.45),
+      0 -30px 60px -36px rgb(var(--shadow-warm) / 0.35);
+  }
+}
+
+/* The frame around the public site, lit like the reference: teal from the
+   upper left, through the shade, to sand at the lower right. It sits
+   outside the content. The wrapper is padded by the frame width so no
+   content sits under it; the frame itself is a fixed, pointer-transparent
+   overlay that is painted once and composited, so scrolling never repaints
+   it. */
 .site-frame {
   padding: var(--frame);
 }
@@ -248,16 +388,17 @@
   pointer-events: none;
   border: var(--frame) solid transparent;
   border-image: linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--rust) 82%, var(--ink-deep)) 0%,
-      var(--rust-deep) 30%,
-      var(--ink-deep) 62%,
-      var(--verdigris-deep) 100%
+      160deg,
+      var(--teal-deep) 0%,
+      var(--teal) 24%,
+      var(--sand-shadow) 52%,
+      var(--sand-deep) 100%
     )
     1;
   /* A hairline where the frame meets the page, like a bezel. */
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(var(--shadow-warm) / 0.3);
 }
+
 
 @layer base {
   * {
@@ -271,6 +412,10 @@
 
   body {
     @apply bg-background font-sans text-foreground antialiased;
+    /* A flat field here: the light is painted once, by whatever covers the
+       page (each public section, a dashboard's or sign-in form's
+       theme-sand area). Lit layers stacked under opaque ones are still
+       rasterised, which measurably slowed phones. */
     font-size: 1rem;
     line-height: 1.6;
     letter-spacing: -0.006em;
@@ -355,7 +500,7 @@
    whole line, never body text. Use on <em> so it's emphasis, not styling. */
 @utility emph {
   font-style: normal;
-  color: var(--signal);
+  color: var(--emph);
 }
 
 /* ---- Drawing devices ---------------------------------------------------- */
@@ -502,9 +647,30 @@
   padding: var(--hs-pad);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  /* One solid step up from the deep stage; the stack cards are one more.
-     The legend's text on it: muted 8.6:1, the rust-bright keys 6.6:1. */
-  background-color: var(--ink);
+  /* The teal body on the sand stage (theme-patina in the markup), glazed
+     like the reference: its volume (the theme's lighting), a gloss band
+     along the top, a window reflection down the right edge and a rim light
+     down the left, all inside the padding, then the warm studio shadow on
+     the sand. The legend's terracotta keys sit low, on the shade (4.8:1 or
+     more). The rim light and the reflection share one horizontal gradient,
+     so the frame paints three layers, not four. */
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0) 1.25rem),
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0) 0.2rem,
+      rgb(255 255 255 / 0.05) 0.5rem,
+      rgb(255 255 255 / 0) 1rem,
+      rgb(255 255 255 / 0) calc(100% - 1.25rem),
+      rgb(255 255 255 / 0.08) calc(100% - 0.6rem),
+      rgb(255 255 255 / 0) calc(100% - 0.2rem)
+    ),
+    var(--surface-lighting);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    inset 0 -1px 0 rgb(0 0 0 / 0.3),
+    0 2px 6px rgb(var(--shadow-warm) / 0.1),
+    0 28px 48px -22px rgb(var(--shadow-warm) / 0.32);
 }
 
 /* Progress legend (pinned scene only): four layers in a row, an accent bar
@@ -572,8 +738,9 @@
   padding: 1.25rem;
   border: 1px solid color-mix(in srgb, var(--foreground) 11%, transparent);
   border-radius: var(--radius-md);
-  /* Card on the frame (page ink) on the stage (deep ink): three solid steps. */
-  background-color: var(--ink-card);
+  /* A glass card on the glass frame on the stage: layered transparency. */
+  background-color: var(--card);
+  background-image: var(--glass-surface);
   box-shadow: var(--elevation-card);
 }
 
@@ -716,6 +883,17 @@
       margin: 0;
       animation: hs-in linear both;
       animation-timeline: --hs;
+    }
+
+    /* Here the heading and legend sit on the teal frame, not the sand
+       stage, so they take the teal text roles. */
+    .hs-head,
+    .hs-legend {
+      --foreground: var(--sand-text);
+      --muted-foreground: var(--sand-text-muted);
+      --border: var(--teal-line);
+      --accent-bright: var(--terracotta-light);
+      color: var(--foreground);
     }
 
     .hs-head {
@@ -928,12 +1106,31 @@
    [data-active]. Transform and opacity, plus one brightness filter on a
    small bar. In the components layer so utilities can still override. */
 @layer components {
-  /* Depth: anything on the card or raised surface gets the lit top edge and
-     soft drop, so elevation is the same everywhere without each component
-     asking. A `shadow-*` utility on the element still wins. */
+  /* Glass: anything on the card or raised surface gets the glass edges
+     (rim, refraction hairlines, shade), the glass surface (specular streak,
+     diffused light, the other material reflected) and a tinted drop, so the
+     material is the same everywhere without each component asking. A
+     `shadow-*` or `bg-*` image utility on the element still wins. */
   .bg-card,
   .bg-raised {
     box-shadow: var(--elevation-card);
+    background-image: var(--glass-surface);
+  }
+
+  /* Filled buttons, glazed: a highlight across the top half (gone by the
+     middle, where the label sits, so the fill's contrast holds), a lit top
+     edge, a shaded lower edge and a short drop. */
+  .btn-glaze {
+    background-image:
+      /* The reflection of the light above, with a soft horizon. */
+      linear-gradient(180deg, rgb(255 255 255 / 0.26) 0%, rgb(255 255 255 / 0.08) 44%, rgb(255 255 255 / 0) 50%),
+      /* Light refracted through the body and pooled at the base. */
+      radial-gradient(80% 60% at 50% 125%, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 70%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      inset 0 0 0 1px rgb(255 255 255 / 0.06),
+      inset 0 -1px 0 rgb(0 0 0 / 0.18),
+      0 10px 22px -14px rgb(var(--shadow-warm) / 0.5);
   }
 
   /* Readout for a chart point. Text in text tokens, never the series colour;
@@ -1217,7 +1414,8 @@
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--accent);
+  /* The light terracotta: 4.5:1 or more on teal, and on the header glass. */
+  color: var(--accent-bright);
   transition: background-color 200ms var(--ease-out);
 }
 
@@ -1330,12 +1528,40 @@
     .emph .reveal-word {
       animation-name: word-in-emph;
     }
+
+    /* On sand, dark words need a higher start to stay above 3:1 while
+       they reveal: 0.7 for words (3.6:1), 0.8 for the lit-teal emphasis (3.1:1). */
+    .theme-sand .reveal-word {
+      animation-name: word-in-sand;
+    }
+
+    .theme-sand .emph .reveal-word {
+      animation-name: word-in-sand-emph;
+    }
   }
 }
 
 @keyframes word-in-emph {
   from {
     opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes word-in-sand {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes word-in-sand-emph {
+  from {
+    opacity: 0.8;
   }
   to {
     opacity: 1;
@@ -1445,6 +1671,21 @@
 @keyframes header-rule {
   to {
     opacity: 1;
+  }
+}
+
+/* On larger screens the sticky header is real glass: content passes under
+   it, softened by a blur, through 90% deep teal (its text stays 7.5:1 or
+   more with sand behind it). Phones, and anyone who asks for less
+   transparency, keep it solid. Unlayered, so it overrides the header's
+   solid background utility. */
+@media (min-width: 64rem) and (prefers-reduced-transparency: no-preference) {
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .site-header {
+      background-color: rgb(3 44 44 / 0.9);
+      -webkit-backdrop-filter: blur(18px) saturate(1.25);
+      backdrop-filter: blur(18px) saturate(1.25);
+    }
   }
 }
 

@@ -77,7 +77,7 @@ function SelectedWork({ projects }: { projects: Project[] }) {
 
 function Systems({ id }: { id: string }) {
   return (
-    <section id={id} aria-labelledby="systems-title" className="theme-patina overflow-hidden border-y border-border">
+    <section id={id} aria-labelledby="systems-title" className="overflow-hidden border-y border-border">
       <div className="container-page py-section">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-5">

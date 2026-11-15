@@ -123,7 +123,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
             type="checkbox"
             checked={published}
             onChange={(e) => setPublished(e.target.checked)}
-            className="h-4 w-4 rounded-xs border-input accent-[var(--rust)]"
+            className="h-4 w-4 rounded-xs border-input accent-[var(--accent)]"
           />
           <label htmlFor="published" className="text-sm font-medium text-foreground">
             Published

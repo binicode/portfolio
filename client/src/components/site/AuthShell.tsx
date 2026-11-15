@@ -13,8 +13,11 @@ interface AuthShellProps {
 export default function AuthShell({ children, backHref, backLabel, aside }: AuthShellProps) {
   return (
     <div className={`grid min-h-dvh ${aside ? 'lg:grid-cols-2' : ''}`}>
-      <div className="flex flex-col">
-        <header className="container-page flex h-[var(--header-h)] items-center justify-between gap-6 border-b border-border lg:max-w-none">
+      <div className="theme-sand flex flex-col">
+        {/* Without the teal aside, the header bar is the screen's teal, as on the rest of the site. */}
+        <header
+          className={`${aside ? '' : 'theme-deep '}container-page flex h-[var(--header-h)] items-center justify-between gap-6 border-b border-border lg:max-w-none`}
+        >
           <Link href="/" className="whitespace-nowrap text-body-sm font-semibold tracking-tight">
             {site.name}
           </Link>

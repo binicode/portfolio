@@ -18,7 +18,7 @@ import CursorReadout from './CursorReadout';
  */
 export default function HeroSystem() {
   return (
-    <section aria-labelledby="hero-title" className="hs theme-deep">
+    <section aria-labelledby="hero-title" className="hs theme-sand">
       <div className="hs-stage">
         <div aria-hidden="true" className="hs-guides">
           <div className="container-page h-full">
@@ -56,7 +56,7 @@ export default function HeroSystem() {
         </div>
 
         <div className="hs-frame">
-          <div className="hs-frame-inner">
+          <div className="hs-frame-inner theme-patina">
             <div className="hs-orbit-box">
               <TechnologyStackOrbit />
             </div>
