@@ -1,4 +1,3 @@
-import { useId } from 'react';
 import type { ChartFrameComponent } from './ChartFrame';
 import { formatCount, formatFigure } from '../format';
 import { niceMax } from '../insights';
@@ -26,14 +25,13 @@ interface TrendLineProps {
 const DEFAULT_HEIGHT = 'h-48 sm:h-56';
 
 /**
- * The large time-series chart: a 2px signal line over a fading wash, a dot
+ * The large time-series chart: a 2px signal line over a flat, faint area, a dot
  * per real point (the latest larger), three gridlines with round values, and
  * dates beneath. Server-rendered SVG and HTML; each point's hover target is
  * its full slot, and arrow keys reach the same readouts through the frame.
  */
 export default function TrendLine({ points, summary, unit, Frame, height = DEFAULT_HEIGHT }: TrendLineProps) {
   const PLOT = `relative ${height}`;
-  const gradientId = `trend-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const n = points.length;
   const top = niceMax(Math.max(0, ...points.map((point) => point.value)));
   const x = (index: number) => (n === 1 ? 50 : (index / (n - 1)) * 100);
@@ -50,13 +48,8 @@ export default function TrendLine({ points, summary, unit, Frame, height = DEFAU
       ))}
       <div aria-hidden="true" className="absolute inset-0">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 size-full overflow-visible">
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" style={{ stopColor: 'var(--signal)', stopOpacity: 0.26 }} />
-              <stop offset="100%" style={{ stopColor: 'var(--signal)', stopOpacity: 0 }} />
-            </linearGradient>
-          </defs>
-          <path d={area} fill={`url(#${gradientId})`} />
+          {/* A flat, faint area: volume under the line without a fade. */}
+          <path d={area} style={{ fill: 'var(--signal)' }} fillOpacity={0.1} />
           <polyline
             points={line}
             fill="none"

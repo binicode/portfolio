@@ -3,7 +3,6 @@ import ButtonLink from '@/components/ui/ButtonLink';
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import { buttonClasses } from '@/components/ui/button-styles';
 import DashboardPreview from '@/components/saas/DashboardPreview';
-import PointerLight from '@/components/effects/PointerLight';
 
 export const metadata: Metadata = {
   title: 'Creator Dashboard',
@@ -30,33 +29,31 @@ const ENGINEERING = [
 export default function SaasPage() {
   return (
     <>
-      <section aria-labelledby="saas-title" className="theme-patina patina-glow overflow-hidden">
-        <PointerLight>
-          <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
-            <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
-              <h1 id="saas-title" className="lg:col-span-8">
-                <span className="label block text-signal">Creator Dashboard</span>
-                <span className="mt-5 block text-h1 font-medium">
-                  Your reach, <em className="emph">in one place</em>.
-                </span>
-              </h1>
-              <div className="lg:col-span-4 lg:pb-1">
-                <p className="text-lead text-muted-foreground">GitHub, YouTube and Hacker News. Real accounts, real billing.</p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <ButtonLink href="/saas/signup">Create an account</ButtonLink>
-                  <ButtonLink href="/saas/login" variant="secondary">
-                    Log in
-                  </ButtonLink>
-                </div>
-                <p className="mt-4 text-body-sm text-muted-foreground">
-                  Signing up is free. The dashboard needs a subscription; the price shows at checkout.
-                </p>
+      <section aria-labelledby="saas-title" className="theme-patina overflow-hidden border-b border-border">
+        <div className="container-page pb-section pt-[clamp(3rem,7vw,6.5rem)]">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
+            <h1 id="saas-title" className="lg:col-span-8">
+              <span className="label block text-signal">Creator Dashboard</span>
+              <span className="mt-5 block text-h1 font-medium">
+                Your reach, <em className="emph">in one place</em>.
+              </span>
+            </h1>
+            <div className="lg:col-span-4 lg:pb-1">
+              <p className="text-lead text-muted-foreground">GitHub, YouTube and Hacker News. Real accounts, real billing.</p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href="/saas/signup">Create an account</ButtonLink>
+                <ButtonLink href="/saas/login" variant="secondary">
+                  Log in
+                </ButtonLink>
               </div>
+              <p className="mt-4 text-body-sm text-muted-foreground">
+                Signing up is free. The dashboard needs a subscription; the price shows at checkout.
+              </p>
             </div>
-
-            <DashboardPreview className="mt-14 lg:mt-20" />
           </div>
-        </PointerLight>
+
+          <DashboardPreview className="mt-14 lg:mt-20" />
+        </div>
       </section>
 
       <section aria-labelledby="steps-title" className="py-section">

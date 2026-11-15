@@ -29,7 +29,10 @@ export default function AuthShell({ children, backHref, backLabel, aside }: Auth
           <div className="w-full max-w-sm">{children}</div>
         </main>
       </div>
-      {aside && <aside className="theme-ink hidden flex-col justify-between p-12 lg:flex xl:p-16">{aside}</aside>}
+      {/* The product beside the form: its own material (patina) and edge, not the same ink. */}
+      {aside && (
+        <aside className="theme-patina hidden flex-col justify-between border-l border-border p-12 lg:flex xl:p-16">{aside}</aside>
+      )}
     </div>
   );
 }

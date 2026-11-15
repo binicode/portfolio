@@ -61,16 +61,16 @@ pairs, then by axe on every route).
 | Line | `#283a44` | Hairlines and dividers (decorative) |
 | Input | `#6f8792` | Control borders (3.7:1, WCAG 1.4.11) |
 | Patina / card / high / line | `#0d201f` / `#132c2a` / `#1a3835` / `#24453f` | The patina section theme |
-| Ember | `#1b110d` | Under the footer's glow |
+| Ember / line | `#1b110d` / `#40291e` | The footer's surface (`theme-ember`) and its warm hairline |
 | Bone | `#ede7dc` | Text, primary buttons (10:1 or more) |
 | Ash | `#a9b6bb` | Secondary text (6:1 or more) |
 | Smoke | `#7f8f96` | Dim meta text only (`text-dim`, 4.8:1 or more) |
 | Rust | `#e8642f` | **The action and the brand**: "start a project" calls to action, the launcher, the header (bracket button, nav underline, scroll meter), focus ring, selection, the site frame (4.8:1 as text on cards) |
-| Rust bright | `#f47b4c` | Rust text on raised surfaces and over the rust gradients |
+| Rust bright | `#f47b4c` | Rust text on raised surfaces (the hero legend keys) |
 | Verdigris | `#62c2ab` | **Where the eye lands** (`signal`): the promise in a leading headline (`emph`), links and every non-primary hover, section labels, featured and high-value markers, the dashboard's data and the reader's name, live status, healthy state (`success`), status badges (5.9:1 or more) |
 | Rose | `#ff7088` | Errors (`destructive`), a different hue from rust so an error never reads as the brand accent |
 | Chart muted | `#6c7f88` | Comparison marks in charts (3.4:1 or more) |
-| Rust deep / shadow, verdigris deep | `#8a3a1a` / `#5c2814`, `#1d4f46` | Gradient stops only; never text |
+| Rust deep / shadow, verdigris deep | `#8a3a1a` / `#5c2814`, `#1d4f46` | Stops of the site frame only; never text |
 
 Rules:
 
@@ -94,16 +94,28 @@ Rules:
     they stay above 3:1 while they reveal.
 - Charts: the series that matters in `signal`, the comparison in
   `chart-muted`. Status always carries an icon or word, never colour alone.
-- Depth comes from surface steps, not shadows alone: deep, page, card,
-  raised. `.bg-card` and `.bg-raised` get the lit top edge and soft drop
-  (`--elevation-card`) automatically; floating panels use `shadow-pop`.
-- Section themes re-point the surfaces for everything inside them:
-  `theme-deep` (hero, header, dashboard rail), `theme-ink` (page),
-  `theme-patina` with `patina-glow` (Systems on the home page, the SaaS
-  hero). The footer is ink into ember (`footer-glow`). `PointerLight`
-  follows the section (`--glow`): rust by default, verdigris in patina.
-- The site frame weathers from rust at the top of the screen to patina at
-  the bottom; the hero frame from patina at the top to rust at the bottom.
+- Solid colour, about 90/10. Depth comes from surface steps, hairlines,
+  spacing and type, never from glows or washes:
+  - Surface steps: deep, page, card, raised. Each layer is one step above
+    the one it sits on (the hero: deep stage, page-ink frame, card-coloured
+    stack cards). `.bg-card` and `.bg-raised` get the lit top edge and soft
+    drop (`--elevation-card`) automatically; floating panels use
+    `shadow-pop`. Recessed wells (`.stack-map`) go one step down instead.
+  - Materials: section themes re-point the surfaces for everything inside
+    them, with a hairline in the material's own line colour at each edge:
+    `theme-deep` (hero, header, dashboard rail), `theme-ink` (page),
+    `theme-patina` (Systems on the home page, the SaaS hero, the sign-in
+    panel; `border-y`/`border-b`), `theme-ember` (the footer; `border-t`).
+  - Marked items (the featured repository) get a brighter surface and a
+    verdigris hairline, not a glow.
+  - Charts: a flat 10% area under a line, not a fade.
+- The justified 10%: the site frame, rust at the top of the screen through
+  deep ink to patina at the bottom. It's the identity's signature, sits
+  outside the content, and is the only decorative gradient. Hard-edged
+  patterns drawn with gradient functions (the stack-map dot grid, the
+  header's stripe meter, the hero's column guides) read as solid lines and
+  dots, and the column guides' mask fade only keeps them from ending
+  abruptly. Anything else needs the same justification before it ships.
 
 Components use semantic names only (`background`, `foreground`, `card`,
 `raised`, `muted-foreground`, `dim`, `border`, `input`, `primary`,
@@ -114,9 +126,9 @@ variables).
 Never use `text-muted` or `text-secondary` for text: `muted` and
 `secondary` are surface colors.
 
-Text over gradients needs checking by hand (axe skips gradients): the hero
-frame keeps its two rust stops dark enough for `accent-bright` legend keys
-(4.6:1) and Ash (6:1); the footer glow keeps Ash above 6:1.
+With solid surfaces, axe checks every text pair directly (it can't over
+gradients). The hero legend on the page-ink frame: `accent-bright` keys
+6.6:1, Ash 8.6:1; text on the ember footer: Ash 8.9:1, verdigris 8.7:1.
 
 ## Type
 
@@ -272,7 +284,7 @@ visitor). The copy in "Copy brief and message me" is synchronous
 - `StackMap`: the project's technologies on Interface → API → Data →
   Services, with real marks (`TechLogo`), a plain "where it runs" line per
   layer in the wide flow, and languages on their own line ("TypeScript
-  throughout"). A dot grid with a faint rust glow (`.stack-map`); a rust
+  throughout"). A recessed well with a drafting dot grid (`.stack-map`); a
   request path from node to node that never crosses a label; the last
   node solid. Flow switches from rows to columns at a 34rem content width
   (container query). The map is a `figure` whose caption reads the whole
@@ -335,8 +347,8 @@ visitor). The copy in "Copy brief and message me" is synchronous
 - Repository showcase (`RepoShowcase`, `showcaseRepos`): a curated
   portfolio, not a table. The creator's own live work only (no forks,
   archived or never-pushed repositories), most stars first. The top one is
-  a wide feature tile with a faint rust glow (`.repo-feature`, a cheap
-  gradient, no blur) and its share of all stars as a thin meter; then six
+  a wide feature tile, a step brighter with a verdigris hairline
+  (`.repo-feature`), and its share of all stars as a thin meter; then six
   compact tiles (four on phones): name, two-line description, language,
   stars and forks. No borders: a quiet fill that lifts on hover while an
   arrow slides in (`.repo-tile`). Server-rendered, no client JavaScript.
@@ -358,9 +370,9 @@ visitor). The copy in "Copy brief and message me" is synchronous
   rendered or not (that once cost the home page 3.6 KB gzip). For the same
   reason the charts receive `ChartFrame` as a `Frame` prop instead of
   importing it.
-- Colour: one series per chart. Lines in the accent over a fading accent
-  wash; columns in the de-emphasis gray `--chart-muted` (#6f6e72, 3.7:1 on
-  the card) with one accent column. Green and red are reserved for change
+- Colour: one series per chart. Lines in `signal` over a flat 10% area;
+  columns in the de-emphasis gray `--chart-muted` (3.4:1 or more on the
+  card) with one `signal` column. Green and red are reserved for change
   and status, always with a shape and a word. Small secondary text on cards
   uses `--muted-foreground`; `--dim` is only for the sidebar's darker
   ground (on the card it falls just under 4.5:1).
@@ -495,7 +507,8 @@ One orchestrated moment per page; no time-based entrance animations on load.
   Unread words start at 0.45 opacity so the large statement text stays
   above 3:1 at every scroll position.
 - Route changes: React `<ViewTransition>` (no config flag since Next 16.3).
-- `PointerLight` and `CursorReadout`: fine pointers only, rAF-throttled.
+- `CursorReadout`: fine pointers only, rAF-throttled. (The cursor-following
+  glow, `PointerLight`, was removed with the gradients.)
 - Animate `transform` and `opacity`. Keep `visibility` (needed to take
   faded controls out of the tab order) in its own animation, so the
   opacity/transform one can run on the compositor.
@@ -510,7 +523,7 @@ One orchestrated moment per page; no time-based entrance animations on load.
 
 - Server Components by default. Client components today: `SiteNav`,
   `ChatLauncher` (panel lazy-loaded on intent), `OpenChatButton`,
-  `PointerLight`, `CursorReadout`, `ShopifyImage`, forms,
+  `CursorReadout`, `ShopifyImage`, forms,
   the dashboard's page links and Log out (`DashboardNavLinks`,
   `LogoutButton`), and its `ChartFrame` and `RefreshControl` (on `/saas`
   and the dashboard only, never the home page).
