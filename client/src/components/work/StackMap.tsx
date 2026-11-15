@@ -52,7 +52,7 @@ export default function StackMap({ techStack, layout = 'lanes', className = '' }
         {layers.map((layer) => (
           <li key={layer.slug} className="stack-layer relative">
             <p className="flex items-center gap-2.5 font-mono text-micro uppercase tracking-[0.08em] text-muted-foreground">
-              <span className="stack-node relative z-10 size-2 shrink-0 rounded-full border border-accent bg-background" />
+              <span className="stack-node relative z-10 size-2 shrink-0 rounded-full border border-signal bg-background" />
               {layer.name}
               {/* In the wide flow, the path continues from the end of the name to the column edge. */}
               {layout === 'flow' && <span className="stack-line" />}

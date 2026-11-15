@@ -47,7 +47,7 @@ export default function DashboardSidebar({ session }: { session: SaasMeResponse 
   ];
 
   return (
-    <aside className="sticky top-0 hidden h-dvh flex-col overflow-y-auto border-r border-border px-3 py-5 lg:flex">
+    <aside className="theme-deep sticky top-0 hidden h-dvh flex-col overflow-y-auto border-r border-border px-3 py-5 lg:flex">
       <div className="flex items-center justify-between gap-2 px-3">
         <Link href="/saas/dashboard" className="flex min-w-0 items-center gap-2.5 text-body-sm font-semibold tracking-tight">
           <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-md bg-accent text-accent-foreground">
@@ -55,7 +55,7 @@ export default function DashboardSidebar({ session }: { session: SaasMeResponse 
           </span>
           <span className="truncate">Creator Dashboard</span>
         </Link>
-        <Badge variant={pro ? 'primary' : 'muted'}>{pro ? 'Pro' : 'Free'}</Badge>
+        <Badge variant={pro ? 'signal' : 'muted'}>{pro ? 'Pro' : 'Free'}</Badge>
       </div>
 
       <div className="mt-8">
@@ -81,7 +81,7 @@ export default function DashboardSidebar({ session }: { session: SaasMeResponse 
                 <span aria-hidden="true">{source.icon}</span>
                 <span className="min-w-0">
                   <span className="block text-body-sm leading-tight">{source.label}</span>
-                  <span className={`block truncate text-xs leading-tight ${source.detail ? 'text-dim' : 'text-accent-bright'}`}>
+                  <span className={`block truncate text-xs leading-tight ${source.detail ? 'text-dim' : 'text-signal'}`}>
                     {source.detail ?? 'Not set'}
                   </span>
                 </span>

@@ -35,7 +35,7 @@ export default async function SaasDashboardLayout({ children }: { children: Reac
     <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
       <DashboardSidebar session={session} />
       <div className="flex min-h-dvh min-w-0 flex-col">
-        <header className="border-b border-border lg:hidden">
+        <header className="theme-deep border-b border-border lg:hidden">
           <div className="container-page flex min-h-[var(--header-h)] flex-wrap items-center justify-between gap-x-6 gap-y-3 py-3">
             <Link href="/saas/dashboard" className="text-body-sm font-semibold tracking-tight">
               Creator Dashboard

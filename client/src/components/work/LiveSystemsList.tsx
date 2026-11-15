@@ -19,7 +19,7 @@ export default function LiveSystemsList() {
         >
           <StackMap techStack={system.stack} className="lg:col-span-4" />
           <div className="flex flex-col lg:col-span-8 lg:pl-4">
-            <p className="label text-accent">Live on this site</p>
+            <p className="label text-signal">Live on this site</p>
             <h2 className="mt-2 text-title font-medium">{system.name}</h2>
             <p className="mt-3 max-w-[40rem] text-muted-foreground">{system.body}</p>
             <div className="mt-auto pt-6">

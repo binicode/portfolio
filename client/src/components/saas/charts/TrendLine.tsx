@@ -26,7 +26,7 @@ interface TrendLineProps {
 const DEFAULT_HEIGHT = 'h-48 sm:h-56';
 
 /**
- * The large time-series chart: a 2px accent line over a fading wash, a dot
+ * The large time-series chart: a 2px signal line over a fading wash, a dot
  * per real point (the latest larger), three gridlines with round values, and
  * dates beneath. Server-rendered SVG and HTML; each point's hover target is
  * its full slot, and arrow keys reach the same readouts through the frame.
@@ -52,8 +52,8 @@ export default function TrendLine({ points, summary, unit, Frame, height = DEFAU
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 size-full overflow-visible">
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" style={{ stopColor: 'var(--accent)', stopOpacity: 0.26 }} />
-              <stop offset="100%" style={{ stopColor: 'var(--accent)', stopOpacity: 0 }} />
+              <stop offset="0%" style={{ stopColor: 'var(--signal)', stopOpacity: 0.26 }} />
+              <stop offset="100%" style={{ stopColor: 'var(--signal)', stopOpacity: 0 }} />
             </linearGradient>
           </defs>
           <path d={area} fill={`url(#${gradientId})`} />
@@ -64,7 +64,7 @@ export default function TrendLine({ points, summary, unit, Frame, height = DEFAU
             strokeWidth={2}
             strokeLinejoin="round"
             strokeLinecap="round"
-            className="stroke-accent"
+            className="stroke-signal"
           />
         </svg>
 
@@ -72,7 +72,7 @@ export default function TrendLine({ points, summary, unit, Frame, height = DEFAU
           <span
             key={point.key}
             className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-card ${
-              index === n - 1 ? 'size-2.5 bg-accent-bright' : 'size-2 bg-accent'
+              index === n - 1 ? 'size-2.5 bg-signal-bright' : 'size-2 bg-signal'
             }`}
             style={{ left: `${x(index)}%`, top: `${y(point.value)}%` }}
           />
@@ -128,7 +128,7 @@ export default function TrendLine({ points, summary, unit, Frame, height = DEFAU
             key={point.key}
             className={`absolute whitespace-nowrap ${
               index === 0 ? '' : index === n - 1 ? '-translate-x-full' : '-translate-x-1/2'
-            } ${(index % 2 === 1 || index === n - 2) && index !== n - 1 ? '@max-lg:hidden' : ''} ${index === n - 1 ? 'text-accent-bright' : ''}`}
+            } ${(index % 2 === 1 || index === n - 2) && index !== n - 1 ? '@max-lg:hidden' : ''} ${index === n - 1 ? 'text-signal-bright' : ''}`}
             style={{ left: `${x(index)}%` }}
           >
             {point.axis}

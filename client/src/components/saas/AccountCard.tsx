@@ -49,7 +49,7 @@ export default function AccountCard({
         </div>
         <span
           className={`shrink-0 rounded-md border px-2 py-0.5 text-xs font-medium ${
-            account.plan === 'pro' ? 'border-accent/35 bg-accent/10 text-accent-bright' : 'border-border text-muted-foreground'
+            account.plan === 'pro' ? 'border-signal/35 bg-signal/10 text-signal-bright' : 'border-border text-muted-foreground'
           }`}
         >
           {account.plan === 'pro' ? 'Pro' : 'Free'}

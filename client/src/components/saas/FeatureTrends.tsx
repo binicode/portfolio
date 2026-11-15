@@ -53,7 +53,7 @@ function Feature({
     <section id={id} aria-labelledby={`${id}-title`} className={`dash-card flex min-w-0 scroll-mt-6 flex-col rounded-xl border border-border bg-card p-4 sm:p-5 ${className}`}>
       <div className="flex items-center justify-between gap-3">
         <h2 id={`${id}-title`} className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-          <span aria-hidden="true" className="text-accent-bright">
+          <span aria-hidden="true" className="text-signal">
             {icon}
           </span>
           <span className="min-w-0">{source}</span>

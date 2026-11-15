@@ -114,7 +114,7 @@ export default function RepoShowcase({ stats, links, className = '' }: { stats: 
               className="repo-feature grid gap-4 rounded-lg p-4 @lg:grid-cols-[minmax(0,1fr)_auto] @lg:items-end sm:p-5"
             >
               <div className="min-w-0">
-                <p className="text-xs font-medium text-accent-bright">Most starred</p>
+                <p className="text-xs font-medium text-signal-bright">Most starred</p>
                 <p className="mt-1 flex items-center gap-2">
                   <span className="truncate text-lg font-medium tracking-[-0.01em]">{feature.name}</span>
                   <Arrow show={links} />
@@ -132,7 +132,7 @@ export default function RepoShowcase({ stats, links, className = '' }: { stats: 
                 </p>
                 <p className="mt-1.5 text-xs text-muted-foreground">{Math.round(share * 100)}% of all your stars</p>
                 <span aria-hidden="true" className="mt-2 block h-1 w-36 overflow-hidden rounded-full bg-foreground/10 @lg:ml-auto">
-                  <span className="block h-full rounded-full bg-accent" style={{ width: `${Math.max(2, Math.round(share * 100))}%` }} />
+                  <span className="block h-full rounded-full bg-signal" style={{ width: `${Math.max(2, Math.round(share * 100))}%` }} />
                 </span>
               </div>
             </Tile>
