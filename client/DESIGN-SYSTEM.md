@@ -384,6 +384,34 @@ visitor). The copy in "Copy brief and message me" is synchronous
 - Repository status comes from GitHub's archived flag and last push:
   Active (30 days), Quiet (6 months), Dormant (older).
 
+## Shop
+
+A compact catalogue that belongs to the dark interface, not an embedded
+Shopify page. The product photos are bright, white-backed studio shots;
+the UI frames them instead of changing them.
+
+- Photos are never cropped, tinted or blended: `object-contain` on a white
+  plate (their own background) with a little inner padding, inset in a dark
+  card (`bg-card`, border, `rounded-xl`, 8px inset). The bright area reads
+  as a framed object, and is kept small by the grid.
+- Grid (`ProductCard`): 2 columns on phones, 3 from `sm`, 4 from `lg`, 5
+  from `xl` (15 products: 8, 5, 4, 3 rows). `sizes` follows those widths,
+  so Shopify's CDN serves files that match (384px for a 1280px screen).
+  Only the first photo loads eagerly with high priority.
+- Card content: title (two lines, `min-h-[2lh]` so prices line up across a
+  row), then the price in `signal`, the figure to notice. "From" when the
+  variants' prices differ; a "Sold out" chip on the photo and a muted price
+  when no variant can be bought (`lib/shop-display.ts`, tested). A product
+  without a photo gets a quiet "No photo" plate, not a repeated title.
+- Hover and focus: the card border and the title turn verdigris; the photo
+  scales 4% inside its plate. The whole card is one link.
+- A slim toolbar above the grid says what's there ("15 products", "Prices
+  in USD"), so the space before the grid carries information.
+- Product page: the same framed photo at 5 of 12 columns (about 430px)
+  beside a sticky column with the title, the price in `signal`, Buy now
+  (checkout on Shopify, unchanged) and the description at a readable
+  measure.
+
 ## Project discovery
 
 The assistant panel has two modes: Ask a question (RAG chat) and Plan a
