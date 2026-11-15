@@ -1,0 +1,76 @@
+import { defineConfig, devices } from '@playwright/test';
+
+/**
+ * End-to-end tests against a production build (`next build` + `next start`).
+ *
+ * Playwright starts two servers, in order:
+ *   1. e2e/mock-api/server.mjs, a fixture stand-in for the Express API, so
+ *      neither the build nor the tests need MongoDB Atlas, Stripe, Shopify or
+ *      Gemini credentials;
+ *   2. the client, built and started with public values that point at the
+ *      mock. The mock runs first because `next build` fetches projects to
+ *      prerender the home page, /projects and /projects/[slug].
+ *
+ * Ports 3100 and 4100 keep clear of a local `next dev` (3000) and the real
+ * API (4000). The build writes to .next, replacing any earlier build there.
+ */
+
+const PORT = Number(process.env.E2E_PORT ?? 3100);
+const API_PORT = Number(process.env.E2E_API_PORT ?? 4100);
+const baseURL = `http://localhost:${PORT}`;
+const apiURL = `http://127.0.0.1:${API_PORT}/api`;
+const isCI = Boolean(process.env.CI);
+
+export default defineConfig({
+  testDir: './e2e',
+  outputDir: './test-results',
+  fullyParallel: true,
+  forbidOnly: isCI,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 1 : undefined,
+  reporter: isCI
+    ? [['github'], ['list'], ['html', { open: 'never' }]]
+    : [['list'], ['html', { open: 'never' }]],
+  use: {
+    baseURL,
+    // An action that cannot happen (e.g. a click another element would
+    // intercept) fails after 10 s with the reason, not at the test timeout.
+    actionTimeout: 10_000,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+  // Chromium only, to keep installs small. Pixel 7 is a Chromium phone
+  // profile (touch, mobile viewport); iPhone profiles would need WebKit.
+  projects: [
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+  ],
+  webServer: [
+    {
+      name: 'mock-api',
+      command: 'node e2e/mock-api/server.mjs',
+      url: `${apiURL}/health`,
+      env: { MOCK_API_PORT: String(API_PORT) },
+      reuseExistingServer: !isCI,
+      timeout: 15_000,
+    },
+    {
+      name: 'next',
+      command: `npm run build && npm run start -- --port ${PORT}`,
+      url: baseURL,
+      // Set in the environment, these win over any client/.env* file.
+      env: {
+        NEXT_TELEMETRY_DISABLED: '1',
+        NEXT_PUBLIC_API_URL: apiURL,
+        NEXT_PUBLIC_SITE_URL: baseURL,
+        // .invalid never resolves, so no request reaches a real store: the
+        // shop renders its empty state (see app/(public)/shop/page.tsx).
+        NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: 'e2e-placeholder.invalid',
+        NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN: 'e2e-placeholder',
+      },
+      reuseExistingServer: !isCI,
+      // Includes the production build.
+      timeout: 300_000,
+    },
+  ],
+});

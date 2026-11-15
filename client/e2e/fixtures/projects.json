@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "000000000000000000000001",
+    "title": "Fixture Storefront",
+    "slug": "fixture-storefront",
+    "summary": "Test data for the end-to-end suite: a headless storefront case study.",
+    "techStack": ["Next.js", "TypeScript", "Shopify"],
+    "liveUrl": "https://example.com",
+    "repoUrl": "https://example.com/repo",
+    "caseStudyBody": "## Problem\nA fixture paragraph that stands in for a real case study.\n\n## Approach\n- Server-rendered product pages\n- Checkout handed to the provider\n\n## Outcome\nThe page renders headings, lists and paragraphs from plain text.",
+    "published": true,
+    "createdAt": "2026-03-01T10:00:00.000Z",
+    "updatedAt": "2026-03-02T10:00:00.000Z"
+  },
+  {
+    "_id": "000000000000000000000002",
+    "title": "Fixture Dashboard",
+    "slug": "fixture-dashboard",
+    "summary": "Test data for the end-to-end suite: a subscription dashboard case study.",
+    "techStack": ["Express", "MongoDB", "Stripe"],
+    "caseStudyBody": "## Problem\nA second fixture so lists have more than one entry.",
+    "published": true,
+    "createdAt": "2026-01-15T10:00:00.000Z",
+    "updatedAt": "2026-01-16T10:00:00.000Z"
+  }
+]
