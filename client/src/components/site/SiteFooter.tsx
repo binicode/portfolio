@@ -1,66 +1,38 @@
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
-import OpenChatButton from '@/components/chat/OpenChatButton';
-import { buttonClasses } from '@/components/ui/button-styles';
-import { contactHref, primaryNav, site, socials } from '@/lib/site';
+import { ArrowOut } from '@/components/ui/Arrow';
+import { primaryNav, site, socials } from '@/lib/site';
 
-/** Every page ends here, so this is the site's closing call to action. */
+/**
+ * A quiet last line, in the page's own material. The closing call to action
+ * belongs to each page: the portfolio pages end on the contact plate, the
+ * products on their own "get started" section.
+ */
 export default function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="theme-ember border-t border-border">
+    <footer className="border-t border-border">
       {/* Extra bottom padding keeps the last row clear of the fixed assistant button. */}
-      <div className="container-page pb-24 pt-[calc(var(--section)*0.8)]">
-        <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
-          <p className="text-h1 font-medium text-balance lg:col-span-8">Have something that needs to <em className="emph">hold up</em>?</p>
-          <div className="lg:col-span-4 lg:w-64 lg:justify-self-end">
-            <div className="flex flex-wrap gap-3 lg:flex-col">
-              <OpenChatButton mode="discovery" className={buttonClasses('accent', 'lg')}>
-                Plan your project
-              </OpenChatButton>
-              <a href={contactHref} target="_blank" rel="noopener noreferrer" className={buttonClasses('secondary', 'lg')}>
-                Message me on LinkedIn
-                <ArrowUpRight
-                  aria-hidden="true"
-                  className="h-4 w-4 transition-transform duration-200 group-hover/button:-translate-y-0.5 group-hover/button:translate-x-0.5"
-                  strokeWidth={1.75}
-                />
-                <span className="sr-only">(opens in a new tab)</span>
-              </a>
-            </div>
-            <p className="mt-4 max-w-[22rem] text-body-sm text-muted-foreground">
-              Planning takes about 2 minutes and ends with a brief you can send me.
-            </p>
-          </div>
+      <div className="container-page grid gap-8 pb-24 pt-10 text-body-sm md:grid-cols-[1fr_auto] md:items-start md:gap-x-12">
+        <div>
+          <p className="font-semibold">{site.name}</p>
+          <p className="mt-1 text-muted-foreground">{site.role}, trained in civil engineering.</p>
         </div>
 
-        <div className="mt-16 grid gap-10 border-t border-border pt-10 sm:grid-cols-3 lg:grid-cols-12">
-          <div className="lg:col-span-6">
-            <p className="font-semibold">{site.name}</p>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-              {site.role} with a background in civil engineering.
-            </p>
-          </div>
-
-          <nav aria-label="Footer" className="lg:col-span-3">
-            <ul className="label space-y-3">
-              <li>
-                <Link href="/" className="text-muted-foreground transition-colors hover:text-foreground">
-                  Home
+        <nav aria-label="Footer">
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            <li>
+              <Link href="/" className="text-muted-foreground transition-colors hover:text-foreground">
+                Home
+              </Link>
+            </li>
+            {primaryNav.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
+                  {item.label}
                 </Link>
               </li>
-              {primaryNav.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <ul className="label space-y-3 lg:col-span-3">
+            ))}
             {socials.map((social) => (
               <li key={social.href}>
                 <a
@@ -70,14 +42,15 @@ export default function SiteFooter() {
                   className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {social.label}
-                  <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  <ArrowOut className="h-3.5 w-3.5" />
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </li>
             ))}
           </ul>
-        </div>
+        </nav>
 
-        <div className="label mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-dim">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground md:col-span-2">
           <p>
             © {year} {site.name}
           </p>

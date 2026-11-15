@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
     // more than the one stylesheet request it saves.
   },
   images: {
+    // AVIF where the browser takes it, WebP otherwise.
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',

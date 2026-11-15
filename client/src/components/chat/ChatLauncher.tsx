@@ -60,9 +60,11 @@ export default function ChatLauncher() {
         onClick={() => (isOpen ? close() : open())}
         aria-expanded={isOpen}
         aria-controls={hasOpened ? 'assistant-panel' : undefined}
-        className="fixed bottom-[calc(max(1rem,env(safe-area-inset-bottom))+var(--frame))] right-[calc(1rem+var(--frame))] z-40 inline-flex h-11 items-center gap-2.5 rounded-xs bg-accent pl-3.5 pr-4 font-mono text-xs uppercase tracking-[0.04em] text-accent-foreground shadow-[0_10px_30px_-12px_rgb(0_0_0/0.8)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 sm:right-[calc(1.5rem+var(--frame))]"
+        // A pill, like every call to action: ink on the canvas, bone in the products.
+        // Hover lifts it and steps it to rust; nothing fades.
+        className="group/launch fixed bottom-[calc(max(1rem,env(safe-area-inset-bottom))+var(--frame))] right-[calc(1rem+var(--frame))] z-40 inline-flex h-12 items-center gap-2.5 rounded-full bg-primary pl-4 pr-5 text-sm font-medium text-primary-foreground shadow-[0_14px_30px_-14px_rgb(11_18_21/0.7)] transition-[transform,background-color,color] duration-200 hover:-translate-y-0.5 hover:bg-accent hover:text-accent-foreground active:translate-y-0 sm:right-[calc(1.5rem+var(--frame))]"
       >
-        <span aria-hidden="true" className="h-1.5 w-1.5 bg-accent-foreground" />
+        <span aria-hidden="true" className="size-2 rounded-full bg-accent transition-colors duration-200 group-hover/launch:bg-accent-foreground" />
         {isOpen ? (
           'Close'
         ) : (

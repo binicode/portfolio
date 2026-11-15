@@ -3,7 +3,7 @@
  * layers the hero introduces: Interface, API, Data, Services. Pure and
  * runtime-import free, so it runs under `node --test` directly.
  */
-import type { TechLogoId } from '@/components/home/tech-stack/TechLogo';
+import type { TechLogoId } from '@/components/work/TechLogo';
 
 export type LayerSlug = 'interface' | 'api' | 'data' | 'services';
 

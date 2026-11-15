@@ -229,7 +229,7 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange, seed, p
             <button
               type="button"
               onClick={() => onModeChange('discovery')}
-              className="group mt-6 flex w-full items-center gap-3 rounded-lg border border-accent/40 bg-accent/[0.06] px-4 py-3.5 text-left transition-colors hover:border-accent hover:bg-accent/10"
+              className="group mt-6 flex w-full items-center gap-3 rounded-lg bg-card px-4 py-3.5 text-left transition-colors hover:bg-raised"
             >
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium">Planning a project?</span>
