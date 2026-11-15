@@ -827,9 +827,14 @@
       }
     }
 
-    /* The first screen holds only the intro, centred in the stage. */
+    /* The first screen holds only the intro, centred in the stage. It sits
+       above the frame: the frame waits at the centre, invisible but still
+       hit-testable, and would otherwise take the buttons' clicks. Once the
+       intro has gone (hs-hide) it no longer catches pointers, so the frame
+       below is reachable again. */
     .hs-intro {
       position: absolute;
+      z-index: 2;
       inset: 0;
       display: flex;
       flex-direction: column;
