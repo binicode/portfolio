@@ -1,5 +1,5 @@
 import OpenChatButton from '@/components/chat/OpenChatButton';
-import { buttonClasses } from '@/components/ui/button-styles';
+import PillParts, { pillClasses } from '@/components/ui/PillAction';
 import { buildFromStack } from '@/lib/discovery/flow';
 
 interface ProjectCtaProps {
@@ -16,13 +16,13 @@ interface ProjectCtaProps {
 export default function ProjectCta({ title, techStack, className = '' }: ProjectCtaProps) {
   return (
     <div className={className}>
-      <p className="font-medium">Need something like this?</p>
+      <p className="font-semibold">Need something like this?</p>
       <p className="mt-1 text-body-sm text-muted-foreground">Plan yours in about 2 minutes, or ask how this one works.</p>
-      <div className="mt-4 flex flex-wrap gap-2 lg:flex-col">
-        <OpenChatButton mode="discovery" build={buildFromStack(techStack)} className={buttonClasses('accent', 'sm')}>
-          Plan a similar project
+      <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 lg:flex-col lg:items-start">
+        <OpenChatButton mode="discovery" build={buildFromStack(techStack)} className={pillClasses()}>
+          <PillParts size="sm">Plan a similar project</PillParts>
         </OpenChatButton>
-        <OpenChatButton mode="chat" question={`How was ${title} built?`} className={buttonClasses('secondary', 'sm')}>
+        <OpenChatButton mode="chat" question={`How was ${title} built?`} className="link text-body-sm font-medium">
           Ask how it was built
         </OpenChatButton>
       </div>

@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "eslint",
     "fonts:subset": "node scripts/subset-fonts.mjs",
-    "orbit:keyframes": "node scripts/gen-orbit-keyframes.mjs",
     "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {

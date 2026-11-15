@@ -7,7 +7,7 @@ import { SAMPLE_ACCOUNT, SAMPLE_STATS } from './sample-stats';
  * Dashboard on sample data, rendered by the same DashboardBody subscribers
  * get, so it can never drift from the product. HTML rather than a
  * screenshot: sharp at every size, and it actually works (chart readouts,
- * sorting). The home page uses DashboardPoster instead.
+ * sorting).
  */
 export default function DashboardPreview({ className = '' }: { className?: string }) {
   return (

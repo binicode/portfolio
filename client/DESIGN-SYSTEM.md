@@ -5,45 +5,34 @@ The source of truth for the frontend's visual language. Tokens live in
 
 ## Concept
 
-Weathering: a dark, precise interface for a civil engineer who builds
-software, coloured like two materials that age well, Corten steel (rust)
-and copper patina (verdigris), on petrol ink instead of black. The tight
-grotesk headlines and the mono micro-labels follow the reference the owner
-chose (an Awwwards product site with a pinned, scroll-driven hero). The
-content and drawings stay specific to this portfolio: structures as a
-metaphor for the stack.
+Two layers, after the presentation board the owner chose as the reference:
 
-Spend boldness in one place per page. On the home page that is the hero:
-a pinned scene where the headline clears away, a frame zooms in, and the
-four layers of the stack orbit a fixed centre line, each coming to the
-front in turn as you scroll. Everything around it stays quiet.
+- **The canvas** is the portfolio (home, work, case studies): a light grey
+  board, petrol-ink type, the name and each project title at poster size in
+  a serif, lots of air. It has no colour of its own.
+- **The windows** are the products. Each project hangs on the board as a
+  large rounded window showing the real website (a screenshot of the live
+  page), with a long soft shadow. The colour lives here: the products keep
+  the dark "Weathering" material (petrol ink, rust, verdigris), and clicking
+  through to the SaaS or the shop enters that material for real.
 
-Hero copy is written for prospective clients: one headline, one line on
-what the work is, two actions. No name or job-title chip (the header
-carries the name), and no filler.
+Each project is a **plate**: its name, its window, and a foot row with the
+plate's numeral and a long arrow to the next plate. The arrows chain the
+plates (01 to 02 to 03, then on to all work or the contact plate), which is
+the board's project-to-project navigation.
 
-## Drawings
+Spend boldness in one place: the type scale and the windows. Everything
+else (header, captions, footer) stays small and quiet.
 
-- `components/home/tech-stack/illustrations/`: one drawing per layer
-  (`InterfaceIllustration`, `ApiIllustration`, `DataIllustration`,
-  `ServicesIllustration`) on a shared 320×160 sheet (`ArtSheet`) with
-  registration crosses: a page plan with one component bracketed, a request
-  through two checkpoints to a route, stacked disks with a nearest-neighbour
-  search, and providers wired to the API with a webhook back. They replace
-  the building-section drawing but keep its drafting language, which is the
-  civil-to-software link.
-- Projects are not illustrated with structural drawings any more (the old
-  truss, arch and cantilever plates said nothing about the software). Each
-  project is drawn as the system it is: `components/work/StackMap.tsx`
-  places its CMS tech stack on the same four layers (Interface, API, Data,
-  Services; `lib/stack-layers.ts`, tested) with real technology marks,
-  joined by a rust request path. See "Work" below.
-- Inline SVG only, one `<path>` per layer, `vector-effect: non-scaling-stroke`
-  for crisp hairlines. Styles live in `globals.css` (`.d-*` classes).
-- Drawings are static. Animated SVG transforms cannot be composited and
-  repaint the surrounding layer on every frame (measured: ~100 main-thread
-  paints during load when the old hero drawing assembled itself). Move the
-  HTML element that holds a drawing instead, as the orbit does.
+Rules the owner set for this direction, which apply everywhere:
+
+- No badge or eyebrow above a headline. The numeral sits in the foot row.
+- No scroll-in or entrance animation. Motion only answers the reader.
+- No opacity fades on button hover: hover is a solid colour step (to rust).
+- No serif italics or single coloured words in canvas headlines.
+- No icon set in the canvas parts: arrows are drawn for the site (`Arrow.tsx`).
+- No coloured-border cards, glass, gradients or grain.
+- No em dashes in interface copy; use a comma, colon or full stop.
 
 ## Color
 
@@ -74,48 +63,67 @@ pairs, then by axe on every route).
 
 Rules:
 
+### Canvas (portfolio pages)
+
+A page opts in with a `.canvas-page` wrapper; the tokens are set on
+`<body>` with `:has()`, so the shared header and footer turn with the
+page, the site frame folds away (`--frame: 0`), and `color-scheme` and the
+browser theme colour go light. Every dark theme class restates the full dark
+role set, so a dark island inside the canvas (the assistant, a window's
+architecture map) stays dark.
+
+| Token | Value | Role |
+| --- | --- | --- |
+| Canvas | `#ebebe9` | The board (`background`) |
+| Canvas raised | `#f5f5f3` | Cards (`card`), text on ink pills |
+| Canvas step | `#d7d8d6` | `muted`, `raised` |
+| Canvas line | `#cdcecc` | Hairlines |
+| Ink deep | `#0b1215` | Text (15.8:1) and the solid pill |
+| Muted text | `#565d61` | Secondary text, the plate numerals (5.6:1) |
+| Dim | `#6b7276` | Large text only (4.1:1) |
+| Rust, canvas | `#b2451a` / hover `#9a3b14` | Action: pill hover, focus ring, selection (4.7:1; white on it 5.6:1) |
+| Verdigris, canvas | `#1c6b5c` | Link underlines and link hover (5.3:1) |
+| Input | `#7c8488` | Control borders (3.2:1) |
+
+On the canvas, colour is earned by interaction: type is ink, a button is
+ink until you point at it (then rust), a link's underline is verdigris.
+
+### Rules (both layers)
+
 - Rust is the one thing to do; verdigris is what to notice. A data series,
   a status, a label or a link is never rust; a filled button is never
   verdigris. In a hero or closing band they pair up: the promise in
   verdigris, the action under it in rust.
 - Emphasis, not ornament: the accent lives in the content and its states,
   never in added shapes, lines or illustrations.
-  - `emph` (on `<em>`) marks the promise in a leading headline: the few
-    words that say what the reader gets. One phrase per headline, only in
-    leading headlines: hero "to *hold up*", About "*applied to software*",
-    SaaS hero "*in one place*", footer "needs to *hold up*". "Hold up"
-    opens and closes every visit, and that echo is deliberate. The dashboard
-    and its preview greet the reader with their name in `emph`.
+  - `emph` (on `<em>`) marks the promise in a product's leading headline
+    (SaaS hero "*in one place*"); the dashboard greets the reader with
+    their name in it. Never on the canvas.
   - Links (`link`): text keeps its colour, the underline is verdigris and
     fills in on hover. Secondary buttons, project cards (title and "Case
     study"), external links and inline actions turn verdigris on hover.
-  - Labels that lead a section, and "Featured", are verdigris.
-  - In `RevealWords`, emphasised words start brighter (0.6, not 0.45) so
-    they stay above 3:1 while they reveal.
+  - Labels that lead a product section are verdigris.
 - Charts: the series that matters in `signal`, the comparison in
   `chart-muted`. Status always carries an icon or word, never colour alone.
 - Solid colour, about 90/10. Depth comes from surface steps, hairlines,
   spacing and type, never from glows or washes:
   - Surface steps: deep, page, card, raised. Each layer is one step above
-    the one it sits on (the hero: deep stage, page-ink frame, card-coloured
-    stack cards). `.bg-card` and `.bg-raised` get the lit top edge and soft
+    the one it sits on. `.bg-card` and `.bg-raised` get the lit top edge and soft
     drop (`--elevation-card`) automatically; floating panels use
     `shadow-pop`. Recessed wells (`.stack-map`) go one step down instead.
   - Materials: section themes re-point the surfaces for everything inside
     them, with a hairline in the material's own line colour at each edge:
-    `theme-deep` (hero, header, dashboard rail), `theme-ink` (page),
-    `theme-patina` (Systems on the home page, the SaaS hero, the sign-in
-    panel; `border-y`/`border-b`), `theme-ember` (the footer; `border-t`).
+    `theme-deep` (dashboard rail, the case-study architecture window),
+    `theme-ink` (page, the assistant panel), `theme-patina` (the SaaS
+    hero, the sign-in panel; `border-y`/`border-b`), `theme-ember`.
   - Marked items (the featured repository) get a brighter surface and a
     verdigris hairline, not a glow.
   - Charts: a flat 10% area under a line, not a fade.
-- The justified 10%: the site frame, rust at the top of the screen through
-  deep ink to patina at the bottom. It's the identity's signature, sits
-  outside the content, and is the only decorative gradient. Hard-edged
-  patterns drawn with gradient functions (the stack-map dot grid, the
-  header's stripe meter, the hero's column guides) read as solid lines and
-  dots, and the column guides' mask fade only keeps them from ending
-  abruptly. Anything else needs the same justification before it ships.
+- The justified 10%: the site frame around the product pages, rust at the
+  top of the screen through deep ink to patina at the bottom. It sits
+  outside the content and is the only decorative gradient; the canvas has
+  none. The stack-map dot grid is drawn with a gradient function but reads
+  as solid dots. Anything else needs the same justification before it ships.
 
 Components use semantic names only (`background`, `foreground`, `card`,
 `raised`, `muted-foreground`, `dim`, `border`, `input`, `primary`,
@@ -127,41 +135,48 @@ Never use `text-muted` or `text-secondary` for text: `muted` and
 `secondary` are surface colors.
 
 With solid surfaces, axe checks every text pair directly (it can't over
-gradients). The hero legend on the page-ink frame: `accent-bright` keys
-6.6:1, Ash 8.6:1; text on the ember footer: Ash 8.9:1, verdigris 8.7:1.
+gradients).
 
 ## Type
 
-- **Inter Tight** for everything readable: headlines at weight 500 with
-  tight tracking (`-0.04em` at h1), body at 400. Self-hosted subset in
-  `src/app/fonts/` (OFL licence alongside): Latin, weight 400–600, 27 KB,
+- **Playfair Display 700** for the canvas's display type only: the name in
+  the home hero, plate titles, the case-study title, the About and contact
+  statements (`font-display`, `text-mega` / `text-poster`). Its licence
+  reserves the font name, so the file is Google Fonts' own static latin
+  weight-700 file, unmodified (23 KB, licence alongside). Declared in
+  `lib/display-font.ts` and imported only by canvas pages, so only they
+  preload it; anywhere else `font-display` falls back to the grotesk. No
+  italics.
+- **Hanken Grotesk** for everything else: headings, body, UI, and the light
+  (300) plate numerals. Self-hosted latin subset, weight 300–600, 28 KB,
   preloaded.
-- **Geist Mono** for micro-type only, through the `label` utility: nav,
-  kickers, meta, captions, button text. ASCII subset, weight 400–500,
-  9 KB, not preloaded.
-- Both subsets are produced by `npm run fonts:subset`
-  (`scripts/subset-fonts.mjs`). Using `font-bold` or characters outside the
-  subsets will not render as intended — widen the ranges in that script.
+- **Geist Mono** for product micro-type only (`label`: the dashboard, the
+  SaaS and shop pages). Not used on the canvas. ASCII subset, 9 KB, not
+  preloaded.
+- Files are produced by `npm run fonts:subset` (`scripts/subset-fonts.mjs`;
+  pass family names to regenerate only those).
 - Numbers in data use `tabular-nums`.
 
 Scale (all in `@theme`), largest first:
 
 | Role | Token | Size |
 | --- | --- | --- |
-| Hero, about numerals | `text-display`, `text-stat` | fluid, up to 112–128px |
-| Page title | `text-h1` | 40–84px |
-| Section title, featured project | `text-h2` | 32–56px |
+| Name, plate titles (serif) | `text-mega` | 52–168px |
+| Long titles, statements (serif) | `text-poster` | 40–100px |
+| Product heroes | `text-display`, `text-h1` | up to 112 / 84px |
+| Section title | `text-h2` | 32–56px |
+| Plate numerals | `text-numeral` | 32–44px, weight 300 |
 | Large reading text | `text-statement` | 24–40px |
 | Card and page subtitles, greeting | `text-title` | 24–40px |
 | Card title | `text-h3` | 22px |
 | Intro line | `text-lead` | 18–22px |
-| Summaries, card headings | `text-body-lg` | 17px |
+| Summaries, captions under windows | `text-body-lg` | 17px |
 | Body | `text-base` | 16px / 1.6 |
 | Secondary body, lists, links | `text-body-sm` | 15px |
 | Compact UI | `text-sm` | 14px |
 | Captions, chips | `text-caption` | 13px |
 | Meta, hints | `text-xs` | 12px |
-| Mono labels, axis ticks | `text-micro` (= `label`) | 11px |
+| Mono labels, axis ticks (products) | `text-micro` (= `label`) | 11px |
 | Card figures | `text-figure-sm` / `-md` / `-lg` | 26 / 32 / 40px |
 
 No one-off sizes (`text-[…rem]`): pick the step for the role, or add a
@@ -186,10 +201,9 @@ things and gives the one fact the interface can't show.
   @handle."). Labels and placeholders carry the rest.
 - Metadata descriptions are for search results and may run longer.
 
-`label` (uppercase mono, 11px, +0.04em) is the system's one all-caps
-style. Use it for navigation and metadata, not for sentences, and not as
-an eyebrow above every heading. A rust `label` kicker is reserved for a
-page's or section's identity (for example "Creator Dashboard").
+`label` (uppercase mono, 11px, +0.04em) is the products' one all-caps
+style, for metadata inside the dashboard, the SaaS page and the shop. The
+canvas has no all-caps text and no eyebrows.
 
 Avoid: colouring words for effect (the only coloured words are the promise
 in a leading headline, `emph`, see Color), numbered markers on content
@@ -198,23 +212,21 @@ that isn't a sequence.
 ## Calls to action
 
 The site's job is to turn a visitor with an idea into a client. Every
-call to action states what happens on click, and its colour says what kind
-of action it is.
+call to action states what happens on click.
 
-- **Accent (rust): work with me.** Plan your project, Start a project, Plan a
-  similar project/product/store, and the assistant launcher. All open the
-  assistant's planner (`OpenChatButton mode="discovery"`), which ends in a
-  brief and "Copy brief and message me".
-- **Primary (bone): the main action of a product flow.** Create an account,
-  Buy now, Continue to checkout, Save, Log in on its form.
-- **Secondary (outline): the alternative route** beside either: See the
-  work, Log in, Message me on LinkedIn. Its border and text turn verdigris
-  on hover.
-- Text links (`link` utility) for routes inside content: See all work, Try
-  the assistant, Explore the dashboard, Browse the store. Verdigris
-  underline.
-- At most one accent and one primary per view. Pair a main action with one
-  secondary, never three equal buttons.
+- **The pill** (`PillParts` + `pillClasses`, `components/ui/PillAction.tsx`):
+  the reference's button, a rounded pill with the words and a round arrow
+  beside it, both halves one control. Solid is ink on the canvas and bone in
+  the products; hover steps both halves to rust and turns the arrow 45°.
+  Outline is the alternative route. Used for every "work with me" action
+  (Plan your project, Start a project, Plan a similar project) and for
+  Message me on LinkedIn. All of these open the assistant's planner
+  (`OpenChatButton mode="discovery"`), which ends in a brief.
+- **Product buttons** (`button-styles.ts`, rectangular, mono uppercase)
+  stay inside the products: Create an account, Buy now, Save, Log in.
+- **Text links** (`link`) for routes inside content: See the work, Explore
+  the dashboard, Read the case study. Verdigris underline.
+- At most one solid pill per view, with one alternative beside it.
 
 Wording:
 
@@ -223,83 +235,89 @@ Wording:
   here".
 - A short line under a conversion CTA says what happens and how long it
   takes ("About 2 minutes. You get a project brief to keep."). Payments say
-  where checkout happens ("Secure checkout on Stripe"); never invent a price.
-- Links that leave the site show ArrowUpRight and say "(opens in a new tab)"
+  where checkout happens; never invent a price.
+- Links that leave the site show `ArrowOut` and say "(opens in a new tab)"
   to screen readers. Buttons that open the assistant carry
   `aria-haspopup="dialog"`, and focus returns to them when it closes.
 
-Where they sit (one contextual CTA where intent peaks, not on every block):
+Where they sit:
 
 | Place | Call to action |
 | --- | --- |
-| Header (every page) | Start a project (`.btn-bracket`); mobile menu adds Message me on LinkedIn |
+| Header (every page) | Start a project (small solid pill); mobile menu adds Message me on LinkedIn |
 | Home hero | Plan your project + See the work |
-| Case study | Need something like this? Plan a similar project (type preselected from its stack) + Ask how it was built (question placed in the chat box). Sticky beside the write-up on desktop, after it on phones (`ProjectCta`) |
+| Plates | The product's own action (Explore the dashboard, Browse the store, Try the assistant) and Read the case study, in the caption |
+| Contact plate (end of every canvas page) | Plan your project + Message me on LinkedIn |
+| Case study | Plan a similar project (type preselected from its stack) + Ask how it was built (`ProjectCta`) |
 | SaaS page | Create an account (try it) + Plan a similar product (build one) |
 | Shop | Plan a similar store, after the products |
-| Footer (every page) | Plan your project + Message me on LinkedIn |
-| Assistant, chat | Planning a project? card in the empty state; Plan it in 2 minutes bar after an answer |
-| Assistant, brief | Copy brief and message me (copies, then opens LinkedIn), Copy only, Ask a question first |
+| Assistant | The launcher pill on every page; the planning card in the chat's empty state |
 
 `requestOpenChat(mode, { build, question })` (`chat-events.ts`) is the one
 way in: `build` preselects the planner's first answer when nothing is in
 progress, `question` places text in the chat box (never sent for the
-visitor). The copy in "Copy brief and message me" is synchronous
-(`lib/copy-text.ts`) so it completes before LinkedIn's tab takes focus.
+visitor).
 
 ## Components
 
-- Buttons (`components/ui/button-styles.ts`): rectangular (`rounded-xs`),
-  mono uppercase text; variants accent, primary, secondary, ghost, danger
-  and sizes sm, md, lg (see "Calls to action").
-- `.btn-bracket`: the outlined rust button with corner brackets, used only
-  for the header's Start a project.
-- `.stripe-meter`: the striped header bar; its cover slides with page
-  scroll (`scroll(root)`), so it doubles as a reading-progress meter.
-- `HeroSystem` + `TechnologyStackOrbit` (server components, no client
-  JavaScript): the pinned hero. Data for the four layers lives once in
-  `tech-stack/stack.ts`; `StackCard` renders a layer (key, drawing, marks
-  with names, one line of copy); `StackLegend` is the decorative progress
-  row whose accent bar follows the scroll. Scroll is the only control, so
-  there are no tabs; all four layers stay in the DOM, in order, for
-  assistive tech.
-- `TechLogo`: brand marks, monochrome (`currentColor`) so they stay in the
-  palette, always beside the written name. Path data is unmodified from
-  Simple Icons 16.37.0 (CC0) and, for Voyage AI, its own site header (the
-  leaf mark). Generated from the source SVGs; don't hand-edit.
-- `CursorReadout` (client): X/Y coordinates, fine pointers only, decorative.
-- `RevealWords`: splits a statement into words that brighten as they cross
-  the viewport (scroll-driven, no JavaScript after render).
+- `SiteHeader` / `SiteNav`: the name on the left, four words of navigation
+  and the Start a project pill on the right; not sticky. It takes the page's
+  material. The mobile menu is a native popover.
+- `SiteFooter`: one quiet row (name, links, ©). Each page owns its closing
+  call to action (canvas pages end on `ContactPlate`).
+- `Arrow.tsx`: the site's own arrows, `ArrowLong` (plate navigation, back
+  link) and `ArrowOut` (pills, links that leave the site). Hairline,
+  `currentColor`, `aria-hidden`. Use these in canvas parts, not an icon set.
+- `PillParts`: see "Calls to action".
+- `TechLogo` (`components/work`): brand marks, monochrome, always beside the
+  written name. Path data unmodified from Simple Icons 16.37.0 (CC0) and, for
+  Voyage AI, its own site header. Generated from the source SVGs; don't
+  hand-edit.
+- The assistant launcher: a pill, fixed bottom right on every page.
 
-## Work
+## Plates
 
-- `ProjectShowcase` (home "Selected work", reached from the hero's "See the
-  work", and the `/projects` index): a composed showcase, not identical
-  rows. The newest project is a wide feature card: eyebrow and a large
-  title on the left, summary and links on the right, and its architecture
-  running the full width beneath (`StackMap layout="flow"`). The rest are
-  compact cards, two or three to a row (an odd last card takes the full
-  row at two columns): map on top (`layout="lanes"`, common minimum height
-  so titles line up), then year, title, a three-line summary and links.
-- `StackMap`: the project's technologies on Interface → API → Data →
-  Services, with real marks (`TechLogo`), a plain "where it runs" line per
-  layer in the wide flow, and languages on their own line ("TypeScript
-  throughout"). A recessed well with a drafting dot grid (`.stack-map`); a
-  request path from node to node that never crosses a label; the last
-  node solid. Flow switches from rows to columns at a 34rem content width
-  (container query). The map is a `figure` whose caption reads the whole
-  architecture to screen readers; the drawing itself is `aria-hidden`.
-- Each card has one primary link, the title, stretched over the card
-  (`::after`, `z-[1]`, focus ring drawn inside the card because the card
-  clips its edge); "Live site" and "Source" sit above it as separate links
-  with accessible names. Hover lifts the card's edge, brightens the request
-  path to full rust and slides the "Case study" arrow.
-- The title and the map share view-transition names with the case study,
-  whose header shows the same map, so both carry across the navigation.
-- `LiveSystemsList` (the work page while the CMS has nothing published)
-  uses the same maps, from each live system's `stack` in `lib/systems.ts`.
-- Server-rendered HTML with inline SVG marks: no images, no client
-  JavaScript.
+`components/work/Plate.tsx` composes one project like the reference board:
+
+1. The title, centred, `font-display` at `text-mega` (`text-poster` for
+   titles over 12 characters, which may take two lines).
+2. The window (`.plate-frame`): rounded (16–32px), `ink-deep` until the
+   image arrives, one long soft shadow, `aspect-ratio` reserved so nothing
+   shifts. From 48rem it shows the desktop screenshot (1440×1024 view); on
+   phones a portrait 4:5 window shows the phone layout (art direction with
+   `<picture>` and `getImageProps`, lazy, AVIF or WebP). Hover pushes the
+   screenshot in by 1.5%.
+3. The foot row: the numeral (`text-numeral`, light, muted), the caption
+   (what it is, what it's built with, its links) and `ArrowLong` to the next
+   plate. On phones the caption sits above the numeral and arrow.
+
+The window is also a pointer-only link (or assistant button) to the
+product; keyboard and screen-reader users get the labelled link in the
+caption. Plates of CMS projects share view-transition names with their case
+study (`transition`), so the title and window carry across the navigation.
+
+- `LiveSystemPlates`: the three products on this site (`lib/systems.ts`),
+  flagship first. Home page, and the work page while the CMS is empty.
+- Work page: every CMS case study as a plate. `previewForProject` gives a
+  case study its product's screenshot when its title or slug names one of
+  the live products; otherwise `StackWindow` shows its architecture
+  (`StackMap`) zoomed into a dark window.
+- Case study: the same plate at the top (with `h1`), the write-up, and a
+  foot link to the next case study (numeral, serif title, arrow).
+- `ContactPlate`: the canvas pages' close, a statement at `text-poster` and
+  two pills.
+
+Screenshots live in `src/assets/previews/` (WebP, desktop 2560px wide,
+phone 1080×1350). They are captures of the real pages with headless Chrome
+at 1440×1024 (2x) and 390×844 (3x, top 4:5 kept), reduced motion on, the
+site frame cropped off. Retake them when a product's first screen changes.
+
+`StackMap`: a project's technologies on Interface → API → Data → Services,
+with real marks, a plain "where it runs" line per layer in the wide flow,
+and languages on their own line. A recessed well with a drafting dot grid;
+flow switches from rows to columns at a 34rem content width (container
+query). A `figure` whose caption reads the whole architecture to screen
+readers; the drawing itself is `aria-hidden`.
 
 ## Creator Dashboard
 
@@ -464,83 +482,56 @@ writes a brief at the end.
 
 ## Layout
 
-- `.site-frame`: the public site (and the 404 page) sits inside a
-  weathered frame, `--frame` wide (6px on phones, up to 18px on desktop),
-  rust at the top of the screen through deep ink to patina at the bottom.
-  The wrapper is padded by `--frame`; the frame is
-  a fixed, pointer-transparent `::after` overlay. Anything sticky or fixed
-  adds `var(--frame)` to its offset (header, hero stage, mobile menu, chat
-  launcher and panel, sticky sidebars). Dashboards and sign-in pages are
-  not framed: the space matters more there.
+- Canvas pages: centred composition, as on the board. Generous, fixed
+  rhythm between parts: plate top 72–160px, title to window 36–88px,
+  window to foot row 32–72px (all in `Plate.tsx`).
+- `.site-frame`: the product pages sit inside a weathered frame, `--frame`
+  wide, rust at the top of the screen through deep ink to patina at the
+  bottom; a fixed, pointer-transparent overlay. On canvas pages `--frame`
+  is 0. Anything fixed adds `var(--frame)` to its offset.
 - `container-page`: max 84rem with fluid gutters (`--gutter`).
 - `py-section` / `pb-section`: fluid vertical rhythm (`--section`).
-- A 12-column grid at `lg`; content left-aligned. Section headings usually
-  take 4–5 columns with content starting at column 6. The hero is centred.
-- Lists of things (projects, steps, notes) are ledgers: rows separated by
-  hairlines, not grids of identical cards.
-
-Radii are small and follow hierarchy: controls `rounded-xs` (2px), panels
-and frames `rounded-md`–`rounded-xl` (4–8px). Shadows only on floating
-elements (chat launcher and panel).
+- Radii follow hierarchy: windows 16–32px, pills fully round, product
+  controls 2px, product panels 4–8px.
 
 ## Motion
 
-One orchestrated moment per page; no time-based entrance animations on load.
+Motion answers the reader; nothing animates on load or on scrolling into
+view.
 
-- Hero: `.hs` is 400vh with a sticky stage and a named view timeline
-  (`--hs`). Ranges are in `contain` percentages and must not overlap:
-  intro out 0–9%; the frame is invisible until 9%, then zooms (scale
-  0.55 → 1) and fades in until 24%; heading and legend 21–28%; the orbit
-  turns from 24% to the end. All scroll-linked, CSS only, behind
-  `@supports (animation-timeline: view())`; other browsers and reduced
-  motion get the four layers as a static grid.
-- Stack orbit: per layer, a 16% dwell then a 12% turn. Keyframes are
-  generated from one pose table (front, left, back, right, with arc
-  midpoints), so the four cards can't drift out of step. From `md` up the
-  stage is a real 3D context (`perspective` + `preserve-3d` + `translateZ`),
-  so the browser depth-sorts the cards; cards stay opaque and recede by a
-  darkening scrim, never by transparency, so nothing shows through. Phones
-  get a flat fade-through, one card at a time. Every animated property is
-  `transform` or `opacity`, and the front pose is the identity transform,
-  so text there is rasterised sharp.
-- `reveal` and `RevealWords`: scroll-driven (`animation-timeline: view()`).
-  Unread words start at 0.45 opacity so the large statement text stays
-  above 3:1 at every scroll position.
-- Route changes: React `<ViewTransition>` (no config flag since Next 16.3).
-- `CursorReadout`: fine pointers only, rAF-throttled. (The cursor-following
-  glow, `PointerLight`, was removed with the gradients.)
-- Animate `transform` and `opacity`. Keep `visibility` (needed to take
-  faded controls out of the tab order) in its own animation, so the
-  opacity/transform one can run on the compositor.
-- When an element has more than one scroll-driven animation, write the
-  longhands (`animation-name`, `animation-duration: auto`, …). The CSS
-  minifier expands a multi-animation shorthand with `animation-duration: 0s`,
-  which makes scroll-driven animations jump straight to their end state.
-- All motion is disabled under `prefers-reduced-motion: reduce`.
-- No blur filters or `backdrop-filter`.
+- Pills: colour step to rust and a 45° turn of the arrow on hover.
+- Windows: the screenshot pushes in 1.5% on hover. The plate arrow slides
+  4px.
+- In-page anchors glide (`scroll-behavior: smooth`, with
+  `data-scroll-behavior="smooth"` on `<html>` so route changes still jump).
+- Route changes: React `<ViewTransition>`; a CMS plate's title and window
+  carry into the case study.
+- The assistant panel fades in when opened (`animate-fade-in`).
+- Animate `transform`, `opacity` and colours only. No blur filters or
+  `backdrop-filter`. Everything is disabled under
+  `prefers-reduced-motion: reduce`.
 
 ## Performance rules
 
 - Server Components by default. Client components today: `SiteNav`,
   `ChatLauncher` (panel lazy-loaded on intent), `OpenChatButton`,
-  `CursorReadout`, `ShopifyImage`, forms,
-  the dashboard's page links and Log out (`DashboardNavLinks`,
-  `LogoutButton`), and its `ChartFrame` and `RefreshControl` (on `/saas`
-  and the dashboard only, never the home page).
-- No animation, 3D or UI libraries. `lucide-react` icons only.
+  `ShopifyImage`, forms, the dashboard's page links and Log out, and its
+  `ChartFrame` and `RefreshControl` (on `/saas` and the dashboard only).
+- No animation, 3D or UI libraries. `lucide-react` stays inside the
+  products; canvas parts use `Arrow.tsx`.
 - `src/lib/config.ts` must stay dependency-free: it is imported by browser
-  code. (A schema library there previously added ~64 KB to every page.)
-- Images through `next/image` with real `sizes`; the first row eager with
-  `fetchPriority="high"`, everything else lazy.
-- `experimental.inlineCss` was measured and rejected: on Next 16.2 it
-  embedded the stylesheet about three times per page (HTML grew from ~12 KB
-  to ~42 KB gzipped). Re-measure before enabling it on a future version.
-- Fonts: one preloaded file (Inter Tight, 27 KB) plus Geist Mono (9 KB) on
-  first use. Adding a family, weight or range needs a measured reason.
+  code.
+- Images through `next/image` with real `sizes`. Plate screenshots are lazy
+  (no plate is above the fold) and art-directed, so a phone downloads only
+  the phone capture.
+- `experimental.inlineCss` was measured and rejected on Next 16.2 (HTML grew
+  from ~12 KB to ~42 KB gzipped). Re-measure before enabling it.
+- Fonts: Hanken Grotesk (28 KB) preloaded everywhere; Playfair Display
+  (23 KB) preloaded on canvas pages only; Geist Mono (9 KB) on first use in
+  the products. Adding a family, weight or range needs a measured reason.
 - Measure over HTTP/2: `next start` serves HTTP/1.1, which Lighthouse models
-  with six connections per origin and penalises Next's many small chunks.
-  Production hosts serve HTTP/2, so local numbers need an HTTP/2 proxy in
-  front of `next start` to be representative.
+  with six connections per origin. Put an HTTP/2 proxy in front of
+  `next start` for representative numbers.
 
 ## Case-study format
 

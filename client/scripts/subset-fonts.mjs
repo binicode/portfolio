@@ -2,14 +2,20 @@
 //
 // Run: npm run fonts:subset
 //
-// Both families are OFL with no Reserved Font Name (licences alongside the
-// files). Each is downloaded from the Google Fonts CSS2 API and reduced to
-// what the design uses:
-//   - Inter Tight: Google's "latin" range, weight 400–600 (headings + body).
+// All three families are OFL (licences alongside the files); only Playfair
+// Display reserves its name. Each is downloaded from the Google Fonts CSS2
+// API and reduced to what the design uses:
+//   - Playfair Display: the display face (names and titles on the portfolio
+//     canvas, nothing else). Its licence reserves the font name, so a subset
+//     we make ourselves would have to be renamed. Instead the script keeps
+//     Google's own static weight-700 "latin" file exactly as served (~23 KB).
+//   - Hanken Grotesk: Google's "latin" range, weight 300–600 (headings, body,
+//     the light plate numerals).
 //   - Geist Mono: printable ASCII plus a few symbols, weight 400–500
 //     (uppercase micro labels, coordinates).
 // If the design starts using a weight outside these ranges, widen them here,
 // rerun, and update the matching `weight` values in src/app/layout.tsx.
+// Pass family names to regenerate only those: npm run fonts:subset -- "Playfair Display"
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import subsetFont from 'subset-font';
@@ -24,10 +30,18 @@ const LABELS = [[0x20, 0x7e], [0xa0], [0xa9], [0xb7], [0x2011], [0x2013, 0x2014]
 
 const FONTS = [
   {
-    family: 'Inter Tight',
-    out: 'inter-tight-latin-wght400-600.woff2',
+    family: 'Playfair Display',
+    out: 'playfair-display-latin-700.woff2',
+    request: '700',
+    // Kept as Google serves it (Reserved Font Name, see above). A browser
+    // without variable-font support gets the static weight-700 instance.
+    unmodified: true,
+  },
+  {
+    family: 'Hanken Grotesk',
+    out: 'hanken-grotesk-latin-wght300-600.woff2',
     ranges: LATIN,
-    axes: { wght: { min: 400, max: 600, default: 400 } },
+    axes: { wght: { min: 300, max: 600, default: 400 } },
   },
   {
     family: 'Geist Mono',
@@ -43,11 +57,15 @@ const textFor = (ranges) => {
   return text;
 };
 
-for (const font of FONTS) {
-  // A modern browser user agent makes the CSS API return woff2 files.
+const only = process.argv.slice(2);
+
+for (const font of FONTS.filter((f) => only.length === 0 || only.includes(f.family))) {
+  // A modern browser user agent makes the CSS API return variable woff2
+  // files; Chrome 60 (woff2, no variable fonts) gets static instances.
+  const userAgent = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/${font.unmodified ? 60 : 140} Safari/537.36`;
   const css = await fetch(
-    `https://fonts.googleapis.com/css2?family=${font.family.replace(/ /g, '+')}:wght@100..900&display=swap`,
-    { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36' } },
+    `https://fonts.googleapis.com/css2?family=${font.family.replace(/ /g, '+')}:wght@${font.request ?? '100..900'}&display=swap`,
+    { headers: { 'User-Agent': userAgent } },
   ).then((r) => r.text());
 
   const latinFace = css
@@ -56,8 +74,10 @@ for (const font of FONTS) {
   const url = latinFace?.match(/url\((https:[^)]+\.woff2)\)/)?.[1];
   if (!url) throw new Error(`Could not find the latin ${font.family} woff2 in the Google Fonts CSS response.`);
 
-  const source = Buffer.from(await fetch(url).then((r) => r.arrayBuffer()));
-  const subset = await subsetFont(source, textFor(font.ranges), { targetFormat: 'woff2', variationAxes: font.axes });
+  const source = Buffer.from(await fetch(url, { headers: { 'User-Agent': userAgent } }).then((r) => r.arrayBuffer()));
+  const subset = font.unmodified
+    ? source
+    : await subsetFont(source, textFor(font.ranges), { targetFormat: 'woff2', variationAxes: font.axes });
   const out = fileURLToPath(new URL(`../src/app/fonts/${font.out}`, import.meta.url));
   writeFileSync(out, subset);
   console.log(`${font.family}: ${(subset.length / 1024).toFixed(1)} KB (source ${(source.length / 1024).toFixed(1)} KB) -> ${font.out}`);

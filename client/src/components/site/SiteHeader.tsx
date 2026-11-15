@@ -1,38 +1,38 @@
 import Link from 'next/link';
 import { site } from '@/lib/site';
 import OpenChatButton from '@/components/chat/OpenChatButton';
+import PillParts, { pillClasses } from '@/components/ui/PillAction';
 import SiteNav from './SiteNav';
 
+/**
+ * Minimal, as on the reference board: the name at the top left, a few
+ * words of navigation and one pill on the right. It scrolls away with the
+ * page. No colour of its own: it takes the page's material (the canvas on
+ * portfolio pages, ink on the products).
+ */
 export default function SiteHeader() {
   return (
-    <header className="site-header theme-deep sticky top-[var(--frame)] z-40 bg-background" style={{ viewTransitionName: 'site-header' }}>
+    <header className="relative z-40" style={{ viewTransitionName: 'site-header' }}>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-foreground"
       >
         Skip to content
       </a>
-      <nav aria-label="Primary" className="container-page flex h-[var(--header-h)] items-center gap-6 lg:gap-8">
-        <Link href="/" className="shrink-0 text-body-sm font-semibold tracking-[-0.02em]">
+      <nav aria-label="Primary" className="container-page flex h-[var(--site-header-h)] items-center gap-6 lg:gap-10">
+        <Link href="/" className="shrink-0 text-[1.0625rem] font-semibold tracking-[-0.02em] sm:text-lg">
           {site.name}
         </Link>
         <SiteNav />
-        {/* Striped scroll meter: dim stripes, uncovered in orange as the page scrolls. */}
-        <span aria-hidden="true" className="stripe-meter hidden lg:block">
-          <span className="stripe-meter-cover" />
-        </span>
-        {/* The one call to action on every page: plan a project with the
-            assistant (it stays on the site; LinkedIn is in the footer and
-            at the end of planning). The wrapper carries the responsive
-            visibility: .btn-bracket's own display would otherwise win over
-            the layered `hidden` utility. */}
-        <div className="ml-auto hidden md:block lg:ml-0">
-          <OpenChatButton mode="discovery" className="btn-bracket">
-            Start a project
+        {/* The one call to action on every page: plan a project with the assistant. */}
+        <div className="hidden md:block">
+          <OpenChatButton mode="discovery" className={pillClasses()}>
+            <PillParts size="sm" arrow={false}>
+              Start a project
+            </PillParts>
           </OpenChatButton>
         </div>
       </nav>
-      <span aria-hidden="true" className="scroll-meter" />
     </header>
   );
 }

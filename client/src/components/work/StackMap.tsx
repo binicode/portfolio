@@ -1,4 +1,4 @@
-import TechLogo from '@/components/home/tech-stack/TechLogo';
+import TechLogo from './TechLogo';
 import { stackLayers, type LayerSlug, type StackItem } from '@/lib/stack-layers';
 
 // Where each layer runs, in plain words; shown under the layer names in the wide flow.

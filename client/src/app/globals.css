@@ -1,6 +1,4 @@
 @import "tailwindcss";
-/* Generated: npm run orbit:keyframes. Inlined at build, no extra request. */
-@import "./orbit-keyframes.css";
 
 /*
  * Design system — "Weathering": Corten rust and copper patina on petrol ink.
@@ -44,10 +42,27 @@
   --shadow-pop: var(--elevation-pop);
 
   --font-sans: var(--font-sans-face), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* The editorial serif, loaded only by canvas pages (lib/display-font.ts);
+     anywhere else the same class falls back to the grotesk. */
+  --font-display: var(--font-display-face, var(--font-sans-face)), Georgia, serif;
   --font-mono: var(--font-mono-face), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 @theme {
+  /* Editorial serif scale (font-display, canvas pages): the name and the
+     project titles at poster size, as in the reference, and one step for
+     statements. Serif caps need less negative tracking than the grotesk. */
+  --text-mega: clamp(3.25rem, 1rem + 11vw, 10.5rem);
+  --text-mega--line-height: 0.95;
+  --text-mega--letter-spacing: -0.015em;
+  --text-poster: clamp(2.5rem, 1.1rem + 5.6vw, 6.25rem);
+  --text-poster--line-height: 1;
+  --text-poster--letter-spacing: -0.015em;
+  /* The plate numeral at the foot of each project ("01"). */
+  --text-numeral: clamp(2rem, 1.55rem + 1.4vw, 2.75rem);
+  --text-numeral--line-height: 1;
+  --text-numeral--letter-spacing: -0.03em;
+
   /* Tight grotesk scale: large sizes with near-solid leading and negative
      tracking; body stays at 16px / 1.6. */
   --text-display: clamp(3rem, 1.6rem + 5.6vw, 7rem);
@@ -154,7 +169,24 @@
   /* Text on rust (5.8:1), verdigris (9:1) and bone (15:1) fills. */
   --on-color: #0a0f12;
 
-  /* Semantic roles: components use only these. */
+  --gutter: clamp(1.25rem, 0.6rem + 3vw, 3rem);
+  --section: clamp(5rem, 3rem + 7vw, 10rem);
+  --header-h: 4rem;
+  /* The public site header: taller, for the reference board's open top margin. */
+  --site-header-h: clamp(4.5rem, 3.6rem + 3vw, 6.5rem);
+  /* Width of the rust frame around the public site (.site-frame). Sticky and
+     fixed elements add it to their offsets. */
+  --frame: clamp(0.375rem, 1.25vw, 1.125rem);
+}
+
+/* Semantic roles: components use only these. The dark material is the
+   default, and every dark theme restates it, so a dark island (the
+   assistant, a product window) stays dark inside the light canvas. */
+:root,
+.theme-ink,
+.theme-deep,
+.theme-patina,
+.theme-ember {
   --background: var(--ink);
   --foreground: var(--bone);
   --card: var(--ink-card);
@@ -185,13 +217,6 @@
   /* Depth: a hairline of light along the top edge and a soft drop below. */
   --elevation-card: inset 0 1px 0 rgb(255 255 255 / 0.045), 0 18px 40px -28px rgb(0 0 0 / 0.8);
   --elevation-pop: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.9);
-
-  --gutter: clamp(1.25rem, 0.6rem + 3vw, 3rem);
-  --section: clamp(5rem, 3rem + 7vw, 10rem);
-  --header-h: 4rem;
-  /* Width of the rust frame around the public site (.site-frame). Sticky and
-     fixed elements add it to their offsets. */
-  --frame: clamp(0.375rem, 1.25vw, 1.125rem);
 }
 
 /* Section themes. Solid surfaces only: each one re-points the semantic
@@ -226,6 +251,58 @@
 .theme-ember {
   --background: var(--ember);
   --border: var(--ember-line);
+}
+
+/* The portfolio canvas: the gallery the work hangs in, after the reference's
+   presentation board. A light grey board, petrol ink for type (the darkest
+   ink, never black), no colour of its own: the colour is in the work, the
+   products' dark windows (.plate-frame) on the board. Rust and verdigris
+   keep their jobs in deeper steps that read on the light grey (4.7:1 and
+   5.3:1); muted text is 5.6:1, 4.7:1 on the badge grey.
+
+   A page opts in with a .canvas-page wrapper. The tokens go on <body>, so
+   the shared header and footer turn with the page and the site frame
+   (--frame) folds away; product pages (the SaaS, the shop) stay in their
+   own dark material. Dark islands inside (the assistant, a frame) set
+   their own theme class and are unaffected. */
+.theme-canvas,
+body:has(.canvas-page) {
+  color-scheme: light;
+  --canvas: #ebebe9;
+  --canvas-raised: #f5f5f3;
+  --canvas-step: #d7d8d6;
+  --canvas-line: #cdcecc;
+
+  --background: var(--canvas);
+  --foreground: var(--ink-deep);
+  --card: var(--canvas-raised);
+  --raised: var(--canvas-step);
+  --muted: var(--canvas-step);
+  --muted-foreground: #565d61;
+  --dim: #6b7276; /* large text only (4.1:1) */
+  --primary: var(--ink-deep);
+  --primary-foreground: var(--canvas-raised);
+  --accent: #b2451a;
+  --accent-bright: #9a3b14; /* hover goes deeper on a light board */
+  --accent-foreground: #ffffff;
+  --signal: #1c6b5c;
+  --signal-bright: #14564a;
+  --signal-foreground: #ffffff;
+  --success: var(--signal);
+  --destructive: #b4233f;
+  --border: var(--canvas-line);
+  --input: #7c8488; /* 3.2:1 */
+  --ring: var(--accent);
+
+  --elevation-card: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 18px 40px -28px rgb(11 18 21 / 0.35);
+  --frame: 0px;
+
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+html:has(.canvas-page) {
+  color-scheme: light;
 }
 
 /* The frame around the public site, after the reference's presentation
@@ -266,7 +343,14 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-padding-top: calc(var(--header-h) + var(--frame) + 1rem);
+    /* The header scrolls with the page, so an anchor only needs air above it. */
+    scroll-padding-top: calc(var(--frame) + 1.5rem);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
@@ -302,7 +386,7 @@
   }
 
   [id] {
-    scroll-margin-top: calc(var(--header-h) + var(--frame) + 1rem);
+    scroll-margin-top: calc(var(--frame) + 1.5rem);
   }
 }
 
@@ -357,569 +441,6 @@
   font-style: normal;
   color: var(--signal);
 }
-
-/* ---- Drawing devices ---------------------------------------------------- */
-
-/* Hairline drawings: project plates and the stack illustrations. Strokes stay
-   1px-crisp at any size via non-scaling-stroke. */
-.plate {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.d-structure,
-.d-faint,
-.d-dashed,
-.d-accent,
-.d-leader {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.d-structure {
-  stroke: var(--foreground);
-  stroke-width: 1.25;
-}
-
-.d-fill {
-  fill: color-mix(in srgb, var(--foreground) 5%, transparent);
-}
-
-.d-faint {
-  stroke: var(--muted-foreground);
-  stroke-width: 0.75;
-  opacity: 0.7;
-}
-
-.d-dashed {
-  stroke: var(--muted-foreground);
-  stroke-width: 1;
-  stroke-dasharray: 3 4;
-}
-
-.d-accent {
-  stroke: var(--accent);
-  stroke-width: 1;
-}
-
-.d-leader {
-  stroke: var(--accent);
-  stroke-width: 0.75;
-}
-
-.d-node,
-.d-bubble {
-  fill: var(--background);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.d-node {
-  stroke: var(--foreground);
-}
-
-.d-bubble {
-  stroke: var(--accent);
-}
-
-.d-label {
-  fill: var(--muted-foreground);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
-
-/* ---- Hero system (home) --------------------------------------------------
-   Default: a normal static layout (intro, heading, the four stack layers as
-   a grid). The pinned scroll scene is layered on further down, only where
-   scroll-driven animations are supported and motion is allowed. */
-
-.hs {
-  --hs-pad: clamp(1.25rem, 3vw, 2.5rem);
-  position: relative;
-  overflow: clip;
-}
-
-.hs-stage {
-  position: relative;
-  padding-block: clamp(3rem, 7vw, 6rem) clamp(3rem, 6vw, 5rem);
-}
-
-.hs-guides {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.hs-side,
-.hs-readout,
-.hs-legend,
-.orbit-axis,
-.orbit-axis-label,
-.orbit-scrim {
-  display: none;
-}
-
-.hs-intro {
-  position: relative;
-  text-align: center;
-}
-
-.hs-side,
-.hs-readout,
-.hs-legend-detail {
-  font-family: var(--font-mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.hs-frame,
-.hs-head,
-.hs-legend {
-  width: calc(100% - 2 * var(--gutter));
-  max-width: calc(84rem - 2 * var(--gutter));
-  margin-inline: auto;
-}
-
-.hs-head {
-  margin-top: clamp(3.5rem, 8vw, 6rem);
-}
-
-.hs-head > h2 {
-  max-width: 24ch;
-}
-
-.hs-frame {
-  position: relative;
-  margin-top: 2rem;
-}
-
-.hs-frame-inner {
-  padding: var(--hs-pad);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  /* One solid step up from the deep stage; the stack cards are one more.
-     The legend's text on it: muted 8.6:1, the rust-bright keys 6.6:1. */
-  background-color: var(--ink);
-}
-
-/* Progress legend (pinned scene only): four layers in a row, an accent bar
-   travelling over the one in front. Static colours; only the bar moves. */
-.hs-legend {
-  position: relative;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: 1rem;
-  border-top: 1px solid var(--border);
-}
-
-.hs-legend-indicator {
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 25%;
-  height: 1px;
-  background-color: var(--accent);
-}
-
-.hs-legend-item {
-  padding: 0.9rem 0 0.25rem;
-  font-size: 0.8125rem;
-}
-
-/* Phones: key above the name, so four columns fit. */
-.hs-legend-key {
-  display: block;
-  color: var(--accent-bright);
-  font-weight: 600;
-}
-
-.hs-legend-detail {
-  display: none;
-  margin-top: 0.4rem;
-  font-size: 0.6875rem;
-  line-height: 1.5;
-  color: var(--muted-foreground);
-}
-
-@media (min-width: 48rem) {
-  .hs-legend-item {
-    font-size: 0.9375rem;
-  }
-
-  .hs-legend-key {
-    display: inline;
-    margin-right: 0.5rem;
-  }
-
-  .hs-legend-detail {
-    display: block;
-  }
-}
-
-/* ---- Stack cards ---------------------------------------------------------
-   One per layer. A dark panel with a hairline edge and a faint top light, so
-   the drawing and text stay legible over the frame gradient and over the
-   cards behind it. No blur, no glow. */
-
-.stack-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--foreground) 11%, transparent);
-  border-radius: var(--radius-md);
-  /* Card on the frame (page ink) on the stage (deep ink): three solid steps. */
-  background-color: var(--ink-card);
-  box-shadow: var(--elevation-card);
-}
-
-.stack-card-art {
-  margin-top: 1rem;
-  aspect-ratio: 2 / 1;
-}
-
-.stack-art {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-/* ---- Stack orbit ---------------------------------------------------------
-   Static fallback: the four cards as a grid. The orbit itself is in the
-   pinned scene below. */
-
-.orbit-stage {
-  display: grid;
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 40rem) {
-  .orbit-stage {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* The centre line of a structural drawing: dash-dot, fixed in place. */
-.orbit-axis-line {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 0.75;
-  stroke-dasharray: 14 4 2 4;
-  opacity: 0.55;
-  vector-effect: non-scaling-stroke;
-}
-
-/* The pinned scene. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    /* Scroll budget: intro 0–9%, frame zoom 9–24%, then the orbit turns
-       through the four layers from 24% to the end (about 60vh each). */
-    .hs {
-      height: 400vh;
-      view-timeline-name: --hs;
-      view-timeline-inset: calc(var(--header-h) + var(--frame)) var(--frame);
-    }
-
-    .hs-stage {
-      position: sticky;
-      top: calc(var(--header-h) + var(--frame));
-      height: calc(100dvh - var(--header-h) - 2 * var(--frame));
-      padding: 0;
-      overflow: hidden;
-    }
-
-    .hs-side {
-      position: absolute;
-      top: 50%;
-      font-size: 0.75rem;
-      color: var(--muted-foreground);
-      animation: hs-out linear both;
-      animation-timeline: --hs;
-      animation-range: contain 0% contain 7%;
-    }
-
-    .hs-side-left {
-      left: var(--gutter);
-    }
-
-    .hs-side-right {
-      right: var(--gutter);
-    }
-
-    @media (min-width: 64rem) {
-      .hs-side {
-        display: block;
-      }
-    }
-
-    /* The first screen holds only the intro, centred in the stage. */
-    .hs-intro {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding-bottom: 2.5rem;
-      /* Longhands on purpose: the minifier expands a multi-animation
-         shorthand with duration 0s, which breaks scroll-driven timing. */
-      animation-name: hs-out, hs-hide;
-      animation-duration: auto;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: --hs;
-      animation-range: contain 0% contain 9%;
-    }
-
-    /* Invisible at rest. Once the intro has gone, it zooms and fades in from
-       the centre to fill the stage, so the two never overlap. */
-    .hs-frame {
-      position: absolute;
-      z-index: 1;
-      inset: 1.5rem var(--gutter) 2.5rem;
-      width: auto;
-      max-width: none;
-      margin: 0;
-      transform-origin: 50% 50%;
-      animation: hs-zoom ease-out both;
-      animation-timeline: --hs;
-      animation-range: contain 9% contain 24%;
-    }
-
-    .hs-frame-inner {
-      position: absolute;
-      inset: 0;
-      padding: 0;
-    }
-
-    /* The band between the heading and the legend; the orbit fills it. */
-    .hs-orbit-box {
-      position: absolute;
-      inset: 6.5rem 1rem 8.5rem;
-    }
-
-    .hs-head,
-    .hs-legend {
-      position: absolute;
-      z-index: 2;
-      left: calc(var(--gutter) + var(--hs-pad));
-      right: calc(var(--gutter) + var(--hs-pad));
-      width: auto;
-      max-width: none;
-      margin: 0;
-      animation: hs-in linear both;
-      animation-timeline: --hs;
-    }
-
-    .hs-head {
-      top: calc(1.5rem + var(--hs-pad));
-      animation-range: contain 21% contain 27%;
-    }
-
-    .hs-legend {
-      display: grid;
-      bottom: calc(2.5rem + var(--hs-pad) - 0.75rem);
-      animation-range: contain 22% contain 28%;
-    }
-
-    .hs-legend-indicator {
-      animation: legend-move linear both;
-      animation-timeline: --hs;
-      animation-range: contain 24% contain 100%;
-    }
-
-    .hs-readout {
-      position: absolute;
-      z-index: 2;
-      inset: auto var(--gutter) 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.6875rem;
-      font-variant-numeric: tabular-nums;
-      color: var(--muted-foreground);
-    }
-
-    @media (min-width: 64rem) {
-      .hs-orbit-box {
-        inset: 8rem var(--hs-pad) 7.5rem;
-      }
-    }
-
-    /* Orbit: cards are centred in a size container, so poses can be written
-       in cq units and scale with the band. */
-    .orbit {
-      position: absolute;
-      inset: 0;
-      container-type: size;
-    }
-
-    .orbit-axis {
-      position: absolute;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      overflow: visible;
-    }
-
-    .orbit-axis-label {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      display: block;
-      translate: 0.5rem -0.25rem;
-      color: var(--muted-foreground);
-    }
-
-    .orbit-stage {
-      position: absolute;
-      inset: 0;
-      display: block;
-    }
-
-    .orbit-card {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: min(20rem, 88cqw);
-      height: min(21rem, 98cqh);
-      translate: -50% -50%;
-      animation: orbit-m-1 linear both;
-      animation-timeline: --hs;
-      animation-range: contain 24% contain 100%;
-    }
-
-    .orbit-card:nth-child(1) {
-      animation-name: orbit-m-1;
-    }
-
-    .orbit-card:nth-child(2) {
-      animation-name: orbit-m-2;
-    }
-
-    .orbit-card:nth-child(3) {
-      animation-name: orbit-m-3;
-    }
-
-    .orbit-card:nth-child(4) {
-      animation-name: orbit-m-4;
-    }
-
-    .orbit-card .stack-card-art {
-      flex: 1 1 auto;
-      min-height: 0;
-      aspect-ratio: auto;
-    }
-
-    /* Phones: flat crossfade, no perspective; the axis drawing stays out. */
-    @media (max-width: 47.99rem) {
-      .orbit-axis,
-      .orbit-axis-label {
-        display: none;
-      }
-    }
-
-    /* Wider screens: real depth. The stage is one 3D rendering context, so
-       the browser sorts the cards by depth itself (no z-index juggling). */
-    @media (min-width: 48rem) {
-      .orbit-stage {
-        perspective: 1100px;
-        transform-style: preserve-3d;
-      }
-
-      .orbit-card {
-        width: clamp(14rem, 30cqw, 20rem);
-        backface-visibility: hidden;
-      }
-
-      .orbit-card:nth-child(1) {
-        animation-name: orbit-1;
-      }
-
-      .orbit-card:nth-child(2) {
-        animation-name: orbit-2;
-      }
-
-      .orbit-card:nth-child(3) {
-        animation-name: orbit-3;
-      }
-
-      .orbit-card:nth-child(4) {
-        animation-name: orbit-4;
-      }
-
-      /* Depth by darkening, not transparency: cards stay opaque, so the 3D
-         sort hides what is behind them instead of showing it through. */
-      .orbit-scrim {
-        position: absolute;
-        inset: 0;
-        display: block;
-        border-radius: var(--radius-md);
-        background-color: var(--background);
-        pointer-events: none;
-        animation: orbit-dim-1 linear both;
-        animation-timeline: --hs;
-        animation-range: contain 24% contain 100%;
-      }
-
-      .orbit-card:nth-child(2) .orbit-scrim {
-        animation-name: orbit-dim-2;
-      }
-
-      .orbit-card:nth-child(3) .orbit-scrim {
-        animation-name: orbit-dim-3;
-      }
-
-      .orbit-card:nth-child(4) .orbit-scrim {
-        animation-name: orbit-dim-4;
-      }
-    }
-  }
-}
-
-/* Opacity and transform run on the compositor; visibility (which takes the
-   faded intro links out of the tab order) is a separate, discrete animation. */
-@keyframes hs-out {
-  to {
-    opacity: 0;
-    transform: translateY(-4vh);
-  }
-}
-
-@keyframes hs-hide {
-  to {
-    visibility: hidden;
-  }
-}
-
-@keyframes hs-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes hs-zoom {
-  from {
-    opacity: 0;
-    transform: scale(0.55);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Orbit keyframes: generated into ./orbit-keyframes.css (imported at the top). */
 
 /* ---- Dashboard micro-interactions ----------------------------------------
    Every motion here answers something the reader did (hover, focus, arrow
@@ -1205,167 +726,6 @@
   }
 }
 
-/* Outlined accent button with corner brackets (Contact). */
-.btn-bracket {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 2.25rem;
-  padding: 0 0.9rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent);
-  transition: background-color 200ms var(--ease-out);
-}
-
-.btn-bracket::before,
-.btn-bracket::after {
-  content: "";
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border: 0 solid var(--accent);
-}
-
-.btn-bracket::before {
-  top: -1px;
-  left: -1px;
-  border-width: 1px 0 0 1px;
-}
-
-.btn-bracket::after {
-  right: -1px;
-  bottom: -1px;
-  border-width: 0 1px 1px 0;
-}
-
-.btn-bracket:hover {
-  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
-/* Striped scroll meter in the header (desktop). Orange stripes sit under a
-   cover of dim stripes that slides right with page progress: transform only. */
-.stripe-meter {
-  position: relative;
-  flex: 1;
-  min-width: 4rem;
-  height: 1.75rem;
-  overflow: hidden;
-  background-image: repeating-linear-gradient(90deg, var(--accent) 0 1px, transparent 1px 4px);
-}
-
-.stripe-meter-cover {
-  position: absolute;
-  inset: 0;
-  background-color: var(--background);
-  background-image: repeating-linear-gradient(90deg, var(--border) 0 1px, transparent 1px 4px);
-}
-
-@supports (animation-timeline: scroll()) {
-  .stripe-meter-cover {
-    animation: meter-uncover linear both;
-    animation-timeline: scroll(root);
-  }
-}
-
-@keyframes meter-uncover {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-/* Header scroll meter (below desktop): a hairline that fills with page progress. */
-.scroll-meter {
-  display: none;
-}
-
-@supports (animation-timeline: scroll()) {
-  .scroll-meter {
-    position: absolute;
-    z-index: 1;
-    inset: auto 0 0;
-    display: block;
-    height: 1px;
-    background-color: var(--accent);
-    transform-origin: left center;
-    animation: scroll-meter linear both;
-    animation-timeline: scroll(root);
-  }
-}
-
-/* Desktop shows the striped meter instead. */
-@media (min-width: 64rem) {
-  .scroll-meter {
-    display: none;
-  }
-}
-
-@keyframes scroll-meter {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-/* Scroll-linked reading: words brighten as they reach the middle of the view.
-   The statement is large text (24px+), and 0.45 keeps unread words at 3.7:1.
-   Emphasised words (verdigris) are darker to begin with, so they start at
-   0.6, which keeps them at 3.8:1. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal-word {
-      animation: word-in linear both;
-      animation-timeline: view();
-      animation-range: cover 10% cover 40%;
-    }
-
-    .emph .reveal-word {
-      animation-name: word-in-emph;
-    }
-  }
-}
-
-@keyframes word-in-emph {
-  from {
-    opacity: 0.6;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes word-in {
-  from {
-    opacity: 0.45;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Faint column guides, used once on the hero. */
-.column-guides {
-  background-image: linear-gradient(to right, color-mix(in srgb, var(--foreground) 6%, transparent) 1px, transparent 1px);
-  background-size: calc(100% / 6) 100%;
-  background-position: 0 0;
-  /* Guides fade out instead of stopping at the section edge. */
-  mask-image: linear-gradient(to bottom, #000 55%, transparent);
-}
-
-@media (min-width: 64rem) {
-  .column-guides {
-    background-size: calc(100% / 12) 100%;
-  }
-}
-
 /* ---- Long-form case study ------------------------------------------------- */
 
 .case-study {
@@ -1421,39 +781,84 @@
   color: var(--muted-foreground);
 }
 
+/* ---- Plates (portfolio canvas) --------------------------------------------
+   One project per plate, composed like the reference board: a numbered
+   badge, the name at poster size in the serif, the website itself in a
+   large rounded window, and a foot row with the numeral and the arrow to
+   the next plate. */
+
+@layer components {
+  /* The website window: dark until the screenshot arrives, rounded, and
+     lifted off the board by one long soft shadow (no blur filter, no
+     gradient). Portrait on phones, where it shows the phone layout. */
+  .plate-frame {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    border-radius: clamp(1rem, 0.55rem + 1.6vw, 2rem);
+    background-color: var(--ink-deep);
+    box-shadow:
+      0 60px 90px -50px rgb(11 18 21 / 0.6),
+      0 22px 40px -26px rgb(11 18 21 / 0.4);
+    isolation: isolate;
+  }
+
+  @media (min-width: 48rem) {
+    .plate-frame {
+      aspect-ratio: 1440 / 1024;
+    }
+  }
+
+  .plate-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  /* Pointing at a window answers with a slow push-in on the screenshot. */
+  @media (prefers-reduced-motion: no-preference) {
+    .plate-frame img {
+      transition: transform 900ms var(--ease-out);
+    }
+
+    .plate-frame:hover img {
+      transform: scale(1.015);
+    }
+  }
+
+  /* The arrow to the next plate: a long, thin stroke, as drawn in the reference. */
+  .plate-arrow {
+    display: inline-grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-right: -0.5rem;
+    color: var(--foreground);
+    transition: color 160ms var(--ease-out);
+  }
+
+  .plate-arrow svg {
+    transition: transform 300ms var(--ease-out);
+  }
+
+  .plate-arrow:hover {
+    color: var(--accent);
+  }
+
+  .plate-arrow:hover svg {
+    transform: translateX(0.25rem);
+  }
+}
+
 /* ---- Header --------------------------------------------------------------- */
-
-.site-header::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: var(--border);
-  opacity: 1;
-}
-
-@supports (animation-timeline: scroll()) {
-  .site-header::after {
-    opacity: 0;
-    animation: header-rule linear both;
-    animation-timeline: scroll(root);
-    animation-range: 0 96px;
-  }
-}
-
-@keyframes header-rule {
-  to {
-    opacity: 1;
-  }
-}
 
 /* Mobile menu (native popover), sits directly under the header. */
 .site-menu {
   position: fixed;
-  inset: calc(var(--header-h) + var(--frame)) var(--frame) auto;
+  inset: calc(var(--site-header-h) + var(--frame)) var(--frame) auto;
   height: auto;
-  max-height: calc(100dvh - var(--header-h) - 2 * var(--frame));
+  max-height: calc(100dvh - var(--site-header-h) - 2 * var(--frame));
   overflow-y: auto;
 }
 
@@ -1485,7 +890,9 @@
   }
 }
 
-/* ---- Motion --------------------------------------------------------------- */
+/* ---- Motion ---------------------------------------------------------------
+   No entrance or scroll-in animation anywhere: motion answers what the
+   reader does (hover, open, navigate). fade-in is the assistant panel opening. */
 
 @keyframes fade-in {
   from {
@@ -1495,32 +902,6 @@
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/*
- * No time-based entrance animations on load: the hero headline is the LCP
- * element, and the drawing is SVG, whose animated transforms repaint on the
- * main thread every frame. Motion is scroll-linked instead.
- */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .reveal {
-      animation: rise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 55%;
-    }
   }
 }
 
