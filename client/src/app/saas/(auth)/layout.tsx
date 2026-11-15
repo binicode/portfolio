@@ -19,7 +19,7 @@ export default function SaasAuthLayout({ children }: { children: ReactNode }) {
       backLabel="Product overview"
       aside={
         <>
-          <p className="label text-accent">Creator Dashboard</p>
+          <p className="label text-signal">Creator Dashboard</p>
           <div>
             <p className="max-w-[16ch] text-h2 font-medium">Your reach, in one dashboard.</p>
             <ul className="mt-10 space-y-3 border-t border-border pt-8 text-body-sm text-muted-foreground">

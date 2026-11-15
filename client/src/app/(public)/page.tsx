@@ -7,7 +7,6 @@ import { clientEnv } from '@/lib/config';
 import { site, socials } from '@/lib/site';
 import ProjectShowcase from '@/components/work/ProjectShowcase';
 import DashboardPoster from '@/components/saas/DashboardPoster';
-import PointerLight from '@/components/effects/PointerLight';
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import JsonLdScript from '@/components/site/JsonLd';
 import HeroSystem from '@/components/home/HeroSystem';
@@ -78,40 +77,38 @@ function SelectedWork({ projects }: { projects: Project[] }) {
 
 function Systems({ id }: { id: string }) {
   return (
-    <section id={id} aria-labelledby="systems-title" className="theme-patina patina-glow overflow-hidden">
-      <PointerLight>
-        <div className="container-page py-section">
-          <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
-            <div className="lg:col-span-5">
-              <h2 id="systems-title" className="text-h2 font-medium">
-                Working systems, not mockups
-              </h2>
-              <p className="mt-5 max-w-[28rem] text-muted-foreground">Three live products. Try them here.</p>
-            </div>
-            <DashboardPoster className="reveal lg:col-span-7" />
+    <section id={id} aria-labelledby="systems-title" className="theme-patina overflow-hidden border-y border-border">
+      <div className="container-page py-section">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <h2 id="systems-title" className="text-h2 font-medium">
+              Working systems, not mockups
+            </h2>
+            <p className="mt-5 max-w-[28rem] text-muted-foreground">Three live products. Try them here.</p>
           </div>
-
-          <ul className="mt-16 grid gap-px border-y border-border bg-border lg:mt-24 lg:grid-cols-3">
-            {LIVE_SYSTEMS.map((system) => (
-              <li key={system.name} className="flex flex-col bg-background py-8 lg:px-8 lg:first:pl-0 lg:last:pr-0">
-                <h3 className="text-h3 font-semibold">{system.name}</h3>
-                <p className="mt-3 flex-1 text-body-sm leading-relaxed text-muted-foreground">{system.body}</p>
-                <div className="mt-6">
-                  {system.action.kind === 'chat' ? (
-                    <OpenChatButton mode="chat" className="link text-body-sm font-medium">
-                      {system.action.label}
-                    </OpenChatButton>
-                  ) : (
-                    <Link href={system.action.href} className="link text-body-sm font-medium">
-                      {system.action.label}
-                    </Link>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <DashboardPoster className="reveal lg:col-span-7" />
         </div>
-      </PointerLight>
+
+        <ul className="mt-16 grid gap-px border-y border-border bg-border lg:mt-24 lg:grid-cols-3">
+          {LIVE_SYSTEMS.map((system) => (
+            <li key={system.name} className="flex flex-col bg-background py-8 lg:px-8 lg:first:pl-0 lg:last:pr-0">
+              <h3 className="text-h3 font-semibold">{system.name}</h3>
+              <p className="mt-3 flex-1 text-body-sm leading-relaxed text-muted-foreground">{system.body}</p>
+              <div className="mt-6">
+                {system.action.kind === 'chat' ? (
+                  <OpenChatButton mode="chat" className="link text-body-sm font-medium">
+                    {system.action.label}
+                  </OpenChatButton>
+                ) : (
+                  <Link href={system.action.href} className="link text-body-sm font-medium">
+                    {system.action.label}
+                  </Link>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

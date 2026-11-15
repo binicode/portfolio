@@ -9,7 +9,7 @@ export default function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="theme-ink footer-glow">
+    <footer className="theme-ember border-t border-border">
       {/* Extra bottom padding keeps the last row clear of the fixed assistant button. */}
       <div className="container-page pb-24 pt-[calc(var(--section)*0.8)]">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
