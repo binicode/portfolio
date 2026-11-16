@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getSaasMe } from '@/lib/saas-server';
+import { requireSaasSession } from '@/lib/saas-server';
 import SettingsForm from './settings-form';
 
 export const metadata: Metadata = {
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
-  const me = await getSaasMe();
+  const me = await requireSaasSession();
 
   return (
     <div className="container-page py-[clamp(2.5rem,6vw,4.5rem)]">

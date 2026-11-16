@@ -34,6 +34,12 @@ export const QA = {
   admin: { email: 'qa.admin@example.com', password: 'qa-admin-test-password' },
   /** SaaS users are created per run with unique addresses (support/api.ts testEmail). */
   saasPassword: 'qa-user-test-password',
-  /** Repo-root portfolio-media/, where screenshots, videos and the report go. */
-  mediaDir: path.resolve(__dirname, '../../../portfolio-media'),
+  /**
+   * Where screenshots, videos and evidence go: repo-root portfolio-media/, or
+   * QA_MEDIA_DIR (e.g. a scratch folder, to re-check one thing without
+   * replacing a full run's media).
+   */
+  mediaDir: process.env.QA_MEDIA_DIR
+    ? path.resolve(process.env.QA_MEDIA_DIR)
+    : path.resolve(__dirname, '../../../portfolio-media'),
 } as const;

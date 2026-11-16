@@ -1,5 +1,6 @@
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { env } from '../../core/config/env.js';
+import { createGithubFetch } from './github-fetch.js';
 import type { GithubRepoSummary, GithubStats } from './saas.types.js';
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -24,30 +25,25 @@ interface GithubRepoResponse {
   fork: boolean;
 }
 
-function buildHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    Accept: 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-  };
+const HEADERS: Record<string, string> = {
+  Accept: 'application/vnd.github+json',
+  'X-GitHub-Api-Version': '2022-11-28',
+};
 
-  // Authenticated requests get 5,000 requests/hour instead of 60/hour
-  // shared across every request from this server's IP — a real
-  // requirement once more than a couple of subscribers are active,
-  // not just an optimization.
-  if (env.GITHUB_API_TOKEN) {
-    headers.Authorization = `Bearer ${env.GITHUB_API_TOKEN}`;
-  }
-
-  return headers;
-}
+// Authenticated requests get 5,000 requests/hour instead of 60/hour
+// shared across every request from this server's IP — a real
+// requirement once more than a couple of subscribers are active,
+// not just an optimization. A token GitHub rejects is set aside rather
+// than failing every request (github-fetch.ts).
+const githubFetch = createGithubFetch(() => env.GITHUB_API_TOKEN);
 
 async function fetchRepos(username: string): Promise<GithubRepoResponse[]> {
   // Only the first 100 repos are counted — a deliberate scope limit,
   // not an oversight. Pagination for >100 public repos is genuinely
   // rare for this app's target audience.
-  const response = await fetch(
+  const response = await githubFetch(
     `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/repos?per_page=100`,
-    { headers: buildHeaders(), signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) },
+    { headers: HEADERS, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) },
   );
 
   if (!response.ok) {
@@ -79,8 +75,8 @@ function byStarsThenRecency(a: GithubRepoResponse, b: GithubRepoResponse): numbe
 }
 
 export async function getGithubStats(username: string): Promise<GithubStats> {
-  const userResponse = await fetch(`${GITHUB_API_BASE}/users/${encodeURIComponent(username)}`, {
-    headers: buildHeaders(),
+  const userResponse = await githubFetch(`${GITHUB_API_BASE}/users/${encodeURIComponent(username)}`, {
+    headers: HEADERS,
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 

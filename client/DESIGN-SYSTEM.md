@@ -184,6 +184,10 @@ Scale (all in `@theme`), largest first:
 No one-off sizes (`text-[…rem]`): pick the step for the role, or add a
 named step here. Headings use `text-wrap: balance`.
 
+Text fields (inputs, text areas, the assistant's message box) are
+`text-base` on touch screens (`pointer-coarse:`), whatever their size with a
+mouse: iOS Safari zooms the page into any focused field under 16px.
+
 ### Writing
 
 Fewer words, each doing a job. The interface explains itself; text names

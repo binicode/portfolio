@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Eye, FolderGit2, Star, SquarePlay, Users } from 'lucide-react';
 import type { AggregatorStats } from '@/types/saas';
 import { formatCount, formatFigure } from './format';
-import { REPO_STATUS_LABEL, REPO_STATUS_ORDER, repoInsights, type RepoStatusKey } from './insights';
+import { REPO_STATUS_LABEL, REPO_STATUS_ORDER, missingCaption, repoInsights, type RepoStatusKey } from './insights';
 
 const ICON = 'size-3.5';
 
@@ -43,6 +43,9 @@ export default function StatRail({ stats }: { stats: AggregatorStats }) {
   const repos = github ? repoInsights(github.repos, github.totalStars, Date.parse(stats.fetchedAt)) : null;
   const present = repos ? REPO_STATUS_ORDER.filter((key) => repos.counts[key] > 0) : [];
   const dash = '—';
+  // Without a number, a tile says what to do (Connect GitHub) or what went wrong (GitHub user not found).
+  const noGithub = missingCaption('github', stats.sources.github);
+  const noYoutube = missingCaption('youtube', stats.sources.youtube);
 
   return (
     <section aria-labelledby="rail-title" className="@container">
@@ -51,7 +54,7 @@ export default function StatRail({ stats }: { stats: AggregatorStats }) {
       </h2>
       <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border @md:grid-cols-3 @3xl:grid-cols-5">
         <Cell icon={<Star className={ICON} strokeWidth={2} />} label="GitHub stars" value={github ? formatFigure(github.totalStars) : dash} title={github ? formatCount(github.totalStars) : undefined}>
-          {github ? `on ${formatCount(github.publicRepos)} public repositories` : 'Connect GitHub'}
+          {github ? `on ${formatCount(github.publicRepos)} public repositories` : noGithub}
         </Cell>
         <Cell
           icon={<SquarePlay className={ICON} strokeWidth={2} />}
@@ -59,13 +62,13 @@ export default function StatRail({ stats }: { stats: AggregatorStats }) {
           value={youtube ? formatFigure(youtube.subscriberCount) : dash}
           title={youtube ? formatCount(youtube.subscriberCount) : undefined}
         >
-          {youtube ? 'YouTube channel' : 'Connect YouTube'}
+          {youtube ? 'YouTube channel' : noYoutube}
         </Cell>
         <Cell icon={<Users className={ICON} strokeWidth={2} />} label="Followers" value={github ? formatFigure(github.followers) : dash} title={github ? formatCount(github.followers) : undefined}>
-          {github ? `@${github.username} on GitHub` : 'Connect GitHub'}
+          {github ? `@${github.username} on GitHub` : noGithub}
         </Cell>
         <Cell icon={<Eye className={ICON} strokeWidth={2} />} label="Total views" value={youtube ? formatFigure(youtube.viewCount) : dash} title={youtube ? formatCount(youtube.viewCount) : undefined}>
-          {youtube ? `across ${formatCount(youtube.videoCount)} videos` : 'Connect YouTube'}
+          {youtube ? `across ${formatCount(youtube.videoCount)} videos` : noYoutube}
         </Cell>
         <Cell
           icon={<FolderGit2 className={ICON} strokeWidth={2} />}
@@ -95,7 +98,7 @@ export default function StatRail({ stats }: { stats: AggregatorStats }) {
               <span className="shrink-0">pushed in 30 days</span>
             </span>
           ) : (
-            'Connect GitHub'
+            noGithub
           )}
         </Cell>
       </dl>

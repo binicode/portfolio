@@ -110,6 +110,22 @@ function extractToken(req: Request): string | null {
 }
 
 /**
+ * "role:sub" for a request carrying a valid token (Bearer or the route's
+ * cookie), or null. Never throws. Used to key rate limits by account, not
+ * for access control: requireAuth below is the guard.
+ */
+export function verifiedSessionKey(req: Request): string | null {
+  const token = extractToken(req);
+  if (!token) return null;
+  try {
+    const { role, sub } = verifyAccessToken(token);
+    return `${role}:${sub}`;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Guards a route — requires a valid token from either a Bearer header
  * or the correct httpOnly auth cookie for this route. On success,
  * attaches the decoded payload to req.user for downstream handlers.

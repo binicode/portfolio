@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import { z } from 'zod';
+import { parseTrustProxy } from './trust-proxy.js';
 
 config();
 
@@ -22,6 +23,19 @@ const envSchema = z.object({
 
     // --- CORS ---
     CLIENT_ORIGIN: z.string().url().default('http://localhost:3000'),
+
+    // --- Proxies in front of the API (see trust-proxy.ts) ---
+    TRUST_PROXY: z
+        .string()
+        .optional()
+        .transform((value, ctx) => {
+            try {
+                return parseTrustProxy(value);
+            } catch (error) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                return z.NEVER;
+            }
+        }),
 
     // --- Auth (needed by admin-cms + saas-mvp modules) ---
     JWT_SECRET: optionalString(z.string().min(32, 'JWT_SECRET must be at least 32 characters')),

@@ -1,7 +1,6 @@
-import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { serverApiClient } from '@/lib/server-api-client';
+import { requireAdminSession } from '@/lib/admin-session';
 import AdminNav from '@/components/nav/AdminNav';
 
 export const metadata: Metadata = {
@@ -9,24 +8,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-interface AdminMeResponse {
-  email: string;
-}
-
-async function getAdminSession(): Promise<AdminMeResponse | null> {
-  try {
-    return await serverApiClient.get<AdminMeResponse>('/admin/auth/me');
-  } catch {
-    return null;
-  }
-}
-
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const session = await getAdminSession();
-
-  if (!session) {
-    redirect('/login');
-  }
+  // The pages' data functions check the session too: this redirect alone
+  // doesn't stop them from rendering (lib/admin-session.ts).
+  const session = await requireAdminSession();
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">

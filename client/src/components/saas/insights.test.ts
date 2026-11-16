@@ -9,6 +9,8 @@ import {
   repoInsights,
   repoStatus,
   showcaseRepos,
+  missingCaption,
+  sourceProblem,
   sourceSummary,
   videoMomentum,
   weekOverWeek,
@@ -131,6 +133,24 @@ test('sourceSummary: all live, or which source is missing and why', () => {
     '1 of 3 sources are live: GitHub didn’t respond and YouTube isn’t connected.',
   );
   assert.equal(sourceSummary({ github: 'connected', youtube: 'not_connected', hackerNews: 'connected' }).live, 2);
+  assert.equal(
+    sourceSummary({ github: 'not_found', youtube: 'not_found', hackerNews: 'connected' }).text,
+    '1 of 3 sources are live: GitHub user not found and YouTube channel not found.',
+  );
+});
+
+test('a source that isn’t found is sent to Settings; one that failed, to a retry', () => {
+  assert.deepEqual(sourceProblem('github', 'not_found'), { text: 'GitHub has no user with that name. Check it in Settings.', inSettings: true });
+  assert.deepEqual(sourceProblem('youtube', 'not_found'), { text: 'YouTube has no channel with that ID. Check it in Settings.', inSettings: true });
+  assert.deepEqual(sourceProblem('github', 'unavailable'), { text: 'GitHub didn’t respond. Refresh to retry.', inSettings: false });
+  assert.equal(sourceProblem('github', 'not_connected'), null);
+  assert.equal(sourceProblem('github', 'connected'), null);
+});
+
+test('missingCaption: a tile without a number says what to do or what went wrong', () => {
+  assert.equal(missingCaption('github', 'not_connected'), 'Connect GitHub');
+  assert.equal(missingCaption('github', 'not_found'), 'GitHub user not found');
+  assert.equal(missingCaption('youtube', 'unavailable'), 'YouTube didn’t respond');
 });
 
 test('niceMax: a round axis top whose halfway tick is whole', () => {

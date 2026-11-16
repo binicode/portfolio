@@ -73,7 +73,8 @@ export interface HackerNewsStats {
   weekly: HackerNewsWeek[];
 }
 
-export type SourceStatus = 'connected' | 'not_connected' | 'unavailable';
+/** not_found: the provider has no such user or channel (fix it in Settings); unavailable: the provider failed (retry). */
+export type SourceStatus = 'connected' | 'not_connected' | 'not_found' | 'unavailable';
 
 export interface AggregatorStats {
   github: GithubStats | null;
