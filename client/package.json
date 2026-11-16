@@ -12,7 +12,9 @@
     "test": "node --test \"src/**/*.test.ts\"",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "test:qa": "node e2e/qa/run-all.mjs",
+    "test:qa:report": "playwright show-report playwright-report/qa"
   },
   "dependencies": {
     "@shopify/storefront-api-client": "^1.0.10",

@@ -32,10 +32,12 @@ export default function SettingsForm({
     setIsSubmitting(true);
 
     try {
+      // Every field is sent: an empty one disconnects that source. (Leaving
+      // it out would keep the old value, so a source could never be removed.)
       await updateSaasSettings({
-        githubUsername: githubUsername.trim() || undefined,
-        youtubeChannelId: youtubeChannelId.trim() || undefined,
-        brandSearchQuery: brandSearchQuery.trim() || undefined,
+        githubUsername: githubUsername.trim(),
+        youtubeChannelId: youtubeChannelId.trim(),
+        brandSearchQuery: brandSearchQuery.trim(),
       });
       router.push('/saas/dashboard');
       router.refresh();
