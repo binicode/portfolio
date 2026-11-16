@@ -577,7 +577,7 @@ function QuestionCard({ question, answers, draft, otherDraft, onToggle, onPick, 
               }
             }}
             placeholder="Describe it in a few words"
-            className="h-11 w-full rounded-lg border border-input bg-transparent px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30"
+            className="h-11 w-full rounded-lg border border-input bg-transparent px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 pointer-coarse:text-base"
           />
         </div>
       )}
