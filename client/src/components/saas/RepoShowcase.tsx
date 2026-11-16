@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowUpRight, GitFork, Star } from 'lucide-react';
 import type { AggregatorStats, GithubRepoSummary } from '@/types/saas';
 import { formatCount, formatFigure, formatTimeAgo } from './format';
-import { showcaseRepos } from './insights';
+import { showcaseRepos, sourceProblem } from './insights';
 
 const TILES = 6;
 
@@ -68,6 +68,7 @@ export default function RepoShowcase({ stats, links, className = '' }: { stats: 
   const [feature, ...tiles] = picked;
   const now = Date.parse(stats.fetchedAt);
   const share = github && feature && github.totalStars > 0 ? feature.stars / github.totalStars : 0;
+  const githubProblem = sourceProblem('github', stats.sources.github);
 
   return (
     <section id="repositories" aria-labelledby="repos-title" className={`dash-card @container min-w-0 scroll-mt-6 rounded-xl border border-border bg-card p-4 sm:p-5 ${className}`}>
@@ -91,8 +92,15 @@ export default function RepoShowcase({ stats, links, className = '' }: { stats: 
 
       {!github ? (
         <div className="mt-4 text-sm text-muted-foreground">
-          {stats.sources.github === 'unavailable' ? (
-            <p>GitHub didn’t respond. Refresh to retry.</p>
+          {githubProblem ? (
+            <>
+              <p>{githubProblem.text}</p>
+              {githubProblem.inSettings && links && (
+                <Link href="/saas/dashboard/settings" className="link mt-3 inline-block font-medium text-foreground">
+                  Open Settings
+                </Link>
+              )}
+            </>
           ) : (
             <>
               <p>Add your GitHub username.</p>

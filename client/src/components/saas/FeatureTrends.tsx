@@ -7,14 +7,26 @@ import TrendLine, { type TrendPoint } from './charts/TrendLine';
 import TrendColumns from './charts/TrendColumns';
 import DeltaPill from './DeltaPill';
 import { formatCount, formatFigure, formatShortDate } from './format';
-import { videoMomentum, weekOverWeek } from './insights';
+import { sourceProblem, videoMomentum, weekOverWeek, type SourceKey } from './insights';
 
 // A week's last day: six days after it starts ("Nov 6 – Nov 12").
 const WEEK_LAST_DAY_MS = 6 * 24 * 60 * 60 * 1000;
 const PLOT_HEIGHT = 'h-32 sm:h-36';
 
-function Gap({ source, status, hint, links }: { source: string; status: SourceStatus; hint: string; links: boolean }) {
-  if (status === 'unavailable') return <p className="text-sm text-muted-foreground">{source} didn’t respond. Refresh to retry.</p>;
+function Gap({ sourceKey, source, status, hint, links }: { sourceKey: SourceKey; source: string; status: SourceStatus; hint: string; links: boolean }) {
+  const problem = sourceProblem(sourceKey, status);
+  if (problem) {
+    return (
+      <div className="text-sm text-muted-foreground">
+        <p>{problem.text}</p>
+        {problem.inSettings && links && (
+          <Link href="/saas/dashboard/settings" className="link mt-3 inline-block font-medium text-foreground">
+            Open Settings
+          </Link>
+        )}
+      </div>
+    );
+  }
   return (
     <div className="text-sm text-muted-foreground">
       <p>{hint}</p>
@@ -142,7 +154,7 @@ export default function FeatureTrends({
         {weeks.length >= 2 ? (
           <TrendLine points={weeks} unit="mentions" summary={`Hacker News mentions of ${hn?.query} per week, oldest first`} Frame={Frame} height={PLOT_HEIGHT} />
         ) : (
-          <Gap source="Hacker News" status={stats.sources.hackerNews} hint="Add a search term." links={links} />
+          <Gap sourceKey="hackerNews" source="Hacker News" status={stats.sources.hackerNews} hint="Add a search term." links={links} />
         )}
       </Feature>
 
@@ -168,7 +180,7 @@ export default function FeatureTrends({
         {videos.length > 0 ? (
           <TrendColumns points={videos} emphasis={videos.length - 1} unit="views" summary="Views on your recent videos, oldest first" Frame={Frame} height={PLOT_HEIGHT} />
         ) : (
-          <Gap source="YouTube" status={stats.sources.youtube} hint="Add your channel ID." links={links} />
+          <Gap sourceKey="youtube" source="YouTube" status={stats.sources.youtube} hint="Add your channel ID." links={links} />
         )}
       </Feature>
     </div>

@@ -92,9 +92,9 @@ export interface HackerNewsStats {
 /**
  * Whether a source has an identifier configured and, if so, whether the
  * provider answered. Lets the dashboard tell "add your username" apart
- * from "GitHub is unreachable right now".
+ * from "no such user, check it" and "GitHub is unreachable right now".
  */
-export type SourceStatus = 'connected' | 'not_connected' | 'unavailable';
+export type SourceStatus = 'connected' | 'not_connected' | 'not_found' | 'unavailable';
 
 export interface AggregatorStats {
   github: GithubStats | null;

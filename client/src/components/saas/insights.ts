@@ -151,16 +151,51 @@ export function recentActivity(stats: Pick<AggregatorStats, 'github' | 'youtube'
 }
 
 const SOURCE_NAMES = { github: 'GitHub', youtube: 'YouTube', hackerNews: 'Hacker News' } as const;
+export type SourceKey = keyof typeof SOURCE_NAMES;
+
+// What the provider couldn't find: short for the header and tiles, full for the panels.
+const NOT_FOUND_SHORT: Record<SourceKey, string> = {
+  github: 'GitHub user not found',
+  youtube: 'YouTube channel not found',
+  hackerNews: 'Hacker News term not found',
+};
+const NOT_FOUND_FULL: Record<SourceKey, string> = {
+  github: 'GitHub has no user with that name.',
+  youtube: 'YouTube has no channel with that ID.',
+  hackerNews: 'Hacker News found nothing for that term.',
+};
+
+/** Why a source has no data, briefly: "GitHub user not found", "YouTube didn’t respond". */
+export function sourceIssue(key: SourceKey, status: SourceStatus): string {
+  if (status === 'not_found') return NOT_FOUND_SHORT[key];
+  if (status === 'unavailable') return `${SOURCE_NAMES[key]} didn’t respond`;
+  return `${SOURCE_NAMES[key]} isn’t connected`;
+}
+
+/** Caption for a stat tile without a number: the action when unset, otherwise what went wrong. */
+export function missingCaption(key: SourceKey, status: SourceStatus): string {
+  return status === 'not_found' || status === 'unavailable' ? sourceIssue(key, status) : `Connect ${SOURCE_NAMES[key]}`;
+}
+
+/**
+ * A panel's message when its source couldn't be found or reached, and
+ * whether the fix is in Settings (a wrong name or ID) or a retry (the
+ * provider failed). Null when the source is simply not set up: the panel
+ * shows its own "add your …" hint.
+ */
+export function sourceProblem(key: SourceKey, status: SourceStatus): { text: string; inSettings: boolean } | null {
+  if (status === 'not_found') return { text: `${NOT_FOUND_FULL[key]} Check it in Settings.`, inSettings: true };
+  if (status === 'unavailable') return { text: `${SOURCE_NAMES[key]} didn’t respond. Refresh to retry.`, inSettings: false };
+  return null;
+}
 
 /** One line on source health for the page header: "All 3 sources are live." */
-export function sourceSummary(sources: Record<keyof typeof SOURCE_NAMES, SourceStatus>): { live: number; total: number; text: string } {
-  const entries = (Object.keys(SOURCE_NAMES) as Array<keyof typeof SOURCE_NAMES>).map((key) => ({ name: SOURCE_NAMES[key], status: sources[key] }));
+export function sourceSummary(sources: Record<SourceKey, SourceStatus>): { live: number; total: number; text: string } {
+  const entries = (Object.keys(SOURCE_NAMES) as SourceKey[]).map((key) => ({ key, status: sources[key] }));
   const live = entries.filter((entry) => entry.status === 'connected').length;
   const total = entries.length;
   if (live === total) return { live, total, text: `All ${total} sources are live.` };
-  const issues = entries
-    .filter((entry) => entry.status !== 'connected')
-    .map((entry) => (entry.status === 'unavailable' ? `${entry.name} didn’t respond` : `${entry.name} isn’t connected`));
+  const issues = entries.filter((entry) => entry.status !== 'connected').map((entry) => sourceIssue(entry.key, entry.status));
   const joined = issues.length > 1 ? `${issues.slice(0, -1).join(', ')} and ${issues[issues.length - 1]}` : issues[0];
   return { live, total, text: `${live} of ${total} sources are live: ${joined}.` };
 }

@@ -14,7 +14,8 @@ interface YoutubeChannelStatistics {
 }
 
 interface YoutubeChannelsResponse {
-  items: Array<{
+  // Absent, not empty, when no channel matches the ID.
+  items?: Array<{
     id: string;
     statistics: YoutubeChannelStatistics;
     contentDetails?: { relatedPlaylists?: { uploads?: string } };
@@ -86,7 +87,7 @@ export async function getYoutubeStats(channelId: string): Promise<YoutubeStats> 
     apiUrl('channels', { part: 'statistics,contentDetails', id: channelId }, key),
     'channels',
   );
-  const channel = data.items[0];
+  const channel = data.items?.[0];
 
   if (!channel) {
     throw new AppError(`YouTube channel "${channelId}" not found`, 404);
