@@ -141,7 +141,7 @@ test('sourceSummary: all live, or which source is missing and why', () => {
 
 test('a source that isn’t found is sent to Settings; one that failed, to a retry', () => {
   assert.deepEqual(sourceProblem('github', 'not_found'), { text: 'GitHub has no user with that name. Check it in Settings.', inSettings: true });
-  assert.deepEqual(sourceProblem('youtube', 'not_found'), { text: 'YouTube has no channel with that ID. Check it in Settings.', inSettings: true });
+  assert.deepEqual(sourceProblem('youtube', 'not_found'), { text: 'YouTube has no channel by that name or ID. Check it in Settings.', inSettings: true });
   assert.deepEqual(sourceProblem('github', 'unavailable'), { text: 'GitHub didn’t respond. Refresh to retry.', inSettings: false });
   assert.equal(sourceProblem('github', 'not_connected'), null);
   assert.equal(sourceProblem('github', 'connected'), null);

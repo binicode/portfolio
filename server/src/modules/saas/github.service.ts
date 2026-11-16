@@ -1,6 +1,7 @@
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { env } from '../../core/config/env.js';
 import { createGithubFetch } from './github-fetch.js';
+import { parseGithubUsername } from './source-identifiers.js';
 import type { GithubRepoSummary, GithubStats } from './saas.types.js';
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -74,7 +75,9 @@ function byStarsThenRecency(a: GithubRepoResponse, b: GithubRepoResponse): numbe
   return (b.pushed_at ?? '').localeCompare(a.pushed_at ?? '');
 }
 
-export async function getGithubStats(username: string): Promise<GithubStats> {
+/** The account a customer saved, as a username, an @name or a profile link (source-identifiers.ts). */
+export async function getGithubStats(saved: string): Promise<GithubStats> {
+  const username = parseGithubUsername(saved);
   const userResponse = await githubFetch(`${GITHUB_API_BASE}/users/${encodeURIComponent(username)}`, {
     headers: HEADERS,
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),

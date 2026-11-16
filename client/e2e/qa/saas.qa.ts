@@ -188,7 +188,7 @@ test.describe('subscribed customer', () => {
     await expect(page.getByLabel('GitHub username')).toBeVisible();
     await media.shot('dashboard', 'settings-empty');
     await page.getByLabel('GitHub username').pressSequentially('octocat', { delay: 40 });
-    await page.getByLabel('YouTube channel ID').fill('UC_x5XG1OV2P6uZZ5FSM9Ttw');
+    await page.getByLabel('YouTube channel', { exact: true }).fill('UC_x5XG1OV2P6uZZ5FSM9Ttw');
     await page.getByLabel('Hacker News search term').pressSequentially('Next.js', { delay: 40 });
     await media.pause(600);
     await media.shot('dashboard', 'settings-filled');
@@ -227,7 +227,7 @@ test.describe('subscribed customer', () => {
 
     // Clearing a source: what the form sends, and whether the source goes.
     await page.goto('/saas/dashboard/settings');
-    await page.getByLabel('YouTube channel ID').fill('');
+    await page.getByLabel('YouTube channel', { exact: true }).fill('');
     const patchRequest = page.waitForRequest((r) => r.url().endsWith('/saas/settings') && r.method() === 'PATCH');
     await page.getByRole('button', { name: 'Save settings' }).click();
     const sent = (await patchRequest).postDataJSON() as Record<string, unknown>;
