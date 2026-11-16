@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getSaasMe, getAggregatorStats } from '@/lib/saas-server';
+import { requireSaasSession, getAggregatorStats } from '@/lib/saas-server';
 import SubscribeButton from './subscribe-button';
 import DashboardPreview from '@/components/saas/DashboardPreview';
 import DashboardBody from '@/components/saas/DashboardBody';
@@ -10,7 +10,7 @@ import { sourceSummary } from '@/components/saas/insights';
 import type { SaasMeResponse } from '@/types/saas';
 
 export default async function SaasDashboardPage() {
-  const me = await getSaasMe();
+  const me = await requireSaasSession();
 
   if (me.subscriptionStatus !== 'active') {
     return (

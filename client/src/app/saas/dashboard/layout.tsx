@@ -1,11 +1,9 @@
-import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getSaasMe } from '@/lib/saas-server';
+import { requireSaasSession } from '@/lib/saas-server';
 import SaasNav from '@/components/nav/SaasNav';
 import DashboardSidebar from '@/components/nav/DashboardSidebar';
-import type { SaasMeResponse } from '@/types/saas';
 
 export const metadata: Metadata = {
   // A plain string here would stop the root template from applying to child
@@ -14,20 +12,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-async function getSaasSession(): Promise<SaasMeResponse | null> {
-  try {
-    return await getSaasMe();
-  } catch {
-    return null;
-  }
-}
-
 export default async function SaasDashboardLayout({ children }: { children: ReactNode }) {
-  const session = await getSaasSession();
-
-  if (!session) {
-    redirect('/saas/login');
-  }
+  // The pages check the session too: this redirect alone doesn't stop them
+  // from rendering (lib/saas-server.ts).
+  const session = await requireSaasSession();
 
   // Desktop: a sidebar beside the page. Below `lg` the sidebar is hidden and
   // a compact top bar carries the same pages and account.
