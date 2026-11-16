@@ -1,5 +1,20 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import type { Request } from 'express';
 import { env } from '../config/env.js';
+import { verifiedSessionKey } from './auth.js';
+
+/**
+ * Signed-in requests count against their account; everything else against
+ * the client IP (TRUST_PROXY makes that the visitor's, not a proxy's). The
+ * account key matters for server-rendered pages: the Next server calls the
+ * API for every visitor's dashboard from one address, so keyed by IP alone
+ * all customers would share one bucket. A bad or expired token falls back
+ * to the IP.
+ */
+function accountOrIp(req: Request): string {
+  const account = verifiedSessionKey(req);
+  return account ? `account:${account}` : `ip:${ipKeyGenerator(req.ip ?? req.socket.remoteAddress ?? '')}`;
+}
 
 /**
  * General-purpose limiter for most API routes. Generous enough not to
@@ -11,6 +26,7 @@ export const generalLimiter = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: accountOrIp,
   message: {
     error: {
       message: 'Too many requests. Please try again later.',

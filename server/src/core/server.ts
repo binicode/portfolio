@@ -1,6 +1,7 @@
 import { createApp } from './app.js';
 import { connectDB } from './config/db.js';
 import { env } from './config/env.js';
+import { describeTrustProxy } from './config/trust-proxy.js';
 import { ensureKnowledgeVectorIndex } from '../modules/ai-chat/ai-chat.model.js';
 import { checkAllModels } from '../modules/ai-chat/llm.service.js';
 
@@ -32,6 +33,7 @@ async function bootstrap(): Promise<void> {
 
   app.listen(env.PORT, () => {
     console.log(`🚀 Server running on http://localhost:${env.PORT} [${env.NODE_ENV}]`);
+    console.log(`Rate limits: ${describeTrustProxy(env.TRUST_PROXY)}`);
   });
 }
 

@@ -16,6 +16,11 @@ import { postStripeWebhook } from '../modules/saas/webhook.controller.js';
 export function createApp(): Application {
   const app = express();
 
+  // Behind a proxy, req.ip (and every rate limit keyed on it) must be the
+  // visitor's address, not the proxy's: TRUST_PROXY says how many proxies
+  // to trust (core/config/trust-proxy.ts). Unset, nothing is trusted.
+  app.set('trust proxy', env.TRUST_PROXY);
+
   // --- Global middleware ---
   app.use(
     cors({
