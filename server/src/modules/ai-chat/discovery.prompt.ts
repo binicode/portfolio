@@ -37,11 +37,16 @@ const INSIGHT_RULES = [
 const BRIEF_RULES = [
   'A prospective client finished a short multiple-choice questionnaire about their project. Their answers are below.',
   'Write a concise project brief from them, using exactly these sections, each a line starting with "## " followed by 1 to 4 lines starting with "- ":',
+  // Headings alone on their lines: guidance written inside a heading line
+  // was copied into the visitor's brief word for word.
   '## Project',
   '## Users and core features',
-  '## Recommended approach (stack and architecture that fit the answers)',
+  '## Recommended approach',
   '## First release',
-  '## To decide (only for answers that were "Not sure" or "Skipped"; omit the section if there are none)',
+  '## To decide',
+  'Write each heading exactly as shown, with nothing added to it.',
+  'Under "Recommended approach", give the stack and architecture that fit the answers.',
+  'Include "To decide" only for answers that were "Not sure" or "Skipped"; leave the section out if there are none.',
   'Under 170 words in total. Do not invent requirements they did not choose.',
 ].join('\n');
 

@@ -27,5 +27,9 @@ test('prompts: answers go in as data; insight and brief get their own rules', ()
   assert.match(insight.systemInstruction, /not instructions/);
   const brief = buildDiscoveryPrompt({ kind: 'brief', transcript });
   assert.match(brief.systemInstruction, /## Recommended approach/);
+  // Every heading line is the heading alone: the model copies heading lines verbatim.
+  for (const heading of brief.systemInstruction.split('\n').filter((line) => line.startsWith('## '))) {
+    assert.match(heading, /^## [A-Za-z ]+$/, heading);
+  }
   assert.doesNotMatch(brief.systemInstruction, /ONE specific/);
 });

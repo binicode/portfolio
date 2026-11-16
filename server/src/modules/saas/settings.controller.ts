@@ -1,24 +1,19 @@
 import type { Request, Response } from 'express';
-import { z } from 'zod';
 import { asyncHandler, AppError } from '../../core/middleware/errorHandler.js';
 import { SaasUserModel } from './saas-user.model.js';
-
-const updateSettingsBodySchema = z.object({
-  githubUsername: z.string().min(1).optional(),
-  youtubeChannelId: z.string().min(1).optional(),
-  brandSearchQuery: z.string().min(1).optional(),
-});
+import { settingsUpdate, updateSettingsBodySchema } from './settings.update.js';
 
 /**
  * PATCH /saas/settings
- * Updates the current user's aggregator source identifiers. No format
- * validation beyond "non-empty" — a malformed GitHub username or
+ * Updates the current user's aggregator source identifiers. A field left
+ * out is unchanged; an empty one disconnects that source (settings.update.ts).
+ * No format validation beyond that — a malformed GitHub username or
  * YouTube channel ID doesn't need to be caught here, since the
  * aggregator already handles an invalid identifier gracefully (a null
  * result for that one source, not a crash).
  */
 export const patchSettings = asyncHandler(async (req: Request, res: Response) => {
-  const updates = updateSettingsBodySchema.parse(req.body);
+  const updates = settingsUpdate(updateSettingsBodySchema.parse(req.body));
 
   const user = await SaasUserModel.findByIdAndUpdate(req.user!.sub, updates, {
     new: true,

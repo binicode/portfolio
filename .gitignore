@@ -14,3 +14,6 @@ blob-report/
 
 # curl cookie jars from local API testing (may contain session tokens)
 *cookies.txt
+
+# QA run media (screenshots, videos, report): large, kept out of git
+portfolio-media/
