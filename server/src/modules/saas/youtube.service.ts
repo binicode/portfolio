@@ -1,5 +1,6 @@
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { env } from '../../core/config/env.js';
+import { parseYoutubeChannel } from './source-identifiers.js';
 import type { YoutubeStats, YoutubeVideoSummary } from './saas.types.js';
 
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
@@ -77,21 +78,33 @@ async function fetchRecentVideos(uploadsPlaylistId: string, key: string): Promis
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
-export async function getYoutubeStats(channelId: string): Promise<YoutubeStats> {
+/**
+ * The channel a customer saved, as a channel ID, an @handle or a channel
+ * link (source-identifiers.ts). Each lookup is one quota unit, like the ID.
+ */
+export async function getYoutubeStats(saved: string): Promise<YoutubeStats> {
   const key = env.YOUTUBE_API_KEY;
   if (!key) {
     throw new AppError('Server misconfiguration: YOUTUBE_API_KEY is not set', 500);
   }
 
+  const ref = parseYoutubeChannel(saved);
+  if (!ref) {
+    throw new AppError('YouTube channel not set', 404);
+  }
+  const lookup: Record<string, string> =
+    'id' in ref ? { id: ref.id } : 'handle' in ref ? { forHandle: ref.handle } : { forUsername: ref.username };
+
   const data = await getJson<YoutubeChannelsResponse>(
-    apiUrl('channels', { part: 'statistics,contentDetails', id: channelId }, key),
+    apiUrl('channels', { part: 'statistics,contentDetails', ...lookup }, key),
     'channels',
   );
   const channel = data.items?.[0];
 
   if (!channel) {
-    throw new AppError(`YouTube channel "${channelId}" not found`, 404);
+    throw new AppError(`YouTube channel "${saved}" not found`, 404);
   }
+  const channelId = channel.id;
 
   // The recent-videos chart is secondary: if it fails, the channel totals
   // still render and the chart is simply left out.

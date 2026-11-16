@@ -58,15 +58,16 @@ export default function SettingsForm({
         value={githubUsername}
         onChange={(e) => setGithubUsername(e.target.value)}
         placeholder="octocat"
+        hint="Your username or profile link."
       />
 
       <Input
-        label="YouTube channel ID"
+        label="YouTube channel"
         type="text"
         value={youtubeChannelId}
         onChange={(e) => setYoutubeChannelId(e.target.value)}
-        placeholder="UCxxxxxxxxxxxxxxxxxxxxxx"
-        hint="Starts with UC. Not your @handle."
+        placeholder="@yourchannel"
+        hint="Your @handle, a channel link or the channel ID."
       />
 
       <Input

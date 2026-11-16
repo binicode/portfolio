@@ -161,7 +161,7 @@ const NOT_FOUND_SHORT: Record<SourceKey, string> = {
 };
 const NOT_FOUND_FULL: Record<SourceKey, string> = {
   github: 'GitHub has no user with that name.',
-  youtube: 'YouTube has no channel with that ID.',
+  youtube: 'YouTube has no channel by that name or ID.',
   hackerNews: 'Hacker News found nothing for that term.',
 };
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseGithubUsername, parseYoutubeChannel } from './source-identifiers.js';
 
 /**
  * The PATCH /saas/settings body and the database update it makes. Pure (no
@@ -26,14 +27,31 @@ export interface SettingsUpdate {
   $unset?: Record<string, ''>;
 }
 
+/**
+ * How a value is stored: a pasted GitHub link or @name as the bare username,
+ * a YouTube link as its @handle or channel ID (source-identifiers.ts), so
+ * the dashboard shows "octocat", not the link. Other text is kept as typed.
+ */
+function stored(field: string, value: string): string {
+  const text = value.trim();
+  if (field === 'githubUsername') return parseGithubUsername(text);
+  if (field === 'youtubeChannelId') {
+    const ref = parseYoutubeChannel(text);
+    if (ref && 'id' in ref) return ref.id;
+    if (ref && 'handle' in ref) return `@${ref.handle}`;
+  }
+  return text;
+}
+
 /** $set for each value given, $unset for each field cleared to an empty string. */
 export function settingsUpdate(body: UpdateSettingsBody): SettingsUpdate {
   const $set: Record<string, string> = {};
   const $unset: Record<string, ''> = {};
   for (const [field, value] of Object.entries(body)) {
     if (value === undefined) continue;
-    if (value.trim() === '') $unset[field] = '';
-    else $set[field] = value;
+    const clean = value.trim() === '' ? '' : stored(field, value);
+    if (clean === '') $unset[field] = '';
+    else $set[field] = clean;
   }
   return {
     ...(Object.keys($set).length > 0 ? { $set } : {}),

@@ -17,6 +17,15 @@ test('an empty field disconnects that source', () => {
   });
 });
 
+test('pasted links and @names are stored in clean form', () => {
+  assert.deepEqual(update({ githubUsername: 'https://github.com/octocat/', youtubeChannelId: 'https://www.youtube.com/@GoogleDevelopers', brandSearchQuery: ' Next.js ' }), {
+    $set: { githubUsername: 'octocat', youtubeChannelId: '@GoogleDevelopers', brandSearchQuery: 'Next.js' },
+  });
+  assert.deepEqual(update({ githubUsername: '@octocat', youtubeChannelId: 'youtube.com/channel/UC_x5XG1OV2P6uZZ5FSM9Ttw' }), {
+    $set: { githubUsername: 'octocat', youtubeChannelId: 'UC_x5XG1OV2P6uZZ5FSM9Ttw' },
+  });
+});
+
 test('only the three source fields can be written', () => {
   assert.deepEqual(update({ subscriptionStatus: 'active', email: 'x@example.com', githubUsername: 'octocat' }), {
     $set: { githubUsername: 'octocat' },

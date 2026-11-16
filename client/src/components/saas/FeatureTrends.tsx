@@ -180,7 +180,7 @@ export default function FeatureTrends({
         {videos.length > 0 ? (
           <TrendColumns points={videos} emphasis={videos.length - 1} unit="views" summary="Views on your recent videos, oldest first" Frame={Frame} height={PLOT_HEIGHT} />
         ) : (
-          <Gap sourceKey="youtube" source="YouTube" status={stats.sources.youtube} hint="Add your channel ID." links={links} />
+          <Gap sourceKey="youtube" source="YouTube" status={stats.sources.youtube} hint="Add your YouTube channel." links={links} />
         )}
       </Feature>
     </div>
