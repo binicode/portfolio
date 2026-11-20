@@ -40,7 +40,7 @@ export default function AdminNav({ email }: AdminNavProps) {
           isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
         }`}
       >
-        {isActive && <span aria-hidden="true" className="h-1.5 w-1.5 bg-accent" />}
+        {isActive && <span aria-hidden="true" className="h-1.5 w-1.5 bg-signal" />}
         Projects
       </Link>
       <Link href="/" className="label px-3 py-2 text-muted-foreground transition-colors hover:text-foreground">
