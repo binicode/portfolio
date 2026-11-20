@@ -73,9 +73,10 @@ export default async function ShopPage() {
           <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
             {products.map((product, index) => (
               <li key={product.id}>
-                {/* Only the first photo is an LCP candidate; more high-priority
-                    images would compete for bandwidth. */}
-                <ProductCard product={product} priority={index === 0} />
+                {/* The first row's photos load first: on phones that is two, and
+                    either can be the largest paint (Lighthouse measured the
+                    second, a wider photo, as the LCP while it loaded lazily). */}
+                <ProductCard product={product} priority={index < 2} />
               </li>
             ))}
           </ul>
