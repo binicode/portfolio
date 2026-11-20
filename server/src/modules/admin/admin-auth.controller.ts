@@ -5,6 +5,9 @@ import { env } from '../../core/config/env.js';
 import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
 import { signAccessToken, AUTH_COOKIE_NAME } from '../../core/middleware/auth.js';
 import type { AdminLoginResult } from './admin.types.js';
+import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
+
+const cookieSettings = () => ({ production: env.NODE_ENV === 'production', domain: env.COOKIE_DOMAIN });
 
 const adminLoginBodySchema = z.object({
   email: z.string().email(),
@@ -12,7 +15,6 @@ const adminLoginBodySchema = z.object({
 });
 
 // Matches signAccessToken's default expiresIn of '7d'.
-const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * POST /admin/login
@@ -44,12 +46,7 @@ export const postAdminLogin = asyncHandler(async (req: Request, res: Response) =
     email: env.ADMIN_EMAIL,
   });
 
-  res.cookie(AUTH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: COOKIE_MAX_AGE_MS,
-  });
+  res.cookie(AUTH_COOKIE_NAME, token, sessionCookieOptions(cookieSettings()));
 
   const result: AdminLoginResult = { success: true };
   res.status(200).json(result);
@@ -63,7 +60,7 @@ export const postAdminLogin = asyncHandler(async (req: Request, res: Response) =
  * browser simply stops sending it.
  */
 export const postAdminLogout = asyncHandler(async (_req: Request, res: Response) => {
-  res.clearCookie(AUTH_COOKIE_NAME);
+  res.clearCookie(AUTH_COOKIE_NAME, clearSessionCookieOptions(cookieSettings()));
   res.status(200).json({ success: true });
 });
 

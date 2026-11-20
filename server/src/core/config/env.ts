@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import { z } from 'zod';
 import { parseTrustProxy } from './trust-proxy.js';
 import { parseClientOrigins } from './origins.js';
+import { parseCookieDomain } from './session-cookie.js';
 
 config();
 
@@ -48,6 +49,18 @@ const envSchema = z.object({
         }),
 
     // --- Auth (needed by admin-cms + saas-mvp modules) ---
+    // The site's domain when the API is on another host of it (session-cookie.ts).
+    COOKIE_DOMAIN: z
+        .string()
+        .optional()
+        .transform((value, ctx) => {
+            try {
+                return parseCookieDomain(value);
+            } catch (error) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                return z.NEVER;
+            }
+        }),
     JWT_SECRET: optionalString(z.string().min(32, 'JWT_SECRET must be at least 32 characters')),
     ADMIN_EMAIL: z.string().email(),
     ADMIN_PASSWORD_HASH: z.string().min(1),

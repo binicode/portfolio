@@ -6,6 +6,9 @@ import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
 import { signAccessToken, SAAS_AUTH_COOKIE_NAME } from '../../core/middleware/auth.js';
 import { SaasUserModel } from './saas-user.model.js';
 import type { AuthResult } from './saas.types.js';
+import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
+
+const cookieSettings = () => ({ production: env.NODE_ENV === 'production', domain: env.COOKIE_DOMAIN });
 
 const registerBodySchema = z.object({
   email: z.string().email(),
@@ -17,7 +20,6 @@ const loginBodySchema = z.object({
   password: z.string().min(1),
 });
 
-const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const BCRYPT_SALT_ROUNDS = 10;
 
 export const postRegister = asyncHandler(async (req: Request, res: Response) => {
@@ -37,12 +39,7 @@ export const postRegister = asyncHandler(async (req: Request, res: Response) => 
     email: user.email,
   });
 
-  res.cookie(SAAS_AUTH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: COOKIE_MAX_AGE_MS,
-  });
+  res.cookie(SAAS_AUTH_COOKIE_NAME, token, sessionCookieOptions(cookieSettings()));
 
   const result: AuthResult = { success: true };
   res.status(201).json(result);
@@ -64,19 +61,14 @@ export const postLogin = asyncHandler(async (req: Request, res: Response) => {
     email: user.email,
   });
 
-  res.cookie(SAAS_AUTH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: COOKIE_MAX_AGE_MS,
-  });
+  res.cookie(SAAS_AUTH_COOKIE_NAME, token, sessionCookieOptions(cookieSettings()));
 
   const result: AuthResult = { success: true };
   res.status(200).json(result);
 });
 
 export const postLogout = asyncHandler(async (_req: Request, res: Response) => {
-  res.clearCookie(SAAS_AUTH_COOKIE_NAME);
+  res.clearCookie(SAAS_AUTH_COOKIE_NAME, clearSessionCookieOptions(cookieSettings()));
   res.status(200).json({ success: true });
 });
 
