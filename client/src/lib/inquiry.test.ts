@@ -34,6 +34,7 @@ test('responses become the next state of the form', () => {
   assert.deepEqual(sendResult(201, { ok: true }), { status: 'sent' });
   assert.deepEqual(sendResult(429, null), { status: 'limited' });
   assert.deepEqual(sendResult(500, { error: { message: 'Internal server error' } }), { status: 'failed' });
+  assert.deepEqual(sendResult(503, { error: { message: 'Briefs can’t be received right now.' } }), { status: 'failed' });
   assert.deepEqual(sendResult(0, null), { status: 'failed' });
   assert.deepEqual(
     sendResult(400, { error: { message: 'Validation failed', details: { contact: ['Enter an email address or a LinkedIn profile link.'] } } }),

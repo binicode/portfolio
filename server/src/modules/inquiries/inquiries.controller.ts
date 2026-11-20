@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { isValidObjectId } from 'mongoose';
 import { z } from 'zod';
+import { isDatabaseReady } from '../../core/config/db.js';
 import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
 import { InquiryModel } from './inquiry.model.js';
 import { inquiryBodySchema, isHoneypotFilled } from './inquiry.schema.js';
@@ -15,6 +16,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * Stores a brief sent from the assistant's planner. A filled honeypot gets
  * the same reply as a real send, so a bot learns nothing, and is dropped.
  * Validation errors are field messages; anything else is the generic 500.
+ * While the database is down (the server starts without it, db.ts) this
+ * answers 503 at once instead of waiting on Mongoose's buffer, so the
+ * planner offers the LinkedIn route straight away.
  */
 export const postInquiry = asyncHandler(async (req: Request, res: Response) => {
   if (isHoneypotFilled(req.body)) {
@@ -22,6 +26,7 @@ export const postInquiry = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
   const input = inquiryBodySchema.parse(req.body);
+  if (!isDatabaseReady()) throw new AppError('Briefs can’t be received right now.', 503);
   await InquiryModel.create(input);
   res.status(201).json({ ok: true });
 });

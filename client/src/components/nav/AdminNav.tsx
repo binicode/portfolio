@@ -53,6 +53,7 @@ export default function AdminNav({ email, unreadInquiries = 0 }: AdminNavProps) 
             {isActive && <span aria-hidden="true" className="h-1.5 w-1.5 bg-signal" />}
             {link.label}
             {count > 0 && (
+              /* A count is information: signal colour, not the action colour. */
               <span className="ml-auto min-w-5 rounded-xs bg-signal px-1.5 text-center tabular-nums text-signal-foreground">
                 {count}
                 <span className="sr-only"> new</span>

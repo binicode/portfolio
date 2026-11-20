@@ -797,7 +797,7 @@ interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
   ref?: Ref<HTMLInputElement>;
 }
 
-/** A labelled input with its error tied to it. 16px text on phones, so iOS doesn't zoom on focus. */
+/** A labelled input with its error tied to it. 16px text on touch screens, so iOS doesn't zoom on focus. */
 function Field({ id, label, error, ref, ...input }: FieldProps) {
   const errorId = `${id}-error`;
   return (
@@ -811,7 +811,7 @@ function Field({ id, label, error, ref, ...input }: FieldProps) {
         type="text"
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={`mt-1 h-11 w-full rounded-lg border bg-transparent px-3.5 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 sm:text-sm ${
+        className={`mt-1 h-11 w-full rounded-lg border bg-transparent px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 pointer-coarse:text-base ${
           error ? 'border-destructive focus:border-destructive focus:ring-destructive/30' : 'border-input focus:border-ring focus:ring-ring/30'
         }`}
         {...input}

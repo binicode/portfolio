@@ -279,10 +279,12 @@ checks in `lib/inquiry.ts`). Two fields: Your name, and Email or LinkedIn
 profile (one field, either accepted). Under the button, the privacy line:
 "Only I see this, and only to reply to you. Deleted after 12 months." Sent
 shows "Brief sent" and how the reply will come (by email / on LinkedIn); a
-failure or rate limit (429) swaps the form for "Copy brief and message me",
+failure (including the 503 the server answers at once while its database is
+down) or a rate limit (429) swaps the form for "Copy brief and message me",
 with Try sending again after a failure. Inquiries land in the admin
 dashboard's Inquiries page, whose counts (total, new, last 30 days) are the
-planner's conversion measure; there is no third-party analytics.
+planner's conversion measure; there is no third-party analytics. New
+inquiries are marked in the signal colour (a status, not an action).
 
 ## Components
 

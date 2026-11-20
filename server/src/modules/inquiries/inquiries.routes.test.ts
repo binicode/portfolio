@@ -82,6 +82,20 @@ test('an invalid inquiry gets field messages, nothing internal', async () => {
   assert.ok(body.error.details.transcript);
 });
 
+test('with the database down, a valid brief gets a quick 503', async () => {
+  const response = await request('/inquiries', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: 'Ada Lovelace',
+      contact: 'ada@example.com',
+      brief: '## Project\n- An online store.',
+      transcript: [{ q: 'What are you building?', a: ['Online store'] }],
+    }),
+  });
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: { message: 'Briefs can’t be received right now.' } });
+});
+
 test('a filled honeypot looks sent and is never stored', async () => {
   // bufferCommands is off and nothing is connected: a database write would fail with a 500.
   const response = await request('/inquiries', { method: 'POST', body: JSON.stringify({ website: 'https://spam.test', name: 'Bot' }) });

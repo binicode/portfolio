@@ -62,7 +62,7 @@ function InquiryRow({ inquiry }: { inquiry: Inquiry }) {
           <p className="flex flex-wrap items-center gap-2 font-medium">
             <span className="truncate">{inquiry.name}</span>
             {isNew && (
-              <Badge variant="primary" dot>
+              <Badge variant="signal" dot>
                 New
               </Badge>
             )}
