@@ -53,9 +53,7 @@ const envSchema = z.object({
     ADMIN_PASSWORD_HASH: z.string().min(1),
 
     // --- AI chat module ---
-    ANTHROPIC_API_KEY: optionalString(z.string().min(1)),
     GEMINI_API_KEY: optionalString(z.string().min(1)),
-    OPENAI_API_KEY: optionalString(z.string().min(1)),
     VOYAGE_API_KEY: optionalString(z.string().min(1)),
 
     // --- SaaS MVP billing module ---
@@ -65,9 +63,6 @@ const envSchema = z.object({
     GITHUB_API_TOKEN: optionalString(z.string().min(1)),
     YOUTUBE_API_KEY: optionalString(z.string().min(1)),
 
-    // --- Storefront module ---
-    SHOPIFY_STOREFRONT_ACCESS_TOKEN: optionalString(z.string().min(1)),
-    SHOPIFY_STORE_DOMAIN: optionalString(z.string().min(1)),
 });
 
 export type Env = z.infer<typeof envSchema>;
