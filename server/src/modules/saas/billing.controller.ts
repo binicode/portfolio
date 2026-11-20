@@ -3,6 +3,8 @@ import { asyncHandler, AppError } from '../../core/middleware/errorHandler.js';
 import { env } from '../../core/config/env.js';
 import { SaasUserModel } from './saas-user.model.js';
 import { createStripeCustomer, createSubscriptionCheckoutSession } from './stripe.service.js';
+import { checkoutReturnUrls } from './stripe-events.js';
+import { primaryClientOrigin } from '../../core/config/origins.js';
 
 /**
  * Returns the user's existing Stripe customer id, or creates one and
@@ -37,11 +39,10 @@ async function getOrCreateStripeCustomerId(userId: string): Promise<string> {
 export const postCreateCheckoutSession = asyncHandler(async (req: Request, res: Response) => {
   const stripeCustomerId = await getOrCreateStripeCustomerId(req.user!.sub);
 
-  const url = await createSubscriptionCheckoutSession(
-    stripeCustomerId,
-    `${env.CLIENT_ORIGIN}/dashboard?checkout=success`,
-    `${env.CLIENT_ORIGIN}/billing?checkout=cancelled`,
-  );
+  // Back to the SaaS dashboard (it was /dashboard, the admin area, and a
+  // /billing page that doesn't exist).
+  const { successUrl, cancelUrl } = checkoutReturnUrls(primaryClientOrigin(env.CLIENT_ORIGIN));
+  const url = await createSubscriptionCheckoutSession(stripeCustomerId, successUrl, cancelUrl);
 
   res.status(200).json({ url });
 });

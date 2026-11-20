@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import { z } from 'zod';
 import { parseTrustProxy } from './trust-proxy.js';
+import { parseClientOrigins } from './origins.js';
 
 config();
 
@@ -21,8 +22,17 @@ const envSchema = z.object({
     // --- Database ---
     MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
 
-    // --- CORS ---
-    CLIENT_ORIGIN: z.string().url().default('http://localhost:3000'),
+    // --- CORS: one origin or a comma-separated list; the first is the public site (origins.ts) ---
+    CLIENT_ORIGIN: z
+        .string()
+        .default('http://localhost:3000')
+        .superRefine((value, ctx) => {
+            try {
+                parseClientOrigins(value);
+            } catch (error) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+            }
+        }),
 
     // --- Proxies in front of the API (see trust-proxy.ts) ---
     TRUST_PROXY: z
