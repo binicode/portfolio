@@ -46,16 +46,37 @@ export function contentSecurityPolicy({ apiUrl, shopDomain }: Pick<SecurityHeade
   ].join('; ');
 }
 
-export function securityHeaders(options: SecurityHeaderOptions): { key: string; value: string }[] {
-  const headers = [
+type Header = { key: string; value: string };
+
+/** For every response, static files included. */
+export function everyResponseHeaders({ siteUrl }: Pick<SecurityHeaderOptions, 'siteUrl'>): Header[] {
+  const headers = [{ key: 'X-Content-Type-Options', value: 'nosniff' }];
+  if (siteUrl.startsWith('https://')) {
+    headers.push({ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' });
+  }
+  return headers;
+}
+
+/**
+ * For pages only. A policy on a script, style or image file does nothing,
+ * and sending it there added about 0.5 KB to every static response.
+ */
+export function documentHeaders(options: SecurityHeaderOptions): Header[] {
+  return [
     { key: 'Content-Security-Policy', value: contentSecurityPolicy(options) },
-    { key: 'X-Content-Type-Options', value: 'nosniff' },
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     { key: 'X-Frame-Options', value: 'DENY' },
     { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
   ];
-  if (options.siteUrl.startsWith('https://')) {
-    headers.push({ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' });
-  }
-  return headers;
+}
+
+/** Paths that are never documents: Next's hashed static files and optimised images. */
+export const DOCUMENT_SOURCE = '/((?!_next/static|_next/image).*)';
+
+/** The headers() entries for next.config.ts. */
+export function securityHeaderRules(options: SecurityHeaderOptions): { source: string; headers: Header[] }[] {
+  return [
+    { source: '/:path*', headers: everyResponseHeaders(options) },
+    { source: DOCUMENT_SOURCE, headers: documentHeaders(options) },
+  ];
 }
