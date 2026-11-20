@@ -9,10 +9,32 @@ import RefreshControl from '@/components/saas/RefreshControl';
 import { sourceSummary } from '@/components/saas/insights';
 import type { SaasMeResponse } from '@/types/saas';
 
-export default async function SaasDashboardPage() {
+export default async function SaasDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const me = await requireSaasSession();
 
   if (me.subscriptionStatus !== 'active') {
+    // Back from Stripe Checkout before its webhook has unlocked the account:
+    // say so instead of offering checkout again (a second subscription).
+    if ((await searchParams).checkout === 'success') {
+      return (
+        <div className="container-page py-[clamp(3rem,8vw,6rem)]">
+          <div className="border-y border-foreground/80 py-12 lg:py-16">
+            <h1 className="text-h2 font-medium">Payment received</h1>
+            <p className="mt-5 max-w-[36rem] text-lead text-muted-foreground">
+              Your dashboard unlocks when Stripe confirms the subscription, usually within a minute.
+            </p>
+            <a href="/saas/dashboard" className="link mt-6 inline-block text-body-sm font-medium">
+              Refresh
+            </a>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="container-page py-[clamp(3rem,8vw,6rem)]">
         <div className="grid gap-10 border-y border-foreground/80 py-12 lg:grid-cols-12 lg:items-end lg:gap-8 lg:py-16">
