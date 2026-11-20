@@ -11,8 +11,8 @@ export default function StackCard({ category, art }: { category: StackCategory; 
   const titleId = `stack-${category.slug}`;
   return (
     <article aria-labelledby={titleId} className="stack-card">
-      <h3 id={titleId} className="label flex items-baseline gap-2 text-foreground">
-        <span className="text-accent-bright">{category.key}.</span>
+      <h3 id={titleId} className="flex items-baseline gap-2 text-h3 font-medium">
+        <span className="text-signal">{category.key}.</span>
         {category.name}
       </h3>
 
@@ -31,7 +31,7 @@ export default function StackCard({ category, art }: { category: StackCategory; 
         ))}
       </ul>
 
-      <p className="mt-3 text-sm leading-snug text-muted-foreground">{category.description}</p>
+      <p className="mt-3 text-base leading-snug text-muted-foreground">{category.description}</p>
     </article>
   );
 }

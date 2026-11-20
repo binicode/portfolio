@@ -33,14 +33,11 @@ export default function SiteNav() {
               <Link
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`label relative py-2 transition-colors duration-150 ${
-                  active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                className={`relative py-2 text-caption font-medium text-foreground underline-offset-[0.4em] transition-colors duration-150 hover:underline hover:decoration-signal ${
+                  active ? 'underline decoration-signal' : ''
                 }`}
               >
                 {item.label}
-                {active && (
-                  <span aria-hidden="true" className="absolute inset-x-0 bottom-0.5 h-px bg-accent" />
-                )}
               </Link>
             </li>
           );
@@ -50,7 +47,7 @@ export default function SiteNav() {
       <button
         type="button"
         popoverTarget="site-menu"
-        className="label ml-auto inline-flex h-9 items-center border border-border px-3 text-foreground md:hidden"
+        className="ml-auto inline-flex h-9 items-center border border-border px-3 text-caption font-medium text-foreground md:hidden"
       >
         Menu
       </button>
@@ -75,7 +72,7 @@ export default function SiteNav() {
                     className="flex items-center justify-between py-4 text-2xl font-medium tracking-[-0.03em]"
                   >
                     {item.label}
-                    {active && <span className="label text-accent">Current</span>}
+                    {active && <span className="label text-signal">Current</span>}
                   </Link>
                 </li>
               );

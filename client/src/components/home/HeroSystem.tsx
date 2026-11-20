@@ -53,7 +53,7 @@ export default function HeroSystem() {
         </div>
 
         <div className="hs-head">
-          <h2 className="text-h3 font-medium sm:text-title">One engineer. The whole stack.</h2>
+          <h2 className="text-h2 font-medium">One engineer. The whole stack.</h2>
         </div>
 
         <div className="hs-frame">

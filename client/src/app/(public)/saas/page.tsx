@@ -97,14 +97,14 @@ export default function SaasPage() {
         <div className="container-page">
           <div className="grid border-y border-border lg:grid-cols-2">
             <div className="py-12 lg:py-16 lg:pr-12">
-              <h2 className="text-h2 font-medium">Try it with your accounts.</h2>
+              <h2 className="text-title font-medium">Try it with your accounts.</h2>
               <p className="mt-3 text-muted-foreground">Free to sign up. Subscribe when you want the numbers.</p>
               <ButtonLink href="/saas/signup" className="mt-8">
                 Create an account
               </ButtonLink>
             </div>
             <div className="border-t border-border py-12 lg:border-l lg:border-t-0 lg:py-16 lg:pl-12">
-              <h2 className="text-h2 font-medium">Want a SaaS like this?</h2>
+              <h2 className="text-title font-medium">Want a SaaS like this?</h2>
               <p className="mt-3 text-muted-foreground">{PLANNER_NOTE}</p>
               <OpenChatButton mode="discovery" build="saas" className={buttonClasses('accent', 'md', 'mt-8')}>
                 Plan a similar product

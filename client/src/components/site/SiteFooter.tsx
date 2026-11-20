@@ -44,15 +44,15 @@ export default function SiteFooter() {
           </div>
 
           <nav aria-label="Footer" className="lg:col-span-3">
-            <ul className="label space-y-3">
+            <ul className="space-y-3 text-caption font-medium">
               <li>
-                <Link href="/" className="text-muted-foreground transition-colors hover:text-foreground">
+                <Link href="/" className="text-foreground underline-offset-[0.4em] hover:underline hover:decoration-signal">
                   Home
                 </Link>
               </li>
               {primaryNav.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
+                  <Link href={item.href} className="text-foreground underline-offset-[0.4em] hover:underline hover:decoration-signal">
                     {item.label}
                   </Link>
                 </li>
@@ -60,17 +60,18 @@ export default function SiteFooter() {
             </ul>
           </nav>
 
-          <ul className="label space-y-3 lg:col-span-3">
+          <ul className="space-y-3 text-caption font-medium lg:col-span-3">
             {socials.map((social) => (
               <li key={social.href}>
                 <a
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+                  className="inline-flex items-center gap-1 text-foreground underline-offset-[0.4em] hover:underline hover:decoration-signal"
                 >
                   {social.label}
                   <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </li>
             ))}

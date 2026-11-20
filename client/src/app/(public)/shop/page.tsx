@@ -88,7 +88,7 @@ export default async function ShopPage() {
         className="mt-16 flex flex-col gap-6 border-y border-border py-10 lg:mt-24 lg:flex-row lg:items-center lg:justify-between lg:py-12"
       >
         <div>
-          <h2 id="store-cta-title" className="text-h3 font-medium">
+          <h2 id="store-cta-title" className="text-title font-medium">
             Want a store like this?
           </h2>
           <p className="mt-2 text-muted-foreground">Your design, Shopify’s catalogue and checkout.</p>

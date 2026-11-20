@@ -72,7 +72,7 @@ zooms in to fill the stage.
 
 | Token | Value | Role |
 | --- | --- | --- |
-| Teal lit | `#136f6e` | The key light on teal: gloss and rims only. On sand: the promise in a headline (`emph`, 4.7:1) |
+| Teal lit | `#136f6e` | The key light on teal: gloss and rims only. Never text |
 | Teal glow | `#0f6262` | The brightest teal any text sits on (centre of a body's light). On sand: `signal`, labels and links (5.1:1 or more) |
 | Deep Teal | `#084c4c` | Bodies (`theme-patina`, `theme-ember`); the solid button on sand (sand text 8.1:1) |
 | Teal deep / abyss | `#032c2c` / `#011b1b` | Header, rails, window bars (`theme-deep`); the deepest shade, in gradients only |
@@ -83,27 +83,31 @@ zooms in to fill the stage.
 | Soft Sand | `#e7d4b9` | The solid button on teal (teal text 6.9:1) |
 | Sand deep / shadow | `#cbb393` / `#b09675` | Hairlines and shade; rims only |
 | Sand text / muted | `#ece1ce` / `#d9cdb8` | Type on teal: 5.5:1 / 4.5:1 at the lit centre |
-| Teal text / muted | `#0b4a4a` / `#3e5c59` | Type on sand: 7.2:1 / 5:1 or more at the field's darkest edge |
-| Burnt Terracotta | `#d96b52` | **The action**: filled calls to action (ink text `#062224`, 4.9:1), the launcher, selection |
+| Teal ink / muted | `#062224` / `#3e5c59` | Type on sand: 11.9:1 / 5.2:1 at the field's darkest edge (8.3:1 / 3.7:1 on a sand rim). The gap between them (2.3:1) keeps primary and secondary text apart |
+| Burnt Terracotta | `#d96b52` | **The action**: filled calls to action (ink text `#062224`, 4.9:1), the header's outlined call to action, selection |
 | Terracotta light / hover | `#f2a28c` / `#e4826b` | Terracotta text and the focus ring, only on deep teal (4.8:1 or more); the hover fill |
-| Sea glass | `#9fdfd2` | On teal: `signal` and `emph` (4.7:1 or more) |
+| Sea glass | `#9fdfd2` | On teal: `signal` (4.7:1 or more): links, legend keys, meters, drawings |
 | Rose / red | `#ffa8b2` / `#8f2424` | Errors on teal / on sand, never the terracotta hue |
 | Chart muted | `#8db3b0` / `#7d705b` | Comparison marks on teal / on sand (3:1 or more) |
 
 Rules:
 
-- Inverted type: sand on teal, teal on sand. The promise in a headline
-  (`emph`) is the lighter step of the same family: sea glass on teal, the
-  lit teal on sand.
-- Terracotta is the one thing to do, and only that: filled calls to action,
-  the launcher, the legend's keys. Never decoration, never a glow.
+- Inverted type: sand on teal, teal ink on sand. The promise in a headline
+  (`emph`) is the same colour one weight heavier (600 against the
+  headline's 500): emphasis never reads lighter than the words around it.
+- Terracotta is the one thing to do, and only that: filled calls to action
+  and the header's outlined one. Never decoration, never a glow, never a
+  meter or a drawing. The assistant launcher is Deep Teal (`.launcher`), so
+  a view's terracotta is its own call to action. Legend keys, the header's
+  stripe meter, the orbit's centre line and the drawings' accent strokes
+  are `signal`.
 - Emphasis, not ornament: no added shapes, curves or motifs. The reference's
   interlocking form is not reproduced; its proportion, tone and light are.
 - Charts: the series that matters in `signal`, the comparison in
   `chart-muted`. Status always carries an icon or word, never colour alone.
-- In `RevealWords`, unread words start at 0.45 on teal and 0.7 on sand,
-  emphasised words at 0.6 and 0.8, so the statement stays above 3:1 at every
-  scroll position.
+- In `RevealWords`, unread words start at 0.45 on teal and 0.6 on sand
+  (4:1 for the ink at the field's edge), emphasis included, so the statement
+  stays above 3:1 at every scroll position.
 - Light, as in the reference (`globals.css`, "Semantic roles"):
   - A teal body is lit from the upper left: glow, Deep Teal through the
     middle, shade to the lower right (`--surface-lighting` on the teal
@@ -153,8 +157,8 @@ ratios above by construction, and the solid fallbacks are checked by axe.
   tight tracking (`-0.04em` at h1), body at 400. Self-hosted subset in
   `src/app/fonts/` (OFL licence alongside): Latin, weight 400–600, 27 KB,
   preloaded.
-- **Geist Mono** for micro-type only, through the `label` utility: nav,
-  kickers, meta, captions, button text. ASCII subset, weight 400–500,
+- **Geist Mono** for micro-type only, through the `label` utility:
+  kickers, meta, captions, technology names, button text. Never navigation. ASCII subset, weight 400–500,
   9 KB, not preloaded.
 - Both subsets are produced by `npm run fonts:subset`
   (`scripts/subset-fonts.mjs`). Using `font-bold` or characters outside the
@@ -165,11 +169,9 @@ Scale (all in `@theme`), largest first:
 
 | Role | Token | Size |
 | --- | --- | --- |
-| Hero, about numerals | `text-display`, `text-stat` | fluid, up to 112–128px |
-| Page title | `text-h1` | 40–84px |
-| Section title, featured project | `text-h2` | 32–56px |
-| Large reading text | `text-statement` | 24–40px |
-| Card and page subtitles, greeting | `text-title` | 24–40px |
+| Page title on a public page: the page's one peak | `text-h1` | 40–84px |
+| Section title; the footer line; an app screen's title (sign-in, dashboard, settings, admin, product) | `text-h2` | 32–56px |
+| Middle tier: a featured item, a closing call to action, a minor section, a statement beside a form | `text-title` | 24–40px |
 | Card title | `text-h3` | 22px |
 | Intro line | `text-lead` | 18–22px |
 | Summaries, card headings | `text-body-lg` | 17px |
@@ -208,8 +210,10 @@ things and gives the one fact the interface can't show.
 - Metadata descriptions are for search results and may run longer.
 
 `label` (uppercase mono, 11px, +0.04em) is the system's one all-caps
-style. Use it for navigation and metadata, not for sentences, and not as
-an eyebrow above every heading. A terracotta `label` kicker is reserved for a
+style. Use it for metadata, not for navigation, not for sentences, and not
+as an eyebrow above every heading. Primary and footer navigation are
+`text-caption font-medium` (13px sans) in the foreground colour, with a
+`signal` underline on hover and on the current page. A terracotta `label` kicker is reserved for a
 page's or section's identity (for example "Creator Dashboard").
 
 Avoid: colouring words for effect (the only coloured words are the promise
@@ -223,7 +227,7 @@ call to action states what happens on click, and its colour says what kind
 of action it is.
 
 - **Accent (terracotta): work with me.** Plan your project, Plan a
-  similar project/product/store, and the assistant launcher. All open the
+  similar project/product/store. All open the
   assistant's planner (`OpenChatButton mode="discovery"`), which ends in a
   brief and "Copy brief and message me".
 - **Primary (bone): the main action of a product flow.** Create an account,
@@ -277,8 +281,11 @@ visitor). The copy in "Copy brief and message me" is synchronous
   and sizes sm, md, lg (see "Calls to action").
 - `.btn-bracket`: the outlined terracotta button with corner brackets, used only
   for the header's Plan your project.
-- `.stripe-meter`: the striped header bar; its cover slides with page
-  scroll (`scroll(root)`), so it doubles as a reading-progress meter.
+- `.stripe-meter`: the striped header bar in `signal`; its cover slides
+  with page scroll (`scroll(root)`), so it doubles as a reading-progress
+  meter.
+- `.launcher`: the assistant's fixed button, Deep Teal with a sand rim so
+  it stays visible over sand and teal alike.
 - `HeroSystem` + `TechnologyStackOrbit` (server components, no client
   JavaScript): the pinned hero. Data for the four layers lives once in
   `tech-stack/stack.ts`; `StackCard` renders a layer (key, drawing, marks
@@ -511,13 +518,18 @@ elements (chat launcher and panel).
 
 One orchestrated moment per page; no time-based entrance animations on load.
 
-- Hero: `.hs` is 400vh with a sticky stage and a named view timeline
+- Hero: `.hs` is 300vh (46% of the home page's scroll at 1440 by 900,
+  down from 52% at 400vh) with a sticky stage and a named view timeline
   (`--hs`). Ranges are in `contain` percentages and must not overlap:
   intro out 0–9%; the frame is invisible until 9%, then zooms (scale
   0.55 → 1) and fades in until 24%; heading and legend 21–28%; the orbit
   turns from 24% to the end. All scroll-linked, CSS only, behind
   `@supports (animation-timeline: view())`; other browsers and reduced
   motion get the four layers as a static grid.
+- The front card is the scene's subject: 27rem square at most (19% of the
+  frame at 1440 by 900), its title `text-h3`, its line of copy 16px. Cards
+  to the side and behind are dimmed (0.7 and 0.86) and set further back,
+  so they read as context.
 - Stack orbit: per layer, a 16% dwell then a 12% turn. Keyframes are
   generated from one pose table (front, left, back, right, with arc
   midpoints), so the four cards can't drift out of step. From `md` up the
@@ -528,8 +540,8 @@ One orchestrated moment per page; no time-based entrance animations on load.
   `transform` or `opacity`, and the front pose is the identity transform,
   so text there is rasterised sharp.
 - `reveal` and `RevealWords`: scroll-driven (`animation-timeline: view()`).
-  Unread words start at 0.45 opacity so the large statement text stays
-  above 3:1 at every scroll position.
+  Unread words start at 0.45 opacity (0.6 on sand) so the large statement
+  text stays above 3:1 at every scroll position.
 - Route changes: React `<ViewTransition>` (no config flag since Next 16.3).
 - `CursorReadout`: fine pointers only, rAF-throttled. (The cursor-following
   glow, `PointerLight`, was removed with the gradients.)

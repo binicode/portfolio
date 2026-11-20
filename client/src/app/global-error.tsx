@@ -18,7 +18,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
     <html lang="en">
       <body>
         <main className="container-page py-24">
-          <h1 className="text-h2 font-semibold">The site didn’t load.</h1>
+          <h1 className="text-h2 font-medium">The site didn’t load.</h1>
           <p className="mt-4 max-w-[34rem] text-muted-foreground">
             Something went wrong. Try again in a moment.
           </p>

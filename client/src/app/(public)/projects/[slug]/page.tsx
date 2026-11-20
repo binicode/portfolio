@@ -194,7 +194,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           <Link href={`/projects/${next.slug}`} className="group block border-y border-border py-10 lg:py-14">
             <span className="label text-muted-foreground">Next project</span>
             <span className="mt-3 flex items-end justify-between gap-6">
-              <span className="text-h2 font-medium transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1.5">
+              <span className="text-title font-medium transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1.5">
                 {next.title}
               </span>
               <ArrowUpRight

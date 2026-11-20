@@ -9,7 +9,7 @@ export default function DashboardHeader({ summary, children }: { summary: ReactN
   return (
     <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="min-w-0">
-        <h1 className="text-title font-medium">
+        <h1 className="text-h2 font-medium">
           Your reach
         </h1>
         <div className="mt-1.5 flex min-h-6 items-center text-muted-foreground">{summary}</div>

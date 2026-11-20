@@ -17,7 +17,7 @@ export default async function SaasDashboardPage() {
       <div className="container-page py-[clamp(3rem,8vw,6rem)]">
         <div className="grid gap-10 border-y border-foreground/80 py-12 lg:grid-cols-12 lg:items-end lg:gap-8 lg:py-16">
           <div className="lg:col-span-8">
-            <h1 className="text-h1 font-medium">Unlock your dashboard</h1>
+            <h1 className="text-h2 font-medium">Unlock your dashboard</h1>
             <p className="mt-5 max-w-[36rem] text-lead text-muted-foreground">
               Subscribe to see your reach. The price shows at checkout.
             </p>

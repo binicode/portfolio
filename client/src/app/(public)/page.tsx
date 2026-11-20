@@ -177,7 +177,7 @@ async function Activity() {
     <section aria-labelledby="activity-title" className="pb-section">
       <div className="container-page grid gap-8 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-4">
-          <h2 id="activity-title" className="text-h3 font-semibold">
+          <h2 id="activity-title" className="text-title font-medium">
             Recently on GitHub
           </h2>
           <a

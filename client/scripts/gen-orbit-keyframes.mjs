@@ -9,15 +9,15 @@ import { writeFileSync } from 'node:fs';
 
 const POSE = {
   F: { t: 'translate3d(0, 7cqh, 0) rotateY(0deg)', dim: 0 },
-  L: { t: 'translate3d(-31cqw, 0, -420px) rotateY(24deg)', dim: 0.55 },
-  B: { t: 'translate3d(0, -12cqh, -760px) rotateY(0deg)', dim: 0.78 },
-  R: { t: 'translate3d(31cqw, 0, -420px) rotateY(-24deg)', dim: 0.55 },
+  L: { t: 'translate3d(-33cqw, 0, -480px) rotateY(24deg)', dim: 0.7 },
+  B: { t: 'translate3d(0, -12cqh, -820px) rotateY(0deg)', dim: 0.86 },
+  R: { t: 'translate3d(33cqw, 0, -480px) rotateY(-24deg)', dim: 0.7 },
 };
 const MID = {
-  FL: { t: 'translate3d(-22cqw, 5cqh, -130px) rotateY(14deg)', dim: 0.28 },
-  LB: { t: 'translate3d(-22cqw, -7cqh, -640px) rotateY(14deg)', dim: 0.68 },
-  BR: { t: 'translate3d(22cqw, -7cqh, -640px) rotateY(-14deg)', dim: 0.68 },
-  RF: { t: 'translate3d(22cqw, 5cqh, -130px) rotateY(-14deg)', dim: 0.28 },
+  FL: { t: 'translate3d(-23cqw, 5cqh, -150px) rotateY(14deg)', dim: 0.36 },
+  LB: { t: 'translate3d(-23cqw, -7cqh, -700px) rotateY(14deg)', dim: 0.8 },
+  BR: { t: 'translate3d(23cqw, -7cqh, -700px) rotateY(-14deg)', dim: 0.8 },
+  RF: { t: 'translate3d(23cqw, 5cqh, -150px) rotateY(-14deg)', dim: 0.36 },
 };
 // The ring turns front → left → back → right; card i starts CYCLE[(4 - i) % 4].
 const CYCLE = ['F', 'L', 'B', 'R'];
