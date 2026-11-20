@@ -39,7 +39,7 @@ test.describe('general chat', () => {
 
     // A suggested question.
     const first = page.waitForResponse((r) => r.url().endsWith('/api/ai-chat/chat') && r.request().method() === 'POST');
-    await dialog.getByRole('button', { name: 'What stack do you use?' }).click();
+    await dialog.getByRole('button', { name: 'What have you shipped?' }).click();
     await expect(dialog.getByText('Thinking…')).toBeVisible();
     await media.shot('ai-assistant', 'chat-thinking-state');
     const answer1 = await readStream(await first);
@@ -96,7 +96,7 @@ test.describe('general chat', () => {
     await page.route(CHAT, (route) => route.abort('connectionrefused'));
     await page.goto('/');
     const dialog = await openAssistant(page);
-    await dialog.getByRole('button', { name: 'What certifications do you have?' }).click();
+    await dialog.getByRole('button', { name: 'How do you handle payments?' }).click();
     await expect(dialog.getByText('The assistant is offline. Try again soon.')).toBeVisible();
     await media.shot('errors', 'chat-api-unreachable', { locator: dialog });
   });
@@ -112,7 +112,7 @@ test.describe('general chat', () => {
     );
     await page.goto('/');
     const dialog = await openAssistant(page);
-    await dialog.getByRole('button', { name: 'What stack do you use?' }).click();
+    await dialog.getByRole('button', { name: 'What have you shipped?' }).click();
     const bubble = dialog.getByRole('log').locator('div.rounded-2xl').last();
     await expect(bubble).not.toHaveText('Thinking…');
     diag.note('rateLimitMessageShown', await bubble.innerText());

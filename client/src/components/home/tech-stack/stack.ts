@@ -30,7 +30,7 @@ export const STACK: readonly StackCategory[] = [
       { name: 'React', logo: 'react' },
       { name: 'TypeScript', logo: 'typescript' },
     ],
-    description: 'Server-rendered. Light on JavaScript.',
+    description: 'Server-rendered, so pages load fast.',
   },
   {
     key: 'B',

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 // Generated once at build time and served as a static PNG.
-export const alt = 'Biniyam Abera, full-stack software engineer. Software engineered to hold up.';
+export const alt = 'Biniyam Abera, freelance full-stack engineer. Your product, built to hold up.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -33,13 +33,13 @@ export default function OpengraphImage() {
           color: TEAL_TEXT,
         }}
       >
-        <div style={{ display: 'flex', fontSize: 26, color: TEAL_TEXT_MUTED, letterSpacing: 2 }}>BINIYAM ABERA · FULL-STACK ENGINEER</div>
+        <div style={{ display: 'flex', fontSize: 26, color: TEAL_TEXT_MUTED, letterSpacing: 2 }}>BINIYAM ABERA · FREELANCE FULL-STACK ENGINEER</div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', fontSize: 108, fontWeight: 500, lineHeight: 0.95, letterSpacing: -5 }}>
-            Software engineered
+            Your product,
           </div>
           <div style={{ display: 'flex', fontSize: 108, fontWeight: 500, lineHeight: 0.95, letterSpacing: -5 }}>
-            <span>to&nbsp;</span>
+            <span>built to&nbsp;</span>
             <span style={{ color: TEAL_LIT }}>hold up</span>
             <span>.</span>
           </div>

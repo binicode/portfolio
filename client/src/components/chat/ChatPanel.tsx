@@ -6,6 +6,7 @@ import { getChatHistory, getOrCreateSessionId, streamChatMessage } from '@/lib/a
 import type { ChatMessage, RetrievedSource } from '@/types/chat';
 import type { AssistantMode } from './chat-events';
 import DiscoveryFlow from './DiscoveryFlow';
+import { PLANNER_NOTE } from '@/lib/site';
 
 interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -31,7 +32,9 @@ const MODES: Array<{ id: AssistantMode; label: string }> = [
 
 // Each suggestion maps to a knowledge-base source (server/src/modules/ai-chat/
 // knowledge-base.content.ts), so a first click always gets a grounded answer.
-const SUGGESTIONS = ['What stack do you use?', 'What certifications do you have?', 'What is your background?'];
+// Each one is answered by the seeded knowledge base
+// (server/src/modules/ai-chat/knowledge-base.content.ts).
+const SUGGESTIONS = ['What have you shipped?', 'How do you handle payments?', 'What is your background?'];
 
 /**
  * Loaded on demand by ChatLauncher. Two modes: chat (per-visitor session id
@@ -210,7 +213,7 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange, seed, p
         {messages.length === 0 && (
           <div>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Ask about my projects, stack or background. Answers come from my notes, with sources.
+              Ask about my work, stack or background. Answers cite my notes.
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
               {SUGGESTIONS.map((suggestion) => (
@@ -234,7 +237,7 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange, seed, p
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium">Planning a project?</span>
                 <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
-                  Answer a few questions and get a project brief. About 2 minutes.
+                  {PLANNER_NOTE}
                 </span>
               </span>
               <ArrowRight

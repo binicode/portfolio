@@ -6,7 +6,7 @@ import ChatLauncher from '@/components/chat/ChatLauncher';
 
 /**
  * Unmatched URLs anywhere in the app. Mounts the assistant like the public
- * layout, so the header's and footer's "Start a project" work here too.
+ * layout, so the header's and footer's "Plan your project" work here too.
  */
 export default function RootNotFound() {
   return (

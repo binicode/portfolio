@@ -3,6 +3,7 @@ import ButtonLink from '@/components/ui/ButtonLink';
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import { buttonClasses } from '@/components/ui/button-styles';
 import DashboardPreview from '@/components/saas/DashboardPreview';
+import { PLANNER_NOTE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Creator Dashboard',
@@ -35,11 +36,11 @@ export default function SaasPage() {
             <h1 id="saas-title" className="lg:col-span-8">
               <span className="label block text-signal">Creator Dashboard</span>
               <span className="mt-5 block text-h1 font-medium">
-                Your reach, <em className="emph">in one place</em>.
+                Stars, subscribers, mentions. <em className="emph">One dashboard.</em>
               </span>
             </h1>
             <div className="lg:col-span-4 lg:pb-1">
-              <p className="text-lead text-muted-foreground">GitHub, YouTube and Hacker News. Real accounts, real billing.</p>
+              <p className="text-lead text-muted-foreground">GitHub, YouTube and Hacker News, side by side.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <ButtonLink href="/saas/signup">Create an account</ButtonLink>
                 <ButtonLink href="/saas/login" variant="secondary">
@@ -47,7 +48,7 @@ export default function SaasPage() {
                 </ButtonLink>
               </div>
               <p className="mt-4 text-body-sm text-muted-foreground">
-                Signing up is free. The dashboard needs a subscription; the price shows at checkout.
+                Free to sign up. The subscription price shows at checkout.
               </p>
             </div>
           </div>
@@ -77,7 +78,7 @@ export default function SaasPage() {
         <div className="container-page grid gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
             <h2 id="engineering-title" className="text-h2 font-medium">
-              Built like a real product
+              Built the way yours should be.
             </h2>
           </div>
           <dl className="border-t border-border lg:col-span-7 lg:col-start-6">
@@ -103,8 +104,8 @@ export default function SaasPage() {
               </ButtonLink>
             </div>
             <div className="border-t border-border py-12 lg:border-l lg:border-t-0 lg:py-16 lg:pl-12">
-              <h2 className="text-h2 font-medium">Want a product like this?</h2>
-              <p className="mt-3 text-muted-foreground">Plan yours in about 2 minutes and get a project brief.</p>
+              <h2 className="text-h2 font-medium">Want a SaaS like this?</h2>
+              <p className="mt-3 text-muted-foreground">{PLANNER_NOTE}</p>
               <OpenChatButton mode="discovery" build="saas" className={buttonClasses('accent', 'md', 'mt-8')}>
                 Plan a similar product
               </OpenChatButton>

@@ -5,9 +5,9 @@
 
 export const site = {
   name: 'Biniyam Abera',
-  role: 'Full-stack software engineer',
+  role: 'Freelance full-stack engineer',
   description:
-    'Biniyam Abera is a full-stack software engineer with a background in civil engineering, building web applications and SaaS products with Next.js, TypeScript, Node.js, Express and MongoDB.',
+    'Freelance full-stack engineer building SaaS, AI features and online stores with Next.js, Node.js and MongoDB. Try three live products, then plan yours.',
   githubUsername: 'binicode',
 } as const;
 
@@ -24,3 +24,6 @@ export const primaryNav = [
 ] as const;
 
 export const contactHref = socials[0].href;
+
+/** The one line under every call to action that opens the planner. */
+export const PLANNER_NOTE = 'Free. 2 minutes. You keep the brief.';

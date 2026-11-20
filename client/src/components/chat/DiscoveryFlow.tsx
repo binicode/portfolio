@@ -24,7 +24,7 @@ import {
   type OtherText,
   type Question,
 } from '@/lib/discovery/flow';
-import { contactHref } from '@/lib/site';
+import { contactHref, PLANNER_NOTE } from '@/lib/site';
 
 const STORAGE_KEY = 'assistant-discovery-v1';
 /** No first word from the AI within this long: the built-in text shows instead. */
@@ -285,8 +285,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
       <div ref={scrollRef} tabIndex={-1} className="relative flex-1 overflow-y-auto overscroll-contain px-5 py-5 outline-none">
         <div role="log" aria-live="polite" aria-busy={streaming?.kind === 'insight'} className="space-y-3">
           <Bubble>
-            A few quick questions, about 2 minutes. You get a project brief to keep and send. Tap any answer to change
-            it.
+            {PLANNER_NOTE} Tap any answer to change it.
           </Bubble>
 
           {answered.map((item) => (

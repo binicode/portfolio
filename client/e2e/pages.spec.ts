@@ -6,10 +6,10 @@ import { attachFullPage, collectPageErrors } from './support';
 // Project data comes from e2e/fixtures/projects.json through the mock API;
 // the shop has no store behind it in tests, so it shows its empty state.
 const pages = [
-  { path: '/', h1: 'Software engineered to hold up.' },
+  { path: '/', h1: 'Your product, built to hold up.' },
   { path: '/projects', h1: 'Work' },
   { path: '/projects/fixture-storefront', h1: 'Fixture Storefront' },
-  { path: '/saas', h1: /Your reach, in one place\./ },
+  { path: '/saas', h1: /Stars, subscribers, mentions\. One dashboard\./ },
   { path: '/saas/signup', h1: 'Create an account' },
   { path: '/shop', h1: 'Shop' },
 ];

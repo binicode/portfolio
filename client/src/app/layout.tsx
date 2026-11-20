@@ -29,8 +29,8 @@ const mono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(clientEnv.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: `${site.name} — ${site.role}`,
-    template: `%s — ${site.name}`,
+    default: `${site.name} | ${site.role}`,
+    template: `%s | ${site.name}`,
   },
   description: site.description,
   applicationName: site.name,
@@ -42,12 +42,12 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: site.name,
     locale: 'en_US',
-    title: `${site.name} — ${site.role}`,
+    title: `${site.name} | ${site.role}`,
     description: site.description,
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${site.name} — ${site.role}`,
+    title: `${site.name} | ${site.role}`,
     description: site.description,
   },
 };

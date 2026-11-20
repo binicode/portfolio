@@ -29,7 +29,7 @@ function JsonLd() {
       '@type': 'Person',
       '@id': `${siteUrl}/#person`,
       name: site.name,
-      jobTitle: 'Full-Stack Software Engineer',
+      jobTitle: site.role,
       description: site.description,
       url: siteUrl,
       knowsAbout: ['Next.js', 'TypeScript', 'Node.js', 'Express', 'MongoDB', 'REST APIs', 'Civil engineering'],
@@ -60,7 +60,7 @@ function SelectedWork({ projects }: { projects: Project[] }) {
             Selected work
           </h2>
           <div className="lg:col-span-5">
-            <p className="max-w-[30rem] text-muted-foreground">Built end to end. Shown as the systems they are.</p>
+            <p className="max-w-[30rem] text-muted-foreground">Shipped products, each with a case study.</p>
             <Link href="/projects" className="link mt-4 inline-block text-body-sm font-medium">
               {projects.length > FEATURED_COUNT ? `See all ${projects.length} projects` : 'See all work'}
             </Link>
@@ -82,9 +82,9 @@ function Systems({ id }: { id: string }) {
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-5">
             <h2 id="systems-title" className="text-h2 font-medium">
-              Working systems, not mockups
+              Try before you hire.
             </h2>
-            <p className="mt-5 max-w-[28rem] text-muted-foreground">Three live products. Try them here.</p>
+            <p className="mt-5 max-w-[28rem] text-muted-foreground">Three live products, built end to end.</p>
           </div>
           <DashboardPoster className="reveal lg:col-span-7" />
         </div>
@@ -114,10 +114,9 @@ function Systems({ id }: { id: string }) {
 }
 
 function About() {
-  // Big numbers with small mono labels, in the reference's hierarchy. All three are plain facts.
-  const stats = [
+  // Plain facts, no figures: the statement is the section's one peak.
+  const facts = [
     {
-      value: '3',
       label: 'Live products',
       detail: (
         <>
@@ -130,39 +129,28 @@ function About() {
           </Link>
           ,{' '}
           <Link href="/shop" className="link">
-            Shopify storefront
+            Shopify store
           </Link>
         </>
       ),
     },
-    {
-      value: '2',
-      label: 'Certificates',
-      detail: 'Meta Front-End, IBM JavaScript Back-End',
-    },
-    {
-      value: '1',
-      label: 'Engineer, end to end',
-      detail: 'Interface, API, database',
-    },
+    { label: 'Certificates', detail: 'Meta Front-End, IBM Back-End' },
+    { label: 'One engineer', detail: 'Interface, API, database. No handoffs.' },
   ];
 
   return (
     <section id="about" aria-labelledby="about-title" className="py-section">
       <div className="container-page">
-        <h2 id="about-title" className="label text-signal">
-          From structures to software
+        <p className="label text-signal">About</p>
+        <h2 id="about-title" className="mt-5 max-w-[22ch] text-h2 font-medium">
+          <RevealWords text="Trained to build things that must not fail." emphasis="must not fail" />
         </h2>
-        <p className="mt-6 max-w-[32ch] text-statement font-medium">
-          <RevealWords text="A civil engineer’s discipline, applied to software." emphasis="applied to software" />
-        </p>
 
-        <dl className="mt-16 grid gap-10 sm:grid-cols-3 sm:gap-6 lg:mt-24">
-          {stats.map((stat) => (
-            <div key={stat.label} className="border-l border-border pl-5">
-              <dt className="label text-muted-foreground">{stat.label}</dt>
-              <dd className="mt-5 text-stat font-normal tabular-nums">{stat.value}</dd>
-              <dd className="mt-5 max-w-[22rem] text-body-sm leading-relaxed text-muted-foreground">{stat.detail}</dd>
+        <dl className="mt-14 grid gap-8 sm:grid-cols-3 sm:gap-6 lg:mt-20">
+          {facts.map((fact) => (
+            <div key={fact.label} className="border-l border-border pl-5">
+              <dt className="label text-muted-foreground">{fact.label}</dt>
+              <dd className="mt-3 max-w-[22rem] text-body-lg">{fact.detail}</dd>
             </div>
           ))}
         </dl>
@@ -170,7 +158,7 @@ function About() {
         <div className="mt-16 grid gap-10 border-t border-border pt-12 lg:mt-24 lg:grid-cols-12 lg:gap-8">
           <p className="label text-muted-foreground lg:col-span-4">Background</p>
           <div className="space-y-4 lg:col-span-7 lg:col-start-6">
-            <p className="text-lead">Full-stack engineer, trained in civil engineering. I build web products that hold up.</p>
+            <p className="text-lead">Freelance, based in Addis Ababa (UTC+3), working with clients worldwide.</p>
             <p className="text-muted-foreground">Next.js, TypeScript, Node.js, Express, MongoDB.</p>
           </div>
         </div>

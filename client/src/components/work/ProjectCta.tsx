@@ -1,6 +1,7 @@
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import { buttonClasses } from '@/components/ui/button-styles';
 import { buildFromStack } from '@/lib/discovery/flow';
+import { PLANNER_NOTE } from '@/lib/site';
 
 interface ProjectCtaProps {
   title: string;
@@ -17,7 +18,7 @@ export default function ProjectCta({ title, techStack, className = '' }: Project
   return (
     <div className={className}>
       <p className="font-medium">Need something like this?</p>
-      <p className="mt-1 text-body-sm text-muted-foreground">Plan yours in about 2 minutes, or ask how this one works.</p>
+      <p className="mt-1 text-body-sm text-muted-foreground">{PLANNER_NOTE}</p>
       <div className="mt-4 flex flex-wrap gap-2 lg:flex-col">
         <OpenChatButton mode="discovery" build={buildFromStack(techStack)} className={buttonClasses('accent', 'sm')}>
           Plan a similar project

@@ -51,7 +51,7 @@ export default async function ShopPage() {
       <header className="grid gap-4 lg:grid-cols-12 lg:items-end lg:gap-8">
         <h1 className="text-h1 font-medium lg:col-span-7">Shop</h1>
         <p className="max-w-[30rem] text-lead text-muted-foreground lg:col-span-5">
-          Live from Shopify. Checkout by Shopify.
+          A demo storefront. Live Shopify catalogue and checkout.
         </p>
       </header>
 
@@ -91,7 +91,7 @@ export default async function ShopPage() {
           <h2 id="store-cta-title" className="text-h3 font-medium">
             Want a store like this?
           </h2>
-          <p className="mt-2 text-muted-foreground">Headless Shopify, fast pages, Shopify’s own checkout.</p>
+          <p className="mt-2 text-muted-foreground">Your design, Shopify’s catalogue and checkout.</p>
         </div>
         <OpenChatButton mode="discovery" build="ecommerce" className={buttonClasses('accent')}>
           Plan a similar store

@@ -1,4 +1,5 @@
 import ButtonLink from '@/components/ui/ButtonLink';
+import { PLANNER_NOTE } from '@/lib/site';
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import { buttonClasses } from '@/components/ui/button-styles';
 import TechnologyStackOrbit, { StackLegend } from './tech-stack/TechnologyStackOrbit';
@@ -34,10 +35,10 @@ export default function HeroSystem() {
 
         <div className="hs-intro container-page">
           <h1 id="hero-title" className="mx-auto max-w-[16ch] text-h1 font-medium">
-            Software engineered to <em className="emph">hold up</em>.
+            Your product, built to <em className="emph">hold up</em>.
           </h1>
           <p className="mx-auto mt-6 max-w-[30rem] text-muted-foreground sm:text-lead">
-            I design and build web apps and SaaS products, from interface to database.
+            SaaS, AI features and online stores. Three run live on this site.
           </p>
           {/* For a prospective client: start the project, or see proof first. */}
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -48,11 +49,11 @@ export default function HeroSystem() {
               See the work
             </ButtonLink>
           </div>
-          <p className="mt-4 text-body-sm text-muted-foreground">About 2 minutes. You get a project brief to keep.</p>
+          <p className="mt-4 text-body-sm text-muted-foreground">{PLANNER_NOTE}</p>
         </div>
 
         <div className="hs-head">
-          <h2 className="text-h3 font-medium sm:text-title">Every layer carries the next.</h2>
+          <h2 className="text-h3 font-medium sm:text-title">One engineer. The whole stack.</h2>
         </div>
 
         <div className="hs-frame">

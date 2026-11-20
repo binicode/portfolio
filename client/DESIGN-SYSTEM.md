@@ -193,9 +193,9 @@ mouse: iOS Safari zooms the page into any focused field under 16px.
 Fewer words, each doing a job. The interface explains itself; text names
 things and gives the one fact the interface can't show.
 
-- Headlines: a claim in five words or fewer ("Software engineered to hold
-  up.", "Your reach, in one place."). One supporting line at most, under
-  ten words.
+- Headlines: a claim in about six words or fewer ("Your product, built to
+  hold up.", "Stars, subscribers, mentions. One dashboard.", "Try before you
+  hire."). One supporting line at most, under ten words.
 - Don't restate what the layout already says: no paragraph under a heading
   that repeats it, no subtitle that lists what the cards show.
 - Lists and steps: a title plus a fragment ("Subscribe" / "Stripe
@@ -222,7 +222,7 @@ The site's job is to turn a visitor with an idea into a client. Every
 call to action states what happens on click, and its colour says what kind
 of action it is.
 
-- **Accent (terracotta): work with me.** Plan your project, Start a project, Plan a
+- **Accent (terracotta): work with me.** Plan your project, Plan a
   similar project/product/store, and the assistant launcher. All open the
   assistant's planner (`OpenChatButton mode="discovery"`), which ends in a
   brief and "Copy brief and message me".
@@ -243,7 +243,9 @@ Wording:
   checkout", "Copy brief and message me". No "Learn more", "Submit", "Click
   here".
 - A short line under a conversion CTA says what happens and how long it
-  takes ("About 2 minutes. You get a project brief to keep."). Payments say
+  takes. For the planner it is always `PLANNER_NOTE` in `lib/site.ts` ("Free.
+  2 minutes. You keep the brief."), word for word, wherever the planner
+  opens. Payments say
   where checkout happens ("Secure checkout on Stripe"); never invent a price.
 - Links that leave the site show ArrowUpRight and say "(opens in a new tab)"
   to screen readers. Buttons that open the assistant carry
@@ -253,7 +255,7 @@ Where they sit (one contextual CTA where intent peaks, not on every block):
 
 | Place | Call to action |
 | --- | --- |
-| Header (every page) | Start a project (`.btn-bracket`); mobile menu adds Message me on LinkedIn |
+| Header (every page) | Plan your project (`.btn-bracket`); mobile menu adds Message me on LinkedIn |
 | Home hero | Plan your project + See the work |
 | Case study | Need something like this? Plan a similar project (type preselected from its stack) + Ask how it was built (question placed in the chat box). Sticky beside the write-up on desktop, after it on phones (`ProjectCta`) |
 | SaaS page | Create an account (try it) + Plan a similar product (build one) |
@@ -274,7 +276,7 @@ visitor). The copy in "Copy brief and message me" is synchronous
   mono uppercase text; variants accent, primary, secondary, ghost, danger
   and sizes sm, md, lg (see "Calls to action").
 - `.btn-bracket`: the outlined terracotta button with corner brackets, used only
-  for the header's Start a project.
+  for the header's Plan your project.
 - `.stripe-meter`: the striped header bar; its cover slides with page
   scroll (`scroll(root)`), so it doubles as a reading-progress meter.
 - `HeroSystem` + `TechnologyStackOrbit` (server components, no client

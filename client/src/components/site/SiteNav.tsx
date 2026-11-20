@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
-import { primaryNav, contactHref } from '@/lib/site';
+import { primaryNav, contactHref, PLANNER_NOTE } from '@/lib/site';
 import { requestOpenChat } from '@/components/chat/chat-events';
 import { buttonClasses } from '@/components/ui/button-styles';
 
@@ -91,7 +91,7 @@ export default function SiteNav() {
               }}
               className={buttonClasses('accent', 'lg', 'w-full')}
             >
-              Start a project
+              Plan your project
             </button>
             <a
               href={contactHref}
@@ -105,7 +105,7 @@ export default function SiteNav() {
               <span className="sr-only">(opens in a new tab)</span>
             </a>
           </div>
-          <p className="mt-3 text-body-sm text-muted-foreground">Starting takes about 2 minutes and ends with a project brief.</p>
+          <p className="mt-3 text-body-sm text-muted-foreground">{PLANNER_NOTE}</p>
         </div>
       </div>
     </>

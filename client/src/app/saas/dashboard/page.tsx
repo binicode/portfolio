@@ -38,7 +38,7 @@ export default async function SaasDashboardPage() {
   // skeleton) and Settings doesn't inherit this page's skeleton.
   return (
     <div className="container-page py-6 sm:py-8 lg:py-10">
-      <Suspense fallback={<DashboardSkeleton name={displayName(me)} />}>
+      <Suspense fallback={<DashboardSkeleton />}>
         <LiveDashboard session={me} />
       </Suspense>
     </div>
@@ -51,7 +51,7 @@ async function LiveDashboard({ session }: { session: SaasMeResponse }) {
 
   return (
     <>
-      <DashboardHeader name={name} summary={sourceSummary(stats.sources).text}>
+      <DashboardHeader summary={sourceSummary(stats.sources).text}>
         <RefreshControl fetchedAt={stats.fetchedAt} />
       </DashboardHeader>
       <div className="mt-6 lg:mt-8">

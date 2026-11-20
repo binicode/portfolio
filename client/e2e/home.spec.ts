@@ -5,7 +5,7 @@ test('home page renders its one h1', async ({ page }) => {
   await page.goto('/');
   const h1 = page.getByRole('heading', { level: 1 });
   await expect(h1).toHaveCount(1);
-  await expect(h1).toHaveText('Software engineered to hold up.');
+  await expect(h1).toHaveText('Your product, built to hold up.');
 });
 
 // The hero is a pinned, scroll-driven scene only where scroll-driven
@@ -30,7 +30,7 @@ test.describe('hero buttons take clicks', () => {
   });
 
   test('"Plan your project" opens the assistant', async ({ page, isMobile }) => {
-    const hero = page.getByRole('region', { name: 'Software engineered to hold up.' });
+    const hero = page.getByRole('region', { name: 'Your product, built to hold up.' });
     const plan = hero.getByRole('button', { name: 'Plan your project' });
 
     await expectHitTarget(plan);
@@ -42,7 +42,7 @@ test.describe('hero buttons take clicks', () => {
   });
 
   test('"See the work" scrolls to the work section', async ({ page, isMobile }) => {
-    const hero = page.getByRole('region', { name: 'Software engineered to hold up.' });
+    const hero = page.getByRole('region', { name: 'Your product, built to hold up.' });
     const seeWork = hero.getByRole('link', { name: 'See the work' });
 
     await expectHitTarget(seeWork);
