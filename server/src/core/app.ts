@@ -8,6 +8,7 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 import { requestLog, requireDatabase, securityHeaders } from './middleware/http-hygiene.js';
 import { isDatabaseReady } from './config/db.js';
 import aiChatRouter from '../modules/ai-chat/ai-chat.routes.js';
+import inquiriesRouter from '../modules/inquiries/inquiries.routes.js';
 import adminRouter from '../modules/admin/admin.routes.js';
 import projectsPublicRouter from '../modules/admin/projects-public.routes.js';
 import saasAuthRouter from '../modules/saas/saas-auth.routes.js';
@@ -69,7 +70,9 @@ export function createApp(): Application {
   // Everything below the assistant needs MongoDB (the assistant has its own
   // fallbacks without it), except signing in and out: the admin account is
   // configured in the environment, and logging out only clears a cookie.
+  app.use('/api/inquiries', database, inquiriesRouter);
   app.use('/api/admin/projects', database);
+  app.use('/api/admin/inquiries', database);
   app.use('/api/admin', adminRouter);
   app.use('/api/projects', database, projectsPublicRouter);
   app.use('/api/saas/auth', (req, res, next) => (req.path === '/logout' ? next() : database(req, res, next)), saasAuthRouter);

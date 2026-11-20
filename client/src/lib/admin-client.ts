@@ -1,5 +1,6 @@
 import { apiClient } from './api-client';
 import type { Project } from '@/types/project';
+import type { Inquiry } from '@/types/inquiry';
 
 interface AdminLoginResult {
   success: true;
@@ -36,4 +37,12 @@ export function updateProject(id: string, input: UpdateProjectInput): Promise<Pr
 
 export function deleteProject(id: string): Promise<void> {
   return apiClient.delete<void>(`/admin/projects/${id}`);
+}
+
+export function setInquiryRead(id: string, read: boolean): Promise<Inquiry> {
+  return apiClient.patch<Inquiry>(`/admin/inquiries/${id}`, { read });
+}
+
+export function deleteInquiry(id: string): Promise<void> {
+  return apiClient.delete<void>(`/admin/inquiries/${id}`);
 }
