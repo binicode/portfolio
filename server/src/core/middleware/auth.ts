@@ -14,6 +14,8 @@ export interface AuthTokenPayload {
 // Augment Express's Request type so `req.user` is available and typed
 // on every request, in every module, without re-declaring it per file.
 declare global {
+  // Augmenting Express's own namespace is the only way to type req.user.
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: AuthTokenPayload;

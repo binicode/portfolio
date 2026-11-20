@@ -5,6 +5,8 @@ import { z } from 'zod';
  * no SDK or config imports, so it can be tested on its own.
  */
 
+// Control characters are what this strips, on purpose.
+// eslint-disable-next-line no-control-regex
 const clean = (value: string) => value.replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
 
 export const discoveryBodySchema = z.object({
