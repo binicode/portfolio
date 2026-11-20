@@ -53,6 +53,24 @@ export const authLimiter = rateLimit({
 });
 
 /**
+ * Starting a Stripe Checkout Session creates objects in Stripe: a person
+ * needs a handful of tries at most. Keyed by account, since the route is
+ * signed-in only.
+ */
+export const checkoutLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: accountOrIp,
+  message: {
+    error: {
+      message: 'Too many checkout attempts. Please try again in 15 minutes.',
+    },
+  },
+});
+
+/**
  * Moderate limiter for the AI chat widget — protects against runaway
  * API costs (every request here triggers a paid LLM call), while still
  * allowing a real visitor to have a normal conversation.

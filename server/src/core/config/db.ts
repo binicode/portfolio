@@ -3,7 +3,15 @@ import mongoose from 'mongoose';
 import { env } from './env.js';
 
 // Force Node.js to use Google's Public DNS to bypass local querySrv blocks
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+// Optional resolvers for the Atlas SRV lookup (DNS_SERVERS, comma-separated).
+// Some local networks can't resolve SRV records; production uses the host's
+// own resolver unless this is set. Development keeps the public resolvers
+// it always used, so local setups behave as before.
+const dnsServers = (process.env.DNS_SERVERS ?? (env.NODE_ENV === 'production' ? '' : '8.8.8.8,8.8.4.4'))
+  .split(',')
+  .map((server) => server.trim())
+  .filter(Boolean);
+if (dnsServers.length > 0) dns.setServers(dnsServers);
 
 let isConnected = false;
 let listenersAttached = false;
@@ -96,13 +104,5 @@ export async function disconnectDB(): Promise<void> {
   console.log('MongoDB: disconnected gracefully');
 }
 
-// Graceful shutdown on process termination signals
-process.on('SIGINT', async () => {
-  await disconnectDB();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  await disconnectDB();
-  process.exit(0);
-});
+// Shutdown on SIGTERM/SIGINT is handled in server.ts: the HTTP server
+// stops first, then the database disconnects.
