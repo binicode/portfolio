@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import StatusMessage from '@/components/site/StatusMessage';
 import ButtonLink from '@/components/ui/ButtonLink';
+
+export const metadata: Metadata = {
+  title: 'Product not found',
+  robots: { index: false },
+};
 
 export default function ShopNotFound() {
   return (
