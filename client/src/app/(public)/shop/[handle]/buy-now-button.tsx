@@ -22,7 +22,9 @@ export default function BuyNowButton({ variantId, available }: BuyNowButtonProps
       const checkoutUrl = await createCartCheckoutUrl(variantId);
       window.location.href = checkoutUrl;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      // Shopify's own message (or a timeout's) means nothing to a shopper.
+      console.error('Buy now: checkout did not open', err);
+      setError('Checkout didn’t open. Try again in a moment.');
       setIsLoading(false);
     }
   }
