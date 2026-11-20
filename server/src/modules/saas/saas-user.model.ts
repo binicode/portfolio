@@ -21,6 +21,8 @@ const saasUserSchema = new Schema<SaasUserDocument>(
       required: true,
       default: 'none',
     },
+    // Later Stripe events win; an older one arriving late is skipped.
+    subscriptionEventAt: { type: Date },
     githubUsername: { type: String, trim: true },
     youtubeChannelId: { type: String, trim: true },
     brandSearchQuery: { type: String, trim: true },

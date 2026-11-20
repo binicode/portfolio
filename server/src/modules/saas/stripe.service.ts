@@ -1,6 +1,16 @@
 import Stripe from 'stripe';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
+import { verifyStripeEvent } from './stripe-events.js';
+
+// What a visitor sees when Stripe fails. Stripe's own message (which can
+// name prices, accounts or key fragments) is logged here, never returned.
+const BILLING_UNAVAILABLE = 'Billing is unavailable right now. Try again in a minute.';
+
+function billingError(context: string, error: unknown): AppError {
+  console.error(`Stripe: ${context} failed`, error instanceof Error ? error.message : error);
+  return new AppError(BILLING_UNAVAILABLE, 502);
+}
 
 // No apiVersion pinned deliberately — see file-level note in chat.
 // Omitting it means the SDK uses this Stripe account's own current
@@ -18,10 +28,7 @@ export async function createStripeCustomer(email: string): Promise<string> {
     const customer = await stripe.customers.create({ email });
     return customer.id;
   } catch (error) {
-    throw new AppError(
-      error instanceof Error ? `Stripe error: ${error.message}` : 'Failed to create Stripe customer',
-      502,
-    );
+    throw billingError('creating a customer', error);
   }
 }
 
@@ -50,16 +57,13 @@ export async function createSubscriptionCheckoutSession(
     });
 
     if (!session.url) {
-      throw new AppError('Stripe did not return a checkout URL', 502);
+      throw billingError('creating a Checkout Session', 'no checkout URL returned');
     }
 
     return session.url;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    throw new AppError(
-      error instanceof Error ? `Stripe error: ${error.message}` : 'Failed to create checkout session',
-      502,
-    );
+    throw billingError('creating a Checkout Session', error);
   }
 }
 
@@ -78,13 +82,8 @@ export function verifyWebhookSignature(rawBody: Buffer, signature: string): Stri
   }
 
   try {
-    return stripe.webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
-  } catch (error) {
-    throw new AppError(
-      error instanceof Error
-        ? `Webhook signature verification failed: ${error.message}`
-        : 'Invalid webhook signature',
-      400,
-    );
+    return verifyStripeEvent(stripe.webhooks, rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
+  } catch {
+    throw new AppError('Invalid webhook signature', 400);
   }
 }
