@@ -1,12 +1,18 @@
+import type { Metadata } from 'next';
 import SiteHeader from '@/components/site/SiteHeader';
 import SiteFooter from '@/components/site/SiteFooter';
 import StatusMessage from '@/components/site/StatusMessage';
 import ButtonLink from '@/components/ui/ButtonLink';
 import ChatLauncher from '@/components/chat/ChatLauncher';
 
+export const metadata: Metadata = {
+  title: 'Page not found',
+  robots: { index: false },
+};
+
 /**
  * Unmatched URLs anywhere in the app. Mounts the assistant like the public
- * layout, so the header's and footer's "Start a project" work here too.
+ * layout, so the header's and footer's "Plan your project" work here too.
  */
 export default function RootNotFound() {
   return (

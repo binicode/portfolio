@@ -81,7 +81,7 @@ function Featured({ project, heading }: { project: Project; heading: HeadingLeve
           <TitleLink
             project={project}
             as={heading}
-            className="mt-4 text-h2 font-medium"
+            className="mt-4 text-title font-medium"
           />
         </div>
         <div className="lg:col-span-5">

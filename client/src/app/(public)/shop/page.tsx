@@ -51,7 +51,7 @@ export default async function ShopPage() {
       <header className="grid gap-4 lg:grid-cols-12 lg:items-end lg:gap-8">
         <h1 className="text-h1 font-medium lg:col-span-7">Shop</h1>
         <p className="max-w-[30rem] text-lead text-muted-foreground lg:col-span-5">
-          Live from Shopify. Checkout by Shopify.
+          A demo storefront. Live Shopify catalogue and checkout.
         </p>
       </header>
 
@@ -73,9 +73,10 @@ export default async function ShopPage() {
           <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
             {products.map((product, index) => (
               <li key={product.id}>
-                {/* Only the first photo is an LCP candidate; more high-priority
-                    images would compete for bandwidth. */}
-                <ProductCard product={product} priority={index === 0} />
+                {/* The first row's photos load first: on phones that is two, and
+                    either can be the largest paint (Lighthouse measured the
+                    second, a wider photo, as the LCP while it loaded lazily). */}
+                <ProductCard product={product} priority={index < 2} />
               </li>
             ))}
           </ul>
@@ -88,10 +89,10 @@ export default async function ShopPage() {
         className="mt-16 flex flex-col gap-6 border-y border-border py-10 lg:mt-24 lg:flex-row lg:items-center lg:justify-between lg:py-12"
       >
         <div>
-          <h2 id="store-cta-title" className="text-h3 font-medium">
+          <h2 id="store-cta-title" className="text-title font-medium">
             Want a store like this?
           </h2>
-          <p className="mt-2 text-muted-foreground">Headless Shopify, fast pages, Shopify’s own checkout.</p>
+          <p className="mt-2 text-muted-foreground">Your design, Shopify’s catalogue and checkout.</p>
         </div>
         <OpenChatButton mode="discovery" build="ecommerce" className={buttonClasses('accent')}>
           Plan a similar store

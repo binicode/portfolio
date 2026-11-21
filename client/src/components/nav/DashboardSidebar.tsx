@@ -50,7 +50,7 @@ export default function DashboardSidebar({ session }: { session: SaasMeResponse 
     <aside className="theme-deep sticky top-0 hidden h-dvh flex-col overflow-y-auto border-r border-border px-3 py-5 lg:flex">
       <div className="flex items-center justify-between gap-2 px-3">
         <Link href="/saas/dashboard" className="flex min-w-0 items-center gap-2.5 text-body-sm font-semibold tracking-tight">
-          <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-md bg-accent text-accent-foreground">
+          <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-md bg-signal text-signal-foreground">
             <ChartNoAxesColumn className="size-4" strokeWidth={2.25} />
           </span>
           <span className="truncate">Creator Dashboard</span>
@@ -105,7 +105,7 @@ export default function DashboardSidebar({ session }: { session: SaasMeResponse 
       <div className="mt-auto flex items-center gap-3 border-t border-border px-3 pt-4">
         <span
           aria-hidden="true"
-          className="grid size-9 shrink-0 place-items-center rounded-full border border-accent/30 bg-accent/15 text-xs font-semibold text-accent-bright"
+          className="grid size-9 shrink-0 place-items-center rounded-full border border-signal/30 bg-signal/15 text-xs font-semibold text-signal"
         >
           {initials(session.email)}
         </span>

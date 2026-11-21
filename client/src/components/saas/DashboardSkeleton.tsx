@@ -11,12 +11,12 @@ function Card({ className = '', children }: { className?: string; children: Reac
  * DashboardBody's three bands with the same container queries (stat rail;
  * the two features; repositories beside the account and activity) and the
  * cards' rendered heights with sample data, so the swap to real numbers
- * doesn't jump. The greeting is real: it needs only the session.
+ * doesn't jump. The title is real: it needs no data.
  */
-export default function DashboardSkeleton({ name }: { name: string }) {
+export default function DashboardSkeleton() {
   return (
     <div aria-busy="true">
-      <DashboardHeader name={name} summary={<Skeleton className="h-4 w-72 max-w-full" />}>
+      <DashboardHeader summary={<Skeleton className="h-4 w-72 max-w-full" />}>
         <Skeleton className="h-9 w-56" />
       </DashboardHeader>
       <p role="status" className="sr-only">

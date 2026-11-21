@@ -24,7 +24,7 @@ import {
   type OtherText,
   type Question,
 } from '@/lib/discovery/flow';
-import { contactHref } from '@/lib/site';
+import { contactHref, PLANNER_NOTE } from '@/lib/site';
 
 const STORAGE_KEY = 'assistant-discovery-v1';
 /** No first word from the AI within this long: the built-in text shows instead. */
@@ -285,8 +285,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
       <div ref={scrollRef} tabIndex={-1} className="relative flex-1 overflow-y-auto overscroll-contain px-5 py-5 outline-none">
         <div role="log" aria-live="polite" aria-busy={streaming?.kind === 'insight'} className="space-y-3">
           <Bubble>
-            A few quick questions, about 2 minutes. You get a project brief to keep and send. Tap any answer to change
-            it.
+            {PLANNER_NOTE} Tap any answer to change it.
           </Bubble>
 
           {answered.map((item) => (
@@ -301,7 +300,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
                   <span className="sr-only">You answered: </span>
                   <span>{describe(item, answers[item.id], answers, other).join(', ')}</span>
                   <span className="sr-only">. Change this answer</span>
-                  <Pencil aria-hidden="true" className="mt-1 h-3 w-3 shrink-0 opacity-50 transition-opacity group-hover:opacity-90" strokeWidth={2} />
+                  <Pencil aria-hidden="true" className="mt-1 h-3 w-3 shrink-0 text-primary-foreground/60 transition-colors group-hover:text-primary-foreground" strokeWidth={2} />
                 </button>
               </div>
               {insights[item.id] && <Insight>{insights[item.id]}</Insight>}
@@ -419,7 +418,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
         <div className="min-w-0 flex-1">
           <div aria-hidden="true" className="h-1 overflow-hidden rounded-full bg-foreground/10">
             <div
-              className="h-full origin-left rounded-full bg-accent transition-transform duration-300 ease-out"
+              className="h-full origin-left rounded-full bg-signal transition-transform duration-300 ease-out"
               style={{ transform: `scaleX(${pct})` }}
             />
           </div>
@@ -472,7 +471,7 @@ function Bubble({ id, children }: { id?: string; children: ReactNode }) {
 function Insight({ children }: { children: ReactNode }) {
   return (
     <div className="flex justify-start">
-      <p className="max-w-[85%] border-l-2 border-accent py-0.5 pl-3 text-sm leading-relaxed text-foreground">
+      <p className="max-w-[85%] border-l-2 border-signal py-0.5 pl-3 text-sm leading-relaxed text-foreground">
         <span className="sr-only">Recommendation: </span>
         {children}
       </p>
@@ -532,7 +531,7 @@ function QuestionCard({ question, answers, draft, otherDraft, onToggle, onPick, 
               data-autofocus={option.id === focusId ? true : undefined}
               onClick={() => choose(option.id)}
               className={`flex min-h-11 items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-sm leading-snug transition-colors disabled:opacity-40 ${
-                on ? 'border-accent bg-accent/10' : 'border-border bg-card hover:border-foreground/40'
+                on ? 'border-signal bg-signal/10' : 'border-border bg-card hover:border-foreground/40'
               }`}
             >
               {question.multiple && <Tick on={on} />}
@@ -601,7 +600,7 @@ function Tick({ on }: { on: boolean }) {
     <span
       aria-hidden="true"
       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors ${
-        on ? 'border-accent bg-accent text-accent-foreground' : 'border-input'
+        on ? 'border-signal bg-signal text-signal-foreground' : 'border-input'
       }`}
     >
       {on && <Check className="h-3 w-3" strokeWidth={3} />}
@@ -617,7 +616,7 @@ function Chip({ on, disabled, onClick, children }: { on: boolean; disabled?: boo
       disabled={disabled}
       onClick={onClick}
       className={`inline-flex h-10 items-center rounded-lg border px-3.5 text-xs transition-colors disabled:opacity-40 ${
-        on ? 'border-accent bg-accent/10 text-foreground' : 'border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground'
+        on ? 'border-signal bg-signal/10 text-foreground' : 'border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground'
       }`}
     >
       {children}
@@ -642,7 +641,7 @@ function Brief({ text }: { text: string }) {
           return (
             <ul key={index} className="space-y-1">
               {block.items.map((item, itemIndex) => (
-                <li key={itemIndex} className="relative pl-3.5 before:absolute before:left-0 before:top-[0.6em] before:h-px before:w-2 before:bg-accent">
+                <li key={itemIndex} className="relative pl-3.5 before:absolute before:left-0 before:top-[0.6em] before:h-px before:w-2 before:bg-signal">
                   {item}
                 </li>
               ))}

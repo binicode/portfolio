@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import OpenChatButton from '@/components/chat/OpenChatButton';
 import { buttonClasses } from '@/components/ui/button-styles';
-import { contactHref, primaryNav, site, socials } from '@/lib/site';
+import { contactHref, PLANNER_NOTE, primaryNav, site, socials } from '@/lib/site';
 
 /** Every page ends here, so this is the site's closing call to action. */
 export default function SiteFooter() {
@@ -13,7 +13,7 @@ export default function SiteFooter() {
       {/* Extra bottom padding keeps the last row clear of the fixed assistant button. */}
       <div className="container-page pb-24 pt-[calc(var(--section)*0.8)]">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
-          <p className="text-h1 font-medium text-balance lg:col-span-8">Have something that needs to <em className="emph">hold up</em>?</p>
+          <p className="text-h2 font-medium text-balance lg:col-span-8">Tell me what you’re building.</p>
           <div className="lg:col-span-4 lg:w-64 lg:justify-self-end">
             <div className="flex flex-wrap gap-3 lg:flex-col">
               <OpenChatButton mode="discovery" className={buttonClasses('accent', 'lg')}>
@@ -30,7 +30,7 @@ export default function SiteFooter() {
               </a>
             </div>
             <p className="mt-4 max-w-[22rem] text-body-sm text-muted-foreground">
-              Planning takes about 2 minutes and ends with a brief you can send me.
+              {PLANNER_NOTE}
             </p>
           </div>
         </div>
@@ -44,15 +44,15 @@ export default function SiteFooter() {
           </div>
 
           <nav aria-label="Footer" className="lg:col-span-3">
-            <ul className="label space-y-3">
+            <ul className="space-y-3 text-caption font-medium">
               <li>
-                <Link href="/" className="text-muted-foreground transition-colors hover:text-foreground">
+                <Link href="/" className="text-foreground underline-offset-[0.4em] hover:underline hover:decoration-signal">
                   Home
                 </Link>
               </li>
               {primaryNav.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-muted-foreground transition-colors hover:text-foreground">
+                  <Link href={item.href} className="text-foreground underline-offset-[0.4em] hover:underline hover:decoration-signal">
                     {item.label}
                   </Link>
                 </li>
@@ -60,17 +60,18 @@ export default function SiteFooter() {
             </ul>
           </nav>
 
-          <ul className="label space-y-3 lg:col-span-3">
+          <ul className="space-y-3 text-caption font-medium lg:col-span-3">
             {socials.map((social) => (
               <li key={social.href}>
                 <a
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+                  className="inline-flex items-center gap-1 text-foreground underline-offset-[0.4em] hover:underline hover:decoration-signal"
                 >
                   {social.label}
                   <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </li>
             ))}

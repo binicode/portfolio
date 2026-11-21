@@ -1,6 +1,8 @@
 import { config } from 'dotenv';
 import { z } from 'zod';
 import { parseTrustProxy } from './trust-proxy.js';
+import { parseClientOrigins } from './origins.js';
+import { parseCookieDomain } from './session-cookie.js';
 
 config();
 
@@ -21,8 +23,17 @@ const envSchema = z.object({
     // --- Database ---
     MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
 
-    // --- CORS ---
-    CLIENT_ORIGIN: z.string().url().default('http://localhost:3000'),
+    // --- CORS: one origin or a comma-separated list; the first is the public site (origins.ts) ---
+    CLIENT_ORIGIN: z
+        .string()
+        .default('http://localhost:3000')
+        .superRefine((value, ctx) => {
+            try {
+                parseClientOrigins(value);
+            } catch (error) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+            }
+        }),
 
     // --- Proxies in front of the API (see trust-proxy.ts) ---
     TRUST_PROXY: z
@@ -38,14 +49,24 @@ const envSchema = z.object({
         }),
 
     // --- Auth (needed by admin-cms + saas-mvp modules) ---
+    // The site's domain when the API is on another host of it (session-cookie.ts).
+    COOKIE_DOMAIN: z
+        .string()
+        .optional()
+        .transform((value, ctx) => {
+            try {
+                return parseCookieDomain(value);
+            } catch (error) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                return z.NEVER;
+            }
+        }),
     JWT_SECRET: optionalString(z.string().min(32, 'JWT_SECRET must be at least 32 characters')),
     ADMIN_EMAIL: z.string().email(),
     ADMIN_PASSWORD_HASH: z.string().min(1),
 
     // --- AI chat module ---
-    ANTHROPIC_API_KEY: optionalString(z.string().min(1)),
     GEMINI_API_KEY: optionalString(z.string().min(1)),
-    OPENAI_API_KEY: optionalString(z.string().min(1)),
     VOYAGE_API_KEY: optionalString(z.string().min(1)),
 
     // --- SaaS MVP billing module ---
@@ -55,9 +76,6 @@ const envSchema = z.object({
     GITHUB_API_TOKEN: optionalString(z.string().min(1)),
     YOUTUBE_API_KEY: optionalString(z.string().min(1)),
 
-    // --- Storefront module ---
-    SHOPIFY_STOREFRONT_ACCESS_TOKEN: optionalString(z.string().min(1)),
-    SHOPIFY_STORE_DOMAIN: optionalString(z.string().min(1)),
 });
 
 export type Env = z.infer<typeof envSchema>;

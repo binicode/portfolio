@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
-import { primaryNav, contactHref } from '@/lib/site';
+import { primaryNav, contactHref, PLANNER_NOTE } from '@/lib/site';
 import { requestOpenChat } from '@/components/chat/chat-events';
 import { buttonClasses } from '@/components/ui/button-styles';
 
@@ -33,14 +33,11 @@ export default function SiteNav() {
               <Link
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`label relative py-2 transition-colors duration-150 ${
-                  active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                className={`relative py-2 text-caption font-medium text-foreground underline-offset-[0.4em] transition-colors duration-150 hover:underline hover:decoration-signal ${
+                  active ? 'underline decoration-signal' : ''
                 }`}
               >
                 {item.label}
-                {active && (
-                  <span aria-hidden="true" className="absolute inset-x-0 bottom-0.5 h-px bg-accent" />
-                )}
               </Link>
             </li>
           );
@@ -50,7 +47,7 @@ export default function SiteNav() {
       <button
         type="button"
         popoverTarget="site-menu"
-        className="label ml-auto inline-flex h-9 items-center border border-border px-3 text-foreground md:hidden"
+        className="ml-auto inline-flex h-9 items-center border border-border px-3 text-caption font-medium text-foreground md:hidden"
       >
         Menu
       </button>
@@ -75,7 +72,7 @@ export default function SiteNav() {
                     className="flex items-center justify-between py-4 text-2xl font-medium tracking-[-0.03em]"
                   >
                     {item.label}
-                    {active && <span className="label text-accent">Current</span>}
+                    {active && <span className="label text-signal">Current</span>}
                   </Link>
                 </li>
               );
@@ -91,7 +88,7 @@ export default function SiteNav() {
               }}
               className={buttonClasses('accent', 'lg', 'w-full')}
             >
-              Start a project
+              Plan your project
             </button>
             <a
               href={contactHref}
@@ -105,7 +102,7 @@ export default function SiteNav() {
               <span className="sr-only">(opens in a new tab)</span>
             </a>
           </div>
-          <p className="mt-3 text-body-sm text-muted-foreground">Starting takes about 2 minutes and ends with a project brief.</p>
+          <p className="mt-3 text-body-sm text-muted-foreground">{PLANNER_NOTE}</p>
         </div>
       </div>
     </>

@@ -35,7 +35,7 @@ export default function AccountCard({
       <div className="flex items-center gap-3">
         <span
           aria-hidden="true"
-          className="grid size-10 shrink-0 place-items-center rounded-full border border-accent/30 bg-accent/15 text-xs font-semibold text-accent-bright"
+          className="grid size-10 shrink-0 place-items-center rounded-full border border-signal/30 bg-signal/15 text-xs font-semibold text-signal"
         >
           {initials(account.name)}
         </span>

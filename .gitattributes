@@ -1,0 +1,11 @@
+# One line ending everywhere: LF. The repository already stores LF, but
+# Windows working copies mixed CRLF and LF files (core.autocrlf plus editors
+# that keep either), so checkouts now get LF too.
+* text=auto eol=lf
+
+# Binary assets, never converted.
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.zip binary

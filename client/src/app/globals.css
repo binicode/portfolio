@@ -50,22 +50,15 @@
 
 @theme {
   /* Tight grotesk scale: large sizes with near-solid leading and negative
-     tracking; body stays at 16px / 1.6. */
-  --text-display: clamp(3rem, 1.6rem + 5.6vw, 7rem);
-  --text-display--line-height: 0.92;
-  --text-display--letter-spacing: -0.05em;
-  --text-stat: clamp(4rem, 2rem + 8vw, 8rem);
-  --text-stat--line-height: 0.9;
-  --text-stat--letter-spacing: -0.06em;
+     tracking; body stays at 16px / 1.6. One size per heading role
+     (DESIGN-SYSTEM.md, Type): h1 is the page's one peak, h2 a section, title
+     the middle tier (featured items, closing calls to action), h3 a card. */
   --text-h1: clamp(2.5rem, 1.4rem + 4.2vw, 5.25rem);
   --text-h1--line-height: 0.95;
   --text-h1--letter-spacing: -0.04em;
   --text-h2: clamp(2rem, 1.3rem + 2.6vw, 3.5rem);
   --text-h2--line-height: 1;
   --text-h2--letter-spacing: -0.04em;
-  --text-statement: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
-  --text-statement--line-height: 1.08;
-  --text-statement--letter-spacing: -0.03em;
   --text-title: clamp(1.5rem, 1.15rem + 1.4vw, 2.5rem);
   --text-title--line-height: 1.04;
   --text-title--letter-spacing: -0.03em;
@@ -151,8 +144,8 @@
   /* Inverted type. */
   --sand-text: #ece1ce; /* on teal: 5.5:1 at the lit centre, 7.5:1 on Deep Teal */
   --sand-text-muted: #d9cdb8; /* on teal: 4.5:1 or more */
-  --teal-text: #0b4a4a; /* on sand: 7.2:1 at the field's edge */
-  --teal-text-muted: #3e5c59; /* on sand: 5:1 or more */
+  --teal-text: #062224; /* on sand: 11.9:1 at the field's edge, 8.3:1 on a sand rim */
+  --teal-text-muted: #3e5c59; /* on sand: 5.2:1 or more */
 
   /* Burnt Terracotta: the action. A fill with ink text (4.9:1); as text or
      a focus ring, only on deep teal (the light step, 4.8:1 or more). */
@@ -201,8 +194,6 @@
   --signal: var(--teal-glow); /* 5.1:1 or more */
   --signal-bright: var(--teal-text);
   --signal-foreground: var(--sand-body);
-  /* The promise in a headline, in the lit teal: 4.7:1 on the page. */
-  --emph: var(--teal-lit);
   --destructive: #8f2424; /* 6.1:1 or more */
   --success: var(--teal-glow);
   --border: var(--sand-deep);
@@ -264,7 +255,6 @@
   --signal: var(--sea);
   --signal-bright: var(--sea-bright);
   --signal-foreground: var(--on-color);
-  --emph: var(--sea);
   /* Rose, not red: an error never reads as the terracotta accent. */
   --destructive: #ffa8b2;
   /* Healthy state is sea glass; it ships with an icon or word, never alone. */
@@ -496,11 +486,14 @@
 }
 
 /* The promise in a headline: the few words that say what the reader gets
-   ("to hold up", "in one place"). One phrase per leading headline, never a
-   whole line, never body text. Use on <em> so it's emphasis, not styling. */
+   ("hold up", "One dashboard."). One phrase per leading headline, never a
+   whole line, never body text. Use on <em> so it's emphasis, not styling.
+   Emphasis is one weight heavier in the same colour, so it never reads
+   lighter than the words around it. */
 @utility emph {
   font-style: normal;
-  color: var(--emph);
+  font-weight: 600;
+  color: inherit;
 }
 
 /* ---- Drawing devices ---------------------------------------------------- */
@@ -547,12 +540,12 @@
 }
 
 .d-accent {
-  stroke: var(--accent);
+  stroke: var(--signal);
   stroke-width: 1;
 }
 
 .d-leader {
-  stroke: var(--accent);
+  stroke: var(--signal);
   stroke-width: 0.75;
 }
 
@@ -568,7 +561,7 @@
 }
 
 .d-bubble {
-  stroke: var(--accent);
+  stroke: var(--signal);
 }
 
 .d-label {
@@ -635,7 +628,7 @@
 }
 
 .hs-head > h2 {
-  max-width: 24ch;
+  max-width: 32ch;
 }
 
 .hs-frame {
@@ -688,7 +681,7 @@
   left: 0;
   width: 25%;
   height: 1px;
-  background-color: var(--accent);
+  background-color: var(--signal);
 }
 
 .hs-legend-item {
@@ -699,7 +692,7 @@
 /* Phones: key above the name, so four columns fit. */
 .hs-legend-key {
   display: block;
-  color: var(--accent-bright);
+  color: var(--signal);
   font-weight: 600;
 }
 
@@ -777,7 +770,7 @@
 /* The centre line of a structural drawing: dash-dot, fixed in place. */
 .orbit-axis-line {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--signal);
   stroke-width: 0.75;
   stroke-dasharray: 14 4 2 4;
   opacity: 0.55;
@@ -788,9 +781,9 @@
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     /* Scroll budget: intro 0–9%, frame zoom 9–24%, then the orbit turns
-       through the four layers from 24% to the end (about 60vh each). */
+       through the four layers from 24% to the end (about 40vh each). */
     .hs {
-      height: 400vh;
+      height: 300vh;
       view-timeline-name: --hs;
       view-timeline-inset: calc(var(--header-h) + var(--frame)) var(--frame);
     }
@@ -897,7 +890,7 @@
       --foreground: var(--sand-text);
       --muted-foreground: var(--sand-text-muted);
       --border: var(--teal-line);
-      --accent-bright: var(--terracotta-light);
+      --signal: var(--sea);
       color: var(--foreground);
     }
 
@@ -972,7 +965,7 @@
       top: 50%;
       left: 50%;
       width: min(20rem, 88cqw);
-      height: min(21rem, 98cqh);
+      height: min(26rem, 98cqh);
       translate: -50% -50%;
       animation: orbit-m-1 linear both;
       animation-timeline: --hs;
@@ -1017,8 +1010,11 @@
         transform-style: preserve-3d;
       }
 
+      /* The front card is the scene's subject: about 1.6 times the area it
+         had (18% of the frame at 1440 by 900), so its type reads at 16px. */
       .orbit-card {
-        width: clamp(14rem, 30cqw, 20rem);
+        width: clamp(16rem, 36cqw, 27rem);
+        height: min(27rem, 98cqh);
         backface-visibility: hidden;
       }
 
@@ -1407,7 +1403,27 @@
   }
 }
 
-/* Outlined accent button with corner brackets (Contact). */
+/* The assistant launcher, fixed on every screen: a neutral Deep Teal body,
+   so terracotta stays with the view's own call to action. Sand text 7.6:1
+   (6.4:1 on hover); a sand rim (4.8:1 against Deep Teal) keeps it distinct
+   over teal sections, the warm shadow over sand. */
+.launcher {
+  background-color: var(--teal);
+  color: var(--sand-text);
+  box-shadow:
+    inset 0 0 0 1px rgb(203 179 147 / 0.75),
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    0 10px 30px -12px rgb(var(--shadow-warm) / 0.8);
+  transition:
+    background-color 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+}
+
+.launcher:hover {
+  background-color: var(--teal-card);
+}
+
+/* Outlined accent button with corner brackets (the header's call to action). */
 .btn-bracket {
   position: relative;
   display: inline-flex;
@@ -1457,7 +1473,7 @@
   min-width: 4rem;
   height: 1.75rem;
   overflow: hidden;
-  background-image: repeating-linear-gradient(90deg, var(--accent) 0 1px, transparent 1px 4px);
+  background-image: repeating-linear-gradient(90deg, var(--signal) 0 1px, transparent 1px 4px);
 }
 
 .stripe-meter-cover {
@@ -1495,7 +1511,7 @@
     inset: auto 0 0;
     display: block;
     height: 1px;
-    background-color: var(--accent);
+    background-color: var(--signal);
     transform-origin: left center;
     animation: scroll-meter linear both;
     animation-timeline: scroll(root);
@@ -1519,9 +1535,9 @@
 }
 
 /* Scroll-linked reading: words brighten as they reach the middle of the view.
-   The statement is large text (24px+), and 0.45 keeps unread words at 3.7:1.
-   Emphasised words (verdigris) are darker to begin with, so they start at
-   0.6, which keeps them at 3.8:1. */
+   The statement is large text (24px+), and 0.45 keeps unread words at 3.7:1
+   on teal. Emphasis is the same colour (one weight heavier), so it reveals
+   like the words around it. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .reveal-word {
@@ -1530,43 +1546,16 @@
       animation-range: cover 10% cover 40%;
     }
 
-    .emph .reveal-word {
-      animation-name: word-in-emph;
-    }
-
-    /* On sand, dark words need a higher start to stay above 3:1 while
-       they reveal: 0.7 for words (3.6:1), 0.8 for the lit-teal emphasis (3.1:1). */
+    /* On sand, words start at 0.6: 4:1 for the ink on the field's edge. */
     .theme-sand .reveal-word {
       animation-name: word-in-sand;
     }
-
-    .theme-sand .emph .reveal-word {
-      animation-name: word-in-sand-emph;
-    }
-  }
-}
-
-@keyframes word-in-emph {
-  from {
-    opacity: 0.6;
-  }
-  to {
-    opacity: 1;
   }
 }
 
 @keyframes word-in-sand {
   from {
-    opacity: 0.7;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes word-in-sand-emph {
-  from {
-    opacity: 0.8;
+    opacity: 0.6;
   }
   to {
     opacity: 1;
@@ -1622,15 +1611,19 @@
   scroll-margin-top: calc(var(--header-h) + var(--frame) + 1.5rem);
 }
 
+/* Article headings sit on the scale: a section is a card-title step (22px)
+   above the 18–20px reading text; a subsection is the reading size, one
+   weight heavier. */
 .case-study h2 {
   margin-top: 2.6em;
-  font-size: 1.3125rem;
+  font-size: var(--text-h3);
   line-height: 1.25;
 }
 
 .case-study h3 {
   margin-top: 2em;
-  font-size: 1.125rem;
+  font-size: 1em;
+  font-weight: 600;
   line-height: 1.3;
 }
 

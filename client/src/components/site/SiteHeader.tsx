@@ -28,7 +28,7 @@ export default function SiteHeader() {
             the layered `hidden` utility. */}
         <div className="ml-auto hidden md:block lg:ml-0">
           <OpenChatButton mode="discovery" className="btn-bracket">
-            Start a project
+            Plan your project
           </OpenChatButton>
         </div>
       </nav>

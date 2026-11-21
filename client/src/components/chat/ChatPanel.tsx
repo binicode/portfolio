@@ -6,6 +6,7 @@ import { getChatHistory, getOrCreateSessionId, streamChatMessage } from '@/lib/a
 import type { ChatMessage, RetrievedSource } from '@/types/chat';
 import type { AssistantMode } from './chat-events';
 import DiscoveryFlow from './DiscoveryFlow';
+import { PLANNER_NOTE } from '@/lib/site';
 
 interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -31,7 +32,30 @@ const MODES: Array<{ id: AssistantMode; label: string }> = [
 
 // Each suggestion maps to a knowledge-base source (server/src/modules/ai-chat/
 // knowledge-base.content.ts), so a first click always gets a grounded answer.
-const SUGGESTIONS = ['What stack do you use?', 'What certifications do you have?', 'What is your background?'];
+// Each one is answered by the seeded knowledge base
+// (server/src/modules/ai-chat/knowledge-base.content.ts).
+const FOCUSABLE = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Wraps Tab and Shift+Tab at the panel's first and last focusable elements. */
+function trapFocus(e: { shiftKey: boolean; preventDefault: () => void }, panel: HTMLElement | null) {
+  if (!panel) return;
+  const focusables = [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.getClientRects().length > 0);
+  if (focusables.length === 0) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  const active = document.activeElement;
+  // Focus on a non-tabbable spot inside (the scrolling log) moves on naturally.
+  const outside = !panel.contains(active);
+  if (e.shiftKey && (active === first || outside)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (active === last || outside)) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
+const SUGGESTIONS = ['What have you shipped?', 'How do you handle payments?', 'What is your background?'];
 
 /**
  * Loaded on demand by ChatLauncher. Two modes: chat (per-visitor session id
@@ -155,11 +179,15 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange, seed, p
       ref={panelRef}
       id="assistant-panel"
       role="dialog"
-      aria-modal="false"
+      aria-modal="true"
       aria-labelledby="assistant-title"
       hidden={!isOpen}
       onKeyDown={(e) => {
         if (e.key === 'Escape') onClose();
+        // Tab stays inside the panel while it is open: on phones it covers
+        // the page, so focus behind it would be invisible. Escape or the
+        // close button leave, and focus returns to the opener (ChatLauncher).
+        if (e.key === 'Tab') trapFocus(e, panelRef.current);
       }}
       className="theme-ink animate-fade-in fixed bottom-[calc(max(1rem,env(safe-area-inset-bottom))+3.5rem+var(--frame))] right-[calc(0.75rem+var(--frame))] z-40 flex h-[min(34rem,calc(100dvh-7rem-2*var(--frame)))] w-[calc(100vw-1.5rem-2*var(--frame))] flex-col overflow-hidden rounded-xl border border-border shadow-[0_30px_60px_-30px_rgb(0_0_0/0.8)] sm:right-[calc(1.5rem+var(--frame))] sm:w-[24rem]"
     >
@@ -210,7 +238,7 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange, seed, p
         {messages.length === 0 && (
           <div>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Ask about my projects, stack or background. Answers come from my notes, with sources.
+              Ask about my work, stack or background. Answers cite my notes.
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
               {SUGGESTIONS.map((suggestion) => (
@@ -234,7 +262,7 @@ export default function ChatPanel({ isOpen, onClose, mode, onModeChange, seed, p
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium">Planning a project?</span>
                 <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
-                  Answer a few questions and get a project brief. About 2 minutes.
+                  {PLANNER_NOTE}
                 </span>
               </span>
               <ArrowRight

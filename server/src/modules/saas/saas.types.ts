@@ -6,6 +6,8 @@ export interface SaasUserDocument {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   subscriptionStatus: SubscriptionStatus;
+  /** When Stripe created the last subscription event applied (stripe-events.ts). */
+  subscriptionEventAt?: Date;
   githubUsername?: string;
   youtubeChannelId?: string;
   brandSearchQuery?: string;

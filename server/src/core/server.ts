@@ -1,9 +1,14 @@
 import { createApp } from './app.js';
-import { connectDB } from './config/db.js';
+import { connectDB, disconnectDB } from './config/db.js';
 import { env } from './config/env.js';
-import { describeTrustProxy } from './config/trust-proxy.js';
+import { log } from './logger.js';
 import { ensureKnowledgeVectorIndex } from '../modules/ai-chat/ai-chat.model.js';
 import { checkAllModels } from '../modules/ai-chat/llm.service.js';
+
+// A deploy sends SIGTERM and usually waits about 10 to 30 seconds before
+// killing the process. In-flight requests (a streaming answer) get this
+// long to finish; then the process exits regardless.
+const SHUTDOWN_GRACE_MS = 10_000;
 
 async function bootstrap(): Promise<void> {
   const databaseReady = await connectDB();
@@ -31,10 +36,31 @@ async function bootstrap(): Promise<void> {
 
   const app = createApp();
 
-  app.listen(env.PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${env.PORT} [${env.NODE_ENV}]`);
-    console.log(`Rate limits: ${describeTrustProxy(env.TRUST_PROXY)}`);
+  const server = app.listen(env.PORT, () => {
+    log.info('server listening', { port: env.PORT, env: env.NODE_ENV });
   });
+
+  let stopping = false;
+  const shutdown = (signal: string) => {
+    if (stopping) return;
+    stopping = true;
+    log.info('shutting down', { signal });
+    const force = setTimeout(() => {
+      log.warn('shutdown timed out; exiting with requests still open');
+      process.exit(1);
+    }, SHUTDOWN_GRACE_MS);
+    force.unref();
+    // Stop accepting connections, let open requests finish, close idle
+    // keep-alive sockets, then release the database.
+    server.close(async () => {
+      await disconnectDB().catch(() => undefined);
+      log.info('shutdown complete');
+      process.exit(0);
+    });
+    server.closeIdleConnections();
+  };
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 bootstrap().catch((err) => {

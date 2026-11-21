@@ -18,7 +18,7 @@ test('visitor browses home, work, a case study, SaaS and shop', async ({ page, m
   media.video('portfolio', 'public-browsing-journey');
 
   await page.goto('/');
-  const hero = page.getByRole('region', { name: 'Software engineered to hold up.' });
+  const hero = page.getByRole('region', { name: 'Your product, built to hold up.' });
   await expect(hero).toBeVisible();
   await media.pause(1200);
   await media.shot('homepage', 'hero-above-the-fold');
@@ -98,7 +98,7 @@ test('visitor browses home, work, a case study, SaaS and shop', async ({ page, m
 
   // SaaS landing and the shop.
   await page.goto('/saas');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Your reach, in one place\./);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Stars, subscribers, mentions\. One dashboard\./);
   await media.pause();
   await media.shot('portfolio', 'saas-landing-top');
   await media.smoothScrollTo('bottom');
@@ -119,7 +119,7 @@ test('visitor browses home, work, a case study, SaaS and shop', async ({ page, m
 
 test('hero "Plan your project" opens the assistant in planning mode', async ({ page, media, isMobile }) => {
   await page.goto('/');
-  const plan = page.getByRole('region', { name: 'Software engineered to hold up.' }).getByRole('button', { name: 'Plan your project' });
+  const plan = page.getByRole('region', { name: 'Your product, built to hold up.' }).getByRole('button', { name: 'Plan your project' });
   await expectHitTarget(plan);
   await (isMobile ? plan.tap() : plan.click());
   const dialog = page.locator('[role="dialog"][aria-labelledby="assistant-title"]');

@@ -39,12 +39,12 @@ export default function DashboardNavLinks({ items, variant }: { items: Dashboard
                 }
               >
                 {variant === 'sidebar' && item.icon && (
-                  <span aria-hidden="true" className={active ? 'text-accent-bright' : ''}>
+                  <span aria-hidden="true" className={active ? 'text-signal' : ''}>
                     {item.icon}
                   </span>
                 )}
                 {item.label}
-                {variant === 'bar' && active && <span aria-hidden="true" className="absolute inset-x-0 bottom-0.5 h-px bg-accent" />}
+                {variant === 'bar' && active && <span aria-hidden="true" className="absolute inset-x-0 bottom-0.5 h-px bg-signal" />}
               </Link>
             </li>
           );

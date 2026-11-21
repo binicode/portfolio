@@ -9,15 +9,37 @@ import RefreshControl from '@/components/saas/RefreshControl';
 import { sourceSummary } from '@/components/saas/insights';
 import type { SaasMeResponse } from '@/types/saas';
 
-export default async function SaasDashboardPage() {
+export default async function SaasDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const me = await requireSaasSession();
 
   if (me.subscriptionStatus !== 'active') {
+    // Back from Stripe Checkout before its webhook has unlocked the account:
+    // say so instead of offering checkout again (a second subscription).
+    if ((await searchParams).checkout === 'success') {
+      return (
+        <div className="container-page py-[clamp(3rem,8vw,6rem)]">
+          <div className="border-y border-foreground/80 py-12 lg:py-16">
+            <h1 className="text-h2 font-medium">Payment received</h1>
+            <p className="mt-5 max-w-[36rem] text-lead text-muted-foreground">
+              Your dashboard unlocks when Stripe confirms the subscription, usually within a minute.
+            </p>
+            <a href="/saas/dashboard" className="link mt-6 inline-block text-body-sm font-medium">
+              Refresh
+            </a>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="container-page py-[clamp(3rem,8vw,6rem)]">
         <div className="grid gap-10 border-y border-foreground/80 py-12 lg:grid-cols-12 lg:items-end lg:gap-8 lg:py-16">
           <div className="lg:col-span-8">
-            <h1 className="text-h1 font-medium">Unlock your dashboard</h1>
+            <h1 className="text-h2 font-medium">Unlock your dashboard</h1>
             <p className="mt-5 max-w-[36rem] text-lead text-muted-foreground">
               Subscribe to see your reach. The price shows at checkout.
             </p>
@@ -38,7 +60,7 @@ export default async function SaasDashboardPage() {
   // skeleton) and Settings doesn't inherit this page's skeleton.
   return (
     <div className="container-page py-6 sm:py-8 lg:py-10">
-      <Suspense fallback={<DashboardSkeleton name={displayName(me)} />}>
+      <Suspense fallback={<DashboardSkeleton />}>
         <LiveDashboard session={me} />
       </Suspense>
     </div>
@@ -51,7 +73,7 @@ async function LiveDashboard({ session }: { session: SaasMeResponse }) {
 
   return (
     <>
-      <DashboardHeader name={name} summary={sourceSummary(stats.sources).text}>
+      <DashboardHeader summary={sourceSummary(stats.sources).text}>
         <RefreshControl fetchedAt={stats.fetchedAt} />
       </DashboardHeader>
       <div className="mt-6 lg:mt-8">

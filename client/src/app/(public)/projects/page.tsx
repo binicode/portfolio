@@ -19,7 +19,7 @@ export default async function ProjectsPage() {
       <header className="grid gap-6 lg:grid-cols-12 lg:items-end">
         <h1 className="text-h1 font-medium lg:col-span-7">Work</h1>
         <p className="max-w-[30rem] text-lead text-muted-foreground lg:col-span-5">
-          Built end to end, with the decisions behind them.
+          What I built, how, and why.
         </p>
       </header>
 
