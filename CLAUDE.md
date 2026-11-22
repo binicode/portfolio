@@ -448,6 +448,9 @@ every CI check. Record: `docs/rebuild/phase-1-environment.md`.
 
 ### Phase 2 --- Understand the existing project (read-only)
 
+**Status:** done; record in `docs/rebuild/phase-2-audit.md`. Phase 3
+waits for the user's answers to its section 12.
+
 **Model:** Opus 5.5, High.
 
 Inspect the whole repository before changing anything: architecture,
@@ -558,7 +561,14 @@ The user prefers direct, honest, practical guidance.
     playwright.dev, zod.dev, developer.mozilla.org,
     cheatsheetseries.owasp.org, web.dev, developers.google.com and
     code.claude.com, plus the package registries. Check versions with
-    `npm view <package> version`.
+    `npm view <package> version`. In cloud sessions the page-fetch tool
+    cannot reach these hosts; fetch them with `curl` (which goes through
+    the environment's proxy) into a new scratch folder and read the text.
+    Google's Gemini model docs moved to aistudio.google.com, which is not
+    allowed yet.
+-   **Next.js docs for the installed version** ship with the package:
+    `client/node_modules/next/dist/docs/`. Read the relevant page there
+    before using a Next.js API (see `client/AGENTS.md`).
 -   **Secrets:** real `.env` files are never committed, and
     `.claude/settings.json` denies Claude reading or editing them.
     Document variables in the `.env.example` files. When a local run
