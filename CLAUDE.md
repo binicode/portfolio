@@ -17,6 +17,30 @@ The goal is not to add features for their own sake. The goal is to
 deliver a fast, discoverable, beautiful, secure, and maintainable
 product.
 
+### Non-negotiable requirements (set by the user, November 2026)
+
+1.  **Security first.** Consider security in every architectural and
+    implementation decision. Use strong, current defaults: validation at
+    every boundary, server-side authorization, least privilege, secure
+    cookies and headers, dependency hygiene. Review for vulnerabilities
+    and fix them before calling anything complete.
+2.  **Authentic design, no AI-generated look.** No predictable template
+    layouts, filler sections, generic SaaS patterns or decorative excess.
+    Every design and implementation decision needs a clear purpose.
+    Favour authenticity, consistency, simplicity and craft.
+3.  **Current information.** Before a technical decision, check the
+    current official documentation, versions, security advisories and
+    best practices (section 14 lists the reachable docs). Do not rely on
+    memory, deprecated APIs or old tutorials. Check compatibility before
+    adding or upgrading a dependency.
+4.  **Continuous verification.** Never assume something works because it
+    was written. Verify functionality, security, compatibility and
+    quality throughout. Correctness and long-term reliability come before
+    speed.
+
+Also: do not invent features or sections the user has not asked for, and
+do not remove an existing feature without the user's decision.
+
 ## 2. Current project status --- source of truth
 
 The project already has a substantial, operational foundation:
@@ -46,6 +70,11 @@ Architecture preservation does not mean design preservation. Keep the working ba
 Treat these as user-reported facts until verified in the repository. Do
 not assume every integration is production-ready merely because it
 currently works.
+
+**Rebuild (November 2026).** The user is restarting from this codebase,
+in this repository, because the result felt generic and contained
+unnecessary parts. Which parts are unnecessary is established with
+evidence in the audit and decided by the user; see section 11.
 
 ## 3. Highest-level working rule
 
@@ -405,77 +434,74 @@ Proceed directly while keeping the scope narrow.
 -   Keep changes focused and easy to review.
 -   Prefer a Git checkpoint before substantial refactoring.
 
-## 11. Current priority sequence
+## 11. Rebuild plan (started November 2026)
 
-Follow this order unless repository evidence reveals a critical issue
-that must be addressed first.
+Work through these phases in order. Do not start a phase while the
+previous one leaves an architectural problem unresolved. Each phase's
+record lives in `docs/rebuild/`; read the latest one before continuing
+the rebuild in a new session.
 
-### Phase 1 --- Read-only architecture audit
+### Phase 1 --- Claude Code environment setup (done)
 
-**Model:** Opus 5.5, High. Use Max for the final architecture decision
-if needed.
+Project settings, cloud environment, verified commands and a baseline of
+every CI check. Record: `docs/rebuild/phase-1-environment.md`.
 
-Deliver: - Current architecture map. - Frontend and backend boundary
-assessment. - Authentication/security findings. - Integration
-reliability findings. - Performance and SEO findings. - UI migration
-findings. - Technical debt ranked by severity. - KEEP / FIX / REFACTOR /
-REDESIGN decisions. - Recommended target architecture.
+### Phase 2 --- Understand the existing project (read-only)
+
+**Model:** Opus 5.5, High.
+
+Inspect the whole repository before changing anything: architecture,
+structure, frontend and backend, data models, authentication and
+authorization, APIs and integrations, existing functionality,
+dependencies and current problems.
+
+Deliver in `docs/rebuild/phase-2-audit.md`: architecture map; frontend
+and backend boundary assessment; authentication and security findings
+(including dependency advisories); integration reliability findings;
+performance and SEO findings; UI findings; technical debt ranked by
+severity; KEEP / FIX / REFACTOR / REDESIGN per area with evidence; and
+each feature with its purpose, so the user can decide what is
+unnecessary.
 
 Do not change code during this phase.
 
-### Phase 2 --- Approve and document the target architecture
+### Phase 3 --- Architecture and implementation plan
 
 **Model:** Opus 5.5, High / Max.
 
-Resolve the user's architecture concerns. Document decisions and
-trade-offs. Do not start a broad redesign until the user approves it.
+Turn the audit into a target architecture and an ordered implementation
+plan in `docs/rebuild/phase-3-plan.md`. Record each decision and its
+trade-offs, checked against current official documentation and
+versions. The user approves the scope (especially any feature removal)
+and the plan before Phase 4 starts.
 
-### Phase 3 --- Stabilize the design system
+### Phase 4 --- Complete the MVP
+
+**Model:** Sonnet 5.5, High; Opus 5.5, High for security-critical work.
+
+Make the intended functionality work correctly end to end before working
+on appearance: security fixes, dependency upgrades, integration
+correctness, reliability, consistency and tests. A feature is complete
+only when it has been tested (unit, e2e, or a documented run in a real
+browser).
+
+### Phase 5 --- UI/UX
 
 **Model:** Opus 5.5, High for design-system decisions; Sonnet 5.5,
-Medium for implementation.
+Medium / High for implementation.
 
--   Reconcile new and legacy tokens.
--   Establish typography, spacing, colors, surfaces, radii, and
-    responsive rules.
--   Resolve component ownership and missing imports.
--   Avoid broad visual changes outside the approved system.
+Only after the MVP is verified. Establish one design system (tokens,
+typography, spacing, colour, surfaces, motion, responsive rules), then
+rebuild the homepage and the remaining pages one at a time, designing
+desktop and mobile intentionally. The result must be distinctive and
+authentic (section 1). Measure performance (section 6) and SEO
+(section 7) as part of the work, and finish with production readiness:
+security, authorization, integration failure handling, accessibility,
+responsive behaviour, deployment, monitoring and real-user performance.
 
-### Phase 4 --- Refactor and assemble the hero
-
-**Model:** Sonnet 5.5, High.
-
--   Fix missing imports correctly.
--   Replace expensive mobile blur effects with lightweight gradients or
-    simpler effects where visually appropriate.
--   Optimize critical images and fonts.
--   Minimize client-side JavaScript.
--   Check layout stability and mobile rendering.
--   Capture before/after measurements.
-
-### Phase 5 --- Complete the UI migration
-
-**Model:** Sonnet 5.5, Medium / High.
-
-Migrate one page or component group at a time. Reuse the approved design
-system. Do not alter backend behavior unless required and approved.
-
-### Phase 6 --- Performance and discoverability
-
-**Model:** Sonnet 5.5, High for implementation and profiling; Opus 5.5,
-High for difficult cross-system diagnosis.
-
-Measure and improve Core Web Vitals, page weight, rendering, metadata,
-structured data, crawlability, and content quality.
-
-### Phase 7 --- Production readiness
-
-**Model:** Sonnet 5.5, High for test execution and fixes; Opus 5.5, Max
-for final architecture/security synthesis.
-
-Verify security, authorization, integration failure handling,
-accessibility, responsive behavior, deployment, monitoring, and
-real-user performance.
+The earlier seven-phase sequence (audit, architecture approval, design
+system, hero, UI migration, performance and SEO, production readiness)
+maps onto Phases 2 to 5; its deliverables are kept above.
 
 ## 12. Definition of done
 
@@ -506,6 +532,72 @@ The user prefers direct, honest, practical guidance.
 -   Do not ask the user to repeat information already available in this
     file.
 -   Ask only when a decision genuinely requires user input.
+
+## 14. Environment and verification commands
+
+-   **Node 24** (`.nvmrc`; CI uses 24; `engines` allows 22.18+).
+-   Two independent npm packages, `client/` (Next.js) and `server/`
+    (Express), each with its own lockfile. There is no root package.
+-   In each package: `npm ci`, `npm run lint`, `npx tsc --noEmit`,
+    `npm test`, `npm run build`. Client e2e: `npm run test:e2e`
+    (Playwright; it starts the mock API and a production build on port
+    3100 itself). These mirror `.github/workflows/ci.yml`; run the
+    relevant ones before every commit that touches code.
+-   Dependency advisories: `npm audit --omit=dev` in each package.
+-   Without a `client/.env.local`, the client build and e2e need the
+    placeholder public values from `ci.yml`.
+-   **Cloud sessions** run on the `portfolio` environment. Its setup
+    script makes Node 24 the default and installs both packages and the
+    Playwright browser the client pins. If `node --version` still shows
+    22, prefix commands with `PATH=/opt/node24/bin:$PATH`. If e2e
+    reports port 3100 in use, an earlier run left `next-server` running:
+    find it and stop it.
+-   **Docs reachable from cloud sessions:** nextjs.org, react.dev,
+    expressjs.com, mongoosejs.com, www.mongodb.com, docs.stripe.com,
+    shopify.dev, ai.google.dev, docs.voyageai.com, tailwindcss.com,
+    playwright.dev, zod.dev, developer.mozilla.org,
+    cheatsheetseries.owasp.org, web.dev, developers.google.com and
+    code.claude.com, plus the package registries. Check versions with
+    `npm view <package> version`.
+-   **Secrets:** real `.env` files are never committed, and
+    `.claude/settings.json` denies Claude reading or editing them.
+    Document variables in the `.env.example` files. When a local run
+    needs values, pass test values in that one command's environment.
+
+## 15. Skills and tools
+
+Use these when they apply; do not add tools that duplicate them.
+
+-   `security-review`: after any change to authentication, billing,
+    webhooks, input handling or dependencies, and at the end of each
+    phase.
+-   `code-review`: review the diff before finishing a significant change
+    or a phase.
+-   `simplify`: clean up a finished change (quality only, not bugs).
+-   `run`: start the app and confirm a change in a real browser. For
+    repeatable checks use the Playwright and axe suites in `client/e2e`.
+-   `frontend-design`: visual direction in Phase 5.
+-   `ui-ux-pro-max` (project skill, `.claude/skills/`): accessibility and
+    UX checklists and stack guidance. Do not let its catalogue of styles,
+    palettes and font pairings choose the visual identity; that is the
+    template look section 1 rules out.
+-   Web search and page fetching: official documentation first; use
+    third-party articles only to find the official source.
+-   Not used: UI-generation plugins (such as 21st.dev), whose generic
+    components conflict with section 1.
+
+## 16. Git workflow
+
+-   Never commit directly to `main`. Each rebuild phase works on its own
+    branch, `rebuild/phase-<n>-<topic>`.
+-   Commit small, meaningful changes without asking, in the existing
+    style `type(scope): summary` (feat, fix, refactor, perf, test, docs,
+    chore, ci; scopes such as client, server, shop). One logical change
+    per commit, with the relevant checks passing.
+-   Push the branch after each commit or small group of commits: cloud
+    containers are discarded.
+-   Open a pull request only when the user asks.
+-   Never commit secrets, `.env` files, build output or QA media.
 
 **North star:** Make the existing project trustworthy, then make it
 exceptional. Do not sacrifice maintainability, security, or real-world
