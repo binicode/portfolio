@@ -27,10 +27,12 @@ Node 24.22.3, npm 11.19.1, with CI's placeholder public values for the client.
 | `npx tsc --noEmit` | pass | pass |
 | `npm test` | 54 / 54 | 37 / 37 |
 | `npm run build` | pass | pass (1) |
-| `npm run test:e2e` | n/a | pending (run in progress) |
+| `npm run test:e2e` | n/a | 66 passed, 12 skipped (2) |
 | `npm audit --omit=dev` | 6: 2 critical, 3 high, 1 moderate | 2 high |
 
 (1) With no Shopify store configured, the product fetch fails at build time and `/shop` renders its empty state. That is the intended CI behaviour.
+
+(2) Desktop and Pixel 7 projects, against the mock API and a self-signed Shopify stand-in, 9.9 minutes. Each skip is by design: the test applies to the other viewport.
 
 ### Dependency advisories (production dependencies)
 
@@ -56,6 +58,7 @@ Nothing is fixed in Phase 1, because no code changes before the audit. Most advi
 5. **Continue rules:** `.continue/rules/portfolio-conventions.md` (rules for the Continue assistant) says `cors()` runs open and global. The server actually uses an origin allowlist with credentials (`server/src/core/app.ts`). Verify every rule there in Phase 2, then correct or remove the file with the user.
 6. **Open work outside `main`:** PR #19 (`feature/send-brief`), PR #12 (`feature/editorial-showcase`) and 16 other remote branches. Phase 3 decides whether each is merged, folded into the rebuild or closed.
 7. **`Claude outputs/ui-ux-pro-max.zip`:** a byte-identical copy of `.claude/skills/ui-ux-pro-max/` (577 KB, binary). Awaiting the user's decision.
+8. **Test coverage:** unit tests cover pure modules only, and e2e runs the client against a mock API. No test exercises the real server against a database, so authentication, billing, webhooks and retrieval are verified only in isolated units. Phase 2 assesses what that leaves unverified.
 
 ## Re-running the baseline
 
