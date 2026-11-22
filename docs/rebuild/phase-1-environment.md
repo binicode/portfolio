@@ -57,7 +57,7 @@ Nothing is fixed in Phase 1, because no code changes before the audit. Most advi
 4. **CI** has no dependency audit step and no automated dependency updates.
 5. **Continue rules:** `.continue/rules/portfolio-conventions.md` (rules for the Continue assistant) says `cors()` runs open and global. The server actually uses an origin allowlist with credentials (`server/src/core/app.ts`). Verify every rule there in Phase 2, then correct or remove the file with the user.
 6. **Open work outside `main`:** PR #19 (`feature/send-brief`), PR #12 (`feature/editorial-showcase`) and 16 other remote branches. Phase 3 decides whether each is merged, folded into the rebuild or closed.
-7. **`Claude outputs/ui-ux-pro-max.zip`:** a byte-identical copy of `.claude/skills/ui-ux-pro-max/` (577 KB, binary). Awaiting the user's decision.
+7. **`Claude outputs/ui-ux-pro-max.zip`:** a byte-identical copy of `.claude/skills/ui-ux-pro-max/` (577 KB, binary). **Resolved:** deleted at the user's request; git history keeps it. The user also confirmed the `ui-ux-pro-max` skill stays scoped to accessibility and UX checks (`CLAUDE.md` section 15).
 8. **Test coverage:** unit tests cover pure modules only, and e2e runs the client against a mock API. No test exercises the real server against a database, so authentication, billing, webhooks and retrieval are verified only in isolated units. Phase 2 assesses what that leaves unverified.
 
 ## Re-running the baseline
