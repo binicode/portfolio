@@ -20,3 +20,6 @@ portfolio-media/
 
 # Personal Claude Code overrides; the shared settings are .claude/settings.json
 .claude/settings.local.json
+
+# Python bytecode (from running the project skill scripts)
+__pycache__/
