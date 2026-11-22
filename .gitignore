@@ -17,3 +17,6 @@ blob-report/
 
 # QA run media (screenshots, videos, report): large, kept out of git
 portfolio-media/
+
+# Personal Claude Code overrides; the shared settings are .claude/settings.json
+.claude/settings.local.json
