@@ -17,6 +17,8 @@ export const RETENTION_DAYS = 365;
 export function cleanMultiline(value: string): string {
   return value
     .replace(/\r\n?/g, '\n')
+    // Stripping control characters is the point here.
+    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u0009\u000b-\u001f\u007f]+/g, ' ')
     .split('\n')
     .map((line) => line.trimEnd())
