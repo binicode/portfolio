@@ -59,7 +59,6 @@ export function createApp(): Application {
     res.status(200).json({
       status: database === 'connected' ? 'ok' : 'degraded',
       database,
-      env: env.NODE_ENV,
       timestamp: new Date().toISOString(),
     });
   };

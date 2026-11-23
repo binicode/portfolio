@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { streamText, type TextStreamEvent } from './llm.service.js';
 import { buildDiscoveryPrompt, discoveryBodySchema } from './discovery.prompt.js';
+import { errorFields, log } from '../../core/logger.js';
 
 /**
  * Project discovery: a prospective client answers a short multiple-choice
@@ -48,7 +49,7 @@ export const postDiscovery = async (req: Request, res: Response) => {
   } catch (error) {
     // Headers are already sent, so report failure as a stream frame; the
     // client falls back to its built-in recommendation.
-    console.error('postDiscovery: failed', error);
+    log.error('Planner request failed', errorFields(error));
     if (!clientDisconnected) write({ type: 'error', message: "The assistant can't answer right now." });
   } finally {
     if (!res.writableEnded) res.end();

@@ -15,6 +15,7 @@ import { endCustomerSession } from './customer-session.js';
 import { SaasUserModel, type SaasUserHydratedDocument } from './saas-user.model.js';
 import type { AuthResult } from './saas.types.js';
 import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
+import { errorFields, log } from '../../core/logger.js';
 
 const cookieSettings = () => ({ production: env.NODE_ENV === 'production', domain: env.COOKIE_DOMAIN });
 
@@ -206,7 +207,7 @@ export const postLogout = async (req: Request, res: Response) => {
     try {
       await endCustomerSession(verifyAccessToken('customer', token));
     } catch (error) {
-      if (!(error instanceof AppError)) console.warn('SaaS logout: could not revoke the session', error instanceof Error ? error.message : error);
+      if (!(error instanceof AppError)) log.warn('SaaS logout: could not revoke the session', errorFields(error));
     }
   }
   res.clearCookie(SAAS_AUTH_COOKIE_NAME, clearSessionCookieOptions(cookieSettings()));

@@ -11,6 +11,7 @@ import {
   modelsToTry as healthyFirst,
   type ModelHealth,
 } from './model-health.js';
+import { errorFields, log } from '../../core/logger.js';
 
 // Hard ceiling on an answer's length — protects against runaway cost
 // regardless of provider or free-tier status. Each model adds its thinking
@@ -92,11 +93,11 @@ export function checkModelsInBackground(models: readonly string[] = modelsDueFor
     void checkModel(model)
       .then((ok) => {
         if (ok) {
-          if (modelHealth.has(model)) console.log(`Gemini: ${model} is answering again`);
+          if (modelHealth.has(model)) log.info('Gemini: model answering again', { model });
           markUp(model);
         } else {
           markDown(model);
-          console.warn(`Gemini: ${model} is not answering; checking again in ${Math.round(backoffMs(modelHealth.get(model)!.failures) / 60000)} min`);
+          log.warn('Gemini: model not answering', { model, nextCheckMinutes: Math.round(backoffMs(modelHealth.get(model)!.failures) / 60000) });
         }
       })
       .finally(() => probing.delete(model));
@@ -130,7 +131,7 @@ export function setGeminiClientForTests(geminiClient: GoogleGenAI | null): void 
 function gemini(): GoogleGenAI | null {
   if (testClient) return testClient;
   if (!env.GEMINI_API_KEY) {
-    if (!missingKeyLogged) console.warn('Gemini: GEMINI_API_KEY is not set; the assistant cannot answer');
+    if (!missingKeyLogged) log.warn('Gemini: GEMINI_API_KEY is not set; the assistant cannot answer');
     missingKeyLogged = true;
     return null;
   }
@@ -268,7 +269,7 @@ export async function* streamText(
         }
 
         if (model !== GEMINI_MODELS[0]) {
-          console.warn(`${logLabel}: answered with fallback model ${model}`);
+          log.warn('Gemini: answered with the fallback model', { label: logLabel, model });
         }
         markUp(model);
 
@@ -277,10 +278,12 @@ export async function* streamText(
       } catch (error) {
         // Logged here because this error never reaches errorHandler.ts;
         // without it a failing provider is invisible server-side.
-        console.error(
-          `${logLabel}: ${model} attempt ${attempt + 1} failed`,
-          timedOut ? `(no response within ${FIRST_CHUNK_TIMEOUT_MS / 1000}s)` : error,
-        );
+        log.error('Gemini: attempt failed', {
+          label: logLabel,
+          model,
+          attempt: attempt + 1,
+          ...(timedOut ? { error: 'Timeout', detail: `no response within ${FIRST_CHUNK_TIMEOUT_MS / 1000} s` } : errorFields(error)),
+        });
 
         // Once tokens have reached the visitor, switching model would
         // splice two different answers together — stop instead.

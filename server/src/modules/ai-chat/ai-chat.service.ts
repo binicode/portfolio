@@ -14,6 +14,7 @@ import {
 } from './chat-context.js';
 import { appendMemoryMessage, getMemorySession } from './session-store.js';
 import type { ChatMessage, ChatStreamEvent, RetrievedChunk, SendChatMessageInput } from './ai-chat.types.js';
+import { errorFields, log } from '../../core/logger.js';
 
 // Conversation history sent to the LLM is capped independently of what's
 // persisted — keeps per-turn input cost bounded as a session grows long,
@@ -60,12 +61,12 @@ async function openSession(sessionId: string): Promise<ChatSessionHandle> {
           try {
             await session.save();
           } catch (error) {
-            console.warn('sendChatMessage: could not save the message, continuing without persistence', error);
+            log.warn('Chat: could not save the message, continuing without persistence', errorFields(error));
           }
         },
       };
     } catch (error) {
-      console.warn('sendChatMessage: chat history unavailable, using in-memory history', error);
+      log.warn('Chat: history unavailable, using in-memory history', errorFields(error));
     }
   }
   return memorySession(sessionId);
@@ -78,7 +79,7 @@ export async function getSessionMessages(sessionId: string): Promise<ChatMessage
       const session = await ChatSessionModel.findOne({ sessionId }).lean();
       if (session) return session.messages;
     } catch (error) {
-      console.warn('getSessionMessages: chat history unavailable, using in-memory history', error);
+      log.warn('Chat: history unavailable for reading, using in-memory history', errorFields(error));
     }
   }
   return getMemorySession(sessionId);
@@ -118,7 +119,7 @@ async function retrieveContext(history: ChatMessage[]): Promise<RetrievedChunk[]
       vectorMatched = false;
     }
   } catch (error) {
-    console.warn('sendChatMessage: semantic retrieval unavailable, using the full knowledge base', error);
+    log.warn('Chat: semantic retrieval unavailable, using the full knowledge base', errorFields(error));
     try {
       chunks = await wholeKnowledgeBase();
       vectorMatched = false;
@@ -133,7 +134,7 @@ async function retrieveContext(history: ChatMessage[]): Promise<RetrievedChunk[]
     const projectsChunk = publishedProjectsChunk(projects);
     if (projectsChunk && asksAboutWork(query)) chunks = [...chunks, { ...projectsChunk, score: 1 }];
   } catch (error) {
-    console.warn('sendChatMessage: could not add new knowledge-base entries or case studies', error);
+    log.warn('Chat: could not add new knowledge-base entries or case studies', errorFields(error));
   }
   return chunks;
 }

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { getSessionMessages, sendChatMessage } from './ai-chat.service.js';
 import type { ChatStreamEvent } from './ai-chat.types.js';
+import { errorFields, log } from '../../core/logger.js';
 
 const sendMessageBodySchema = z.object({
   sessionId: z.uuid(),
@@ -47,7 +48,7 @@ export const postChatMessage = async (req: Request, res: Response) => {
     // embedding/retrieval/persistence left no trace server-side.
     const isClientError = error instanceof AppError && error.statusCode < 500;
     if (!isClientError) {
-      console.error('postChatMessage: chat turn failed', error);
+      log.error('Chat turn failed', errorFields(error));
     }
 
     if (!clientDisconnected) {

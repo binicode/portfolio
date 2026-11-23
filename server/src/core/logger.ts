@@ -18,6 +18,15 @@ function write(level: Level, message: string, fields: Fields = {}): void {
   else console.log(line);
 }
 
+/**
+ * Fields for a caught error: its name and the start of its message. Never
+ * the error object itself, which can carry request data.
+ */
+export function errorFields(error: unknown): Fields {
+  if (error instanceof Error) return { error: error.name, detail: error.message.split('\n')[0].slice(0, 300) };
+  return { error: typeof error };
+}
+
 export const log = {
   info: (message: string, fields?: Fields) => write('info', message, fields),
   warn: (message: string, fields?: Fields) => write('warn', message, fields),

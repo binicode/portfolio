@@ -21,10 +21,11 @@ after(async () => {
   await app?.stop();
 });
 
-test('health reports the database as connected', async () => {
+test('health reports the database as connected, and nothing about the environment', async () => {
   const { status, body } = await app.call('/health');
   assert.equal(status, 200);
   assert.equal(body.database, 'connected');
+  assert.deepEqual(Object.keys(body).sort(), ['database', 'status', 'timestamp']);
 });
 
 test('sign-up creates an account; its confirmation link signs in', async () => {
