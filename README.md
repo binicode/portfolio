@@ -84,19 +84,23 @@ above on every pull request.
 
 ## Deployment
 
+This project runs on Netlify (site) and Koyeb (API), with DNS at Namecheap:
+step by step in [docs/deploy.md](docs/deploy.md). In general:
+
 The site and the API deploy separately. Put them on one domain, the site on
 `example.com` and the API on `api.example.com`: the session cookies are
 `SameSite=Strict`, so the two must be the same site, and `COOKIE_DOMAIN`
 shares the session with the site's server.
 
-### Site: Vercel
+### Site: any Next.js host
 
-1. Import the repository and set **Root Directory** to `client`. Vercel
-   detects Next.js; the defaults (`npm ci`, `next build`) are right.
-2. Add the variables from `client/.env.example` for Production (and Preview
-   if you use previews): `NEXT_PUBLIC_API_URL=https://api.example.com/api`,
+1. Build from `client/` (`npm ci`, `npm run build`); on Netlify,
+   `netlify.toml` sets this up.
+2. Set the variables from `client/.env.example`:
+   `NEXT_PUBLIC_API_URL=https://api.example.com/api`,
    `NEXT_PUBLIC_SITE_URL=https://example.com`, optionally
-   `GITHUB_API_TOKEN`.
+   `GITHUB_API_TOKEN`, and `SITE_INDEXING=on` only when the site should
+   appear in search engines.
 3. Add the domain. `NEXT_PUBLIC_*` values are built into the pages: change
    one, redeploy.
 

@@ -471,7 +471,9 @@ Do not change code during this phase.
 ### Phase 3 --- Architecture and implementation plan
 
 **Status:** approved 2026-11-23; plan in `docs/rebuild/phase-3-plan.md`.
-Hosting choice pending (its section 3); needed by step 4.6.
+Hosting chosen: Netlify Free (site) + Koyeb Free (API), DNS at Namecheap;
+setup in `docs/deploy.md`. Keep it at $0: no paid plan without the user's
+approval.
 
 **Model:** Opus 5.5, High / Max.
 
