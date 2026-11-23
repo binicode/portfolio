@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import { env } from '../config/env.js';
 
 /**
@@ -55,7 +55,7 @@ export function errorHandler(
     res.status(400).json({
       error: {
         message: 'Validation failed',
-        details: err.flatten().fieldErrors,
+        details: z.flattenError(err).fieldErrors,
       },
     });
     return;

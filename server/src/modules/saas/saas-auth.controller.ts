@@ -11,12 +11,12 @@ import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/conf
 const cookieSettings = () => ({ production: env.NODE_ENV === 'production', domain: env.COOKIE_DOMAIN });
 
 const registerBodySchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+  email: z.email({ error: 'Enter a valid email address.' }),
+  password: z.string().min(8, { error: 'Use at least 8 characters.' }),
 });
 
 const loginBodySchema = z.object({
-  email: z.string().email(),
+  email: z.email({ error: 'Enter a valid email address.' }),
   password: z.string().min(1),
 });
 

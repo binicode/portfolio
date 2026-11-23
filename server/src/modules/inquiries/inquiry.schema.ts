@@ -29,7 +29,7 @@ export function cleanMultiline(value: string): string {
 
 export type Contact = { kind: 'email'; value: string } | { kind: 'linkedin'; value: string };
 
-const email = z.string().email();
+const email = z.email();
 // linkedin.com/in/<handle>, with or without scheme, www or a country subdomain.
 const LINKEDIN = /^(?:https?:\/\/)?(?:(?:www|[a-z]{2})\.)?linkedin\.com\/in\/([\p{L}\p{N}_%-]{3,100})\/?(?:[?#]\S*)?$/iu;
 
@@ -56,17 +56,17 @@ export function isHoneypotFilled(body: unknown): boolean {
 
 export const inquiryBodySchema = z.object({
   name: z
-    .string({ required_error: 'Add your name.' })
+    .string({ error: (issue) => (issue.input === undefined ? 'Add your name.' : undefined) })
     .max(NAME_MAX * 4)
     .transform((value) => clean(value).replace(/\s{2,}/g, ' '))
     .pipe(z.string().min(1, 'Add your name.').max(NAME_MAX, `Use ${NAME_MAX} characters or fewer.`)),
   contact: z
-    .string({ required_error: 'Add an email address or a LinkedIn profile link.' })
+    .string({ error: (issue) => (issue.input === undefined ? 'Add an email address or a LinkedIn profile link.' : undefined) })
     .max(CONTACT_MAX * 2)
     .transform((value, ctx) => {
       const contact = parseContact(value);
       if (!contact) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Enter an email address or a LinkedIn profile link.' });
+        ctx.addIssue({ code: 'custom', message: 'Enter an email address or a LinkedIn profile link.' });
         return z.NEVER;
       }
       return contact;

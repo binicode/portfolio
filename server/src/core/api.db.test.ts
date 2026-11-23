@@ -100,6 +100,12 @@ test('publishing makes the project public', async () => {
   assert.equal(one.body.slug, 'test-project');
 });
 
+test('project links must be http or https', async () => {
+  const { status, body } = await app.post('/api/admin/projects', { title: 'X', slug: 'x', summary: 'S', liveUrl: 'javascript:alert(1)' }, admin);
+  assert.equal(status, 400);
+  assert.deepEqual(body.error.details.liveUrl, ['Use an http or https link.']);
+});
+
 test('an invalid slug is refused', async () => {
   const { status } = await app.post('/api/admin/projects', { title: 'X', slug: 'Not A Slug', summary: 'S' }, admin);
   assert.equal(status, 400);

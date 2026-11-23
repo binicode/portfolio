@@ -11,8 +11,9 @@ const createProjectBodySchema = z.object({
   slug: z.string().min(1).regex(slugPattern, 'slug must be lowercase, alphanumeric, and hyphen-separated'),
   summary: z.string().min(1),
   techStack: z.array(z.string().min(1)).default([]),
-  liveUrl: z.string().url().optional(),
-  repoUrl: z.string().url().optional(),
+  // http(s) only: these become links on public pages, so no javascript: or data: URLs.
+  liveUrl: z.url({ protocol: /^https?$/, error: 'Use an http or https link.' }).optional(),
+  repoUrl: z.url({ protocol: /^https?$/, error: 'Use an http or https link.' }).optional(),
   caseStudyBody: z.string().optional(),
   published: z.boolean().optional(),
 });

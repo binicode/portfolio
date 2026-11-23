@@ -10,7 +10,7 @@ import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/conf
 const cookieSettings = () => ({ production: env.NODE_ENV === 'production', domain: env.COOKIE_DOMAIN });
 
 const adminLoginBodySchema = z.object({
-  email: z.string().email(),
+  email: z.email({ error: 'Enter a valid email address.' }),
   password: z.string().min(1),
 });
 

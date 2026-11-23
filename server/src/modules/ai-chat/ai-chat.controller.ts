@@ -5,7 +5,7 @@ import { getSessionMessages, sendChatMessage } from './ai-chat.service.js';
 import type { ChatStreamEvent } from './ai-chat.types.js';
 
 const sendMessageBodySchema = z.object({
-  sessionId: z.string().uuid(),
+  sessionId: z.uuid(),
   message: z.string().min(1).max(2000),
 });
 
@@ -74,7 +74,7 @@ export const postChatMessage = async (req: Request, res: Response) => {
  * empty history rather than a 404 — a new visitor simply has none yet.
  */
 export const getChatHistory = async (req: Request, res: Response) => {
-  const sessionId = z.string().uuid().parse(req.params.sessionId);
+  const sessionId = z.uuid().parse(req.params.sessionId);
 
   // From MongoDB, or the in-memory store while the database is unreachable.
   const messages = await getSessionMessages(sessionId);

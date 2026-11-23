@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { BRIEF_MAX, NAME_MAX, cleanMultiline, inquiryBodySchema, isHoneypotFilled, parseContact } from './inquiry.schema.js';
+import { z } from 'zod';
 
 const valid = {
   name: 'Ada Lovelace',
@@ -16,7 +17,7 @@ const valid = {
 const fieldErrors = (body: unknown) => {
   const result = inquiryBodySchema.safeParse(body);
   assert.equal(result.success, false);
-  return result.success ? {} : result.error.flatten().fieldErrors;
+  return result.success ? {} : z.flattenError(result.error).fieldErrors;
 };
 
 test('accepts a brief with an email address', () => {

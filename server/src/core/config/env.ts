@@ -31,7 +31,7 @@ const envSchema = z.object({
             try {
                 parseClientOrigins(value);
             } catch (error) {
-                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                ctx.addIssue({ code: 'custom', message: (error as Error).message });
             }
         }),
 
@@ -43,7 +43,7 @@ const envSchema = z.object({
             try {
                 return parseTrustProxy(value);
             } catch (error) {
-                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                ctx.addIssue({ code: 'custom', message: (error as Error).message });
                 return z.NEVER;
             }
         }),
@@ -57,12 +57,12 @@ const envSchema = z.object({
             try {
                 return parseCookieDomain(value);
             } catch (error) {
-                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                ctx.addIssue({ code: 'custom', message: (error as Error).message });
                 return z.NEVER;
             }
         }),
     JWT_SECRET: optionalString(z.string().min(32, 'JWT_SECRET must be at least 32 characters')),
-    ADMIN_EMAIL: z.string().email(),
+    ADMIN_EMAIL: z.email(),
     ADMIN_PASSWORD_HASH: z.string().min(1),
 
     // --- AI chat module ---
@@ -85,7 +85,7 @@ function loadEnv(): Env {
 
     if (!parsed.success) {
         console.error('❌ Invalid environment variables:');
-        console.error(parsed.error.flatten().fieldErrors);
+        console.error(z.flattenError(parsed.error).fieldErrors);
         process.exit(1);
     }
 
