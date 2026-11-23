@@ -23,7 +23,7 @@ async function getOrCreateStripeCustomerId(user: SaasUserHydratedDocument): Prom
     return user.stripeCustomerId;
   }
 
-  const stripeCustomerId = await createStripeCustomer(user.email);
+  const stripeCustomerId = await createStripeCustomer(user.email, user._id.toString());
   user.stripeCustomerId = stripeCustomerId;
   await user.save();
 

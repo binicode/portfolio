@@ -16,8 +16,16 @@ function billingError(context: string, error: unknown): AppError {
 // when given no key, which used to stop the whole API from starting
 // without billing set up.
 let client: Stripe | null = null;
+let testClient: Stripe | null = null;
+
+/** Tests only: use this client (pointed at a local fake Stripe) instead of the real one; null restores it. */
+export function setStripeClientForTests(stripeClient: Stripe | null): void {
+  if (env.NODE_ENV !== 'test') throw new Error('setStripeClientForTests is for tests only');
+  testClient = stripeClient;
+}
 
 function stripe(): Stripe {
+  if (testClient) return testClient;
   if (!env.STRIPE_SECRET_KEY) {
     console.error('Stripe: STRIPE_SECRET_KEY is not set; billing is off');
     throw new AppError(BILLING_UNAVAILABLE, 503);
@@ -31,11 +39,16 @@ function stripe(): Stripe {
  * anywhere — this file only talks to the Stripe API, never to
  * MongoDB. The caller (billing.controller.ts) is responsible for
  * saving it onto the SaasUser document.
+ *
+ * Idempotent per account: the key is the account's id (opaque, no personal
+ * data, as Stripe advises). If saving the id failed after Stripe created
+ * the customer, or two checkouts race, a retry within Stripe's 24-hour
+ * window gets the same customer back instead of a duplicate.
  */
-export async function createStripeCustomer(email: string): Promise<string> {
+export async function createStripeCustomer(email: string, accountId: string): Promise<string> {
   const stripeClient = stripe();
   try {
-    const customer = await stripeClient.customers.create({ email });
+    const customer = await stripeClient.customers.create({ email }, { idempotencyKey: `customer-create/${accountId}` });
     return customer.id;
   } catch (error) {
     throw billingError('creating a customer', error);
