@@ -220,3 +220,12 @@ How much of this applies depends on scope. Without the Creator Dashboard, for ex
 - Current Gemini model names: Google's docs moved to aistudio.google.com, which is not on this environment's allowlist yet.
 - Deployment, the Docker image, graceful shutdown on a real host, `COOKIE_DOMAIN` across two hosts.
 - Browsers other than Chromium; field performance.
+
+## Answers (2026-11-23)
+
+1. **Scope:** keep the portfolio pages (the site itself), the CMS admin, the assistant chat, the project planner and the Creator Dashboard. **The shop is removed.**
+2. **Audience:** freelance clients.
+3. **Contact path:** left to Claude; decided in the Phase 3 plan, starting from PR #19 (enquiries delivered to the admin dashboard).
+4. **Open PRs:** descriptions given to the user; decision pending. **The user is the repository's only contributor:** the rebuild branches were re-authored to the user's identity without AI attribution, and `CLAUDE.md` section 16 keeps it that way.
+5. **Domain:** biniyam.com. Hosting is proposed in the Phase 3 plan.
+6. **Continue rules:** removed.
