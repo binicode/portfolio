@@ -166,3 +166,13 @@ test('a filled honeypot is answered like a real brief but not stored', async () 
   assert.equal((await app.post('/api/inquiries', bot)).status, 201);
   assert.equal((await app.call('/api/admin/inquiries/stats', {}, admin)).body.total, 0);
 });
+
+test('without a Gemini key the assistant answers with a plain error event, and keeps the question', async () => {
+  const sessionId = '11111111-1111-4111-8111-111111111111';
+  const { status, body } = await app.post('/api/ai-chat/chat', { sessionId, message: 'What does Biniyam build?' });
+  assert.equal(status, 200);
+  assert.match(String(body), /"type":"error"/);
+  assert.match(String(body), /can't answer right now/);
+  const history = await app.call(`/api/ai-chat/chat/${sessionId}`);
+  assert.deepEqual(history.body.messages.map((m: { role: string }) => m.role), ['user']);
+});
