@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { requireSession } from '../../core/middleware/auth.js';
+import { requireSession, type AuthTokenPayload } from '../../core/middleware/auth.js';
 
 /**
  * The CMS admin's session state. The admin account itself is configured in
@@ -24,6 +24,11 @@ export async function adminTokenVersion(): Promise<number> {
 /** Revokes every admin token issued so far. */
 export async function bumpAdminTokenVersion(): Promise<void> {
   await AdminStateModel.updateOne({ _id: ADMIN_ID }, { $inc: { tokenVersion: 1 } }, { upsert: true });
+}
+
+/** Signs the admin out everywhere, for a token that is still current (see endCustomerSession). */
+export async function endAdminSession(claims: AuthTokenPayload): Promise<void> {
+  if (claims.sub === ADMIN_ID && (await adminTokenVersion()) === claims.ver) await bumpAdminTokenVersion();
 }
 
 /** Guards an admin route: a valid, unrevoked admin token. */

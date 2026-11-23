@@ -209,6 +209,10 @@ test('signing out revokes the customer session, including copies of its token', 
   const again = await app.post('/api/saas/auth/login', { email: 'customer@example.com', password: 'correct-horse-1' });
   assert.equal((await app.call('/api/saas/auth/me', {}, again.cookie)).status, 200, 'signing in again works');
   assert.equal((await app.call('/api/saas/auth/me', {}, copy)).status, 401, 'the old token stays revoked');
+
+  // Signing out with the revoked copy must not end the new session.
+  assert.equal((await app.post('/api/saas/auth/logout', {}, copy)).status, 200);
+  assert.equal((await app.call('/api/saas/auth/me', {}, again.cookie)).status, 200);
 });
 
 test('signing out revokes the admin session, including copies of its token', async () => {
@@ -219,6 +223,8 @@ test('signing out revokes the admin session, including copies of its token', asy
 
   const again = await app.post('/api/admin/auth/login', ADMIN);
   assert.equal((await app.call('/api/admin/projects', {}, again.cookie)).status, 200);
+  assert.equal((await app.post('/api/admin/auth/logout', {}, copy)).status, 200);
+  assert.equal((await app.call('/api/admin/projects', {}, again.cookie)).status, 200, 'a revoked copy cannot sign the admin out');
 });
 
 test('signing out without a session, or with a bad token, still answers 200', async () => {

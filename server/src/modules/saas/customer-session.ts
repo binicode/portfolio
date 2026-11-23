@@ -1,5 +1,5 @@
 import { isValidObjectId } from 'mongoose';
-import { requireSession } from '../../core/middleware/auth.js';
+import { requireSession, type AuthTokenPayload } from '../../core/middleware/auth.js';
 import { SaasUserModel } from './saas-user.model.js';
 
 /**
@@ -17,6 +17,15 @@ export async function customerTokenVersion(userId: string): Promise<number | nul
 export async function bumpCustomerTokenVersion(userId: string): Promise<void> {
   if (!isValidObjectId(userId)) return;
   await SaasUserModel.updateOne({ _id: userId }, { $inc: { tokenVersion: 1 } });
+}
+
+/**
+ * Signs the account out everywhere, for a token that is still current. An
+ * already revoked token changes nothing, so an old copy of a token cannot
+ * end the sessions that came after it.
+ */
+export async function endCustomerSession(claims: AuthTokenPayload): Promise<void> {
+  if ((await customerTokenVersion(claims.sub)) === claims.ver) await bumpCustomerTokenVersion(claims.sub);
 }
 
 /** Guards a Creator Dashboard route: a valid, unrevoked customer token. */

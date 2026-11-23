@@ -5,7 +5,7 @@ import { env } from '../../core/config/env.js';
 import { isDatabaseReady } from '../../core/config/db.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { SAAS_AUTH_COOKIE_NAME, sessionToken, signAccessToken, verifyAccessToken } from '../../core/middleware/auth.js';
-import { bumpCustomerTokenVersion } from './customer-session.js';
+import { endCustomerSession } from './customer-session.js';
 import { SaasUserModel } from './saas-user.model.js';
 import type { AuthResult } from './saas.types.js';
 import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
@@ -68,7 +68,7 @@ export const postLogin = async (req: Request, res: Response) => {
 
 /**
  * POST /saas/auth/logout
- * Clears the cookie and, when the request carries a valid session, revokes
+ * Clears the cookie and, when the request carries a current session, revokes
  * every token issued for the account so far (a copied token stops working
  * too). Without the database it can only clear the cookie.
  */
@@ -77,7 +77,7 @@ export const postLogout = async (req: Request, res: Response) => {
   // Without the database, revoking would wait for a connection; only clear the cookie.
   if (token && isDatabaseReady()) {
     try {
-      await bumpCustomerTokenVersion(verifyAccessToken('customer', token).sub);
+      await endCustomerSession(verifyAccessToken('customer', token));
     } catch (error) {
       if (!(error instanceof AppError)) console.warn('SaaS logout: could not revoke the session', error instanceof Error ? error.message : error);
     }

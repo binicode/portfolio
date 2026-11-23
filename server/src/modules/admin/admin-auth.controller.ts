@@ -5,7 +5,7 @@ import { env } from '../../core/config/env.js';
 import { isDatabaseReady } from '../../core/config/db.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { AUTH_COOKIE_NAME, sessionToken, signAccessToken, verifyAccessToken } from '../../core/middleware/auth.js';
-import { ADMIN_ID, adminTokenVersion, bumpAdminTokenVersion } from './admin-session.js';
+import { ADMIN_ID, adminTokenVersion, endAdminSession } from './admin-session.js';
 import type { AdminLoginResult } from './admin.types.js';
 import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
 
@@ -50,7 +50,7 @@ export const postAdminLogin = async (req: Request, res: Response) => {
 
 /**
  * POST /admin/logout
- * Clears the cookie and, when the request carries a valid admin session,
+ * Clears the cookie and, when the request carries a current admin session,
  * revokes every admin token issued so far (a copied token stops working
  * too). Without the database it can only clear the cookie.
  */
@@ -59,8 +59,7 @@ export const postAdminLogout = async (req: Request, res: Response) => {
   // Without the database, revoking would wait for a connection; only clear the cookie.
   if (token && isDatabaseReady()) {
     try {
-      verifyAccessToken('admin', token);
-      await bumpAdminTokenVersion();
+      await endAdminSession(verifyAccessToken('admin', token));
     } catch (error) {
       if (!(error instanceof AppError)) console.warn('Admin logout: could not revoke the session', error instanceof Error ? error.message : error);
     }
