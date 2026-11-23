@@ -79,7 +79,6 @@ export function createApp(): Application {
   app.use('/api/saas/billing', database, billingRouter);
   app.use('/api/saas/aggregator', database, aggregatorRouter);
   app.use('/api/saas/settings', database, settingsRouter);
-  // app.use('/api/storefront', storefrontRouter);
 
   // --- 404 + error handling MUST be last, in this order ---
   app.use(notFoundHandler);
