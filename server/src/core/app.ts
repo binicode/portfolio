@@ -15,6 +15,7 @@ import saasAuthRouter from '../modules/saas/saas-auth.routes.js';
 import billingRouter from '../modules/saas/billing.routes.js';
 import aggregatorRouter from '../modules/saas/aggregator.routes.js';
 import settingsRouter from '../modules/saas/settings.routes.js';
+import accountRouter from '../modules/saas/account.routes.js';
 import { postStripeWebhook } from '../modules/saas/webhook.controller.js';
 
 export function createApp(): Application {
@@ -83,6 +84,7 @@ export function createApp(): Application {
   app.use('/api/saas/billing', database, billingRouter);
   app.use('/api/saas/aggregator', database, aggregatorRouter);
   app.use('/api/saas/settings', database, settingsRouter);
+  app.use('/api/saas/account', database, accountRouter);
 
   // --- 404 + error handling MUST be last, in this order ---
   app.use(notFoundHandler);

@@ -2,6 +2,11 @@ import type { Request, Response } from 'express';
 import { isValidObjectId } from 'mongoose';
 import { z } from 'zod';
 import { isDatabaseReady } from '../../core/config/db.js';
+import { env } from '../../core/config/env.js';
+import { primaryClientOrigin } from '../../core/config/origins.js';
+import { inBackground } from '../../core/background.js';
+import { sendEmail } from '../../core/email/email.js';
+import { inquiryAlert } from '../../core/email/messages.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { InquiryModel } from './inquiry.model.js';
 import { inquiryBodySchema, isHoneypotFilled } from './inquiry.schema.js';
@@ -18,7 +23,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * Validation errors are field messages; anything else is the generic 500.
  * While the database is down (the server starts without it, db.ts) this
  * answers 503 at once instead of waiting on Mongoose's buffer, so the
- * planner offers the LinkedIn route straight away.
+ * planner offers the LinkedIn route straight away. With ALERT_EMAIL_TO set,
+ * the brief is also emailed there after the response (replying to that
+ * email answers the visitor when they left an address).
  */
 export const postInquiry = async (req: Request, res: Response) => {
   if (isHoneypotFilled(req.body)) {
@@ -27,8 +34,24 @@ export const postInquiry = async (req: Request, res: Response) => {
   }
   const input = inquiryBodySchema.parse(req.body);
   if (!isDatabaseReady()) throw new AppError('Briefs can’t be received right now.', 503);
-  await InquiryModel.create(input);
+  const inquiry = await InquiryModel.create(input);
   res.status(201).json({ ok: true });
+
+  const alertTo = env.ALERT_EMAIL_TO;
+  if (alertTo) {
+    inBackground('Enquiry alert', () =>
+      sendEmail(
+        inquiryAlert({
+          to: alertTo,
+          name: inquiry.name,
+          contact: inquiry.contact,
+          brief: inquiry.brief,
+          adminUrl: `${primaryClientOrigin(env.CLIENT_ORIGIN)}/dashboard/inquiries`,
+        }),
+        `inquiry-alert/${inquiry._id.toString()}`,
+      ),
+    );
+  }
 };
 
 // --- Admin (mounted behind requireAdmin) ---

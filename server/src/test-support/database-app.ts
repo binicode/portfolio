@@ -12,6 +12,7 @@
 import bcrypt from 'bcryptjs';
 import type { AddressInfo } from 'node:net';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import type { EmailMessage } from '../core/email/email.js';
 
 export const ADMIN = { email: 'admin@example.com', password: 'admin-password-for-tests' };
 
@@ -26,6 +27,14 @@ export interface DatabaseApp {
   call(path: string, init?: RequestInit, cookie?: string): Promise<ApiResponse>;
   post(path: string, body: unknown, cookie?: string): Promise<ApiResponse>;
   patch(path: string, body: unknown, cookie?: string): Promise<ApiResponse>;
+  /** Every email the API sent, in order (nothing leaves the test). */
+  outbox: EmailMessage[];
+  /**
+   * The first email after the outbox's first `after` messages that matches,
+   * waiting for it (some are sent after the response). Fails after 15 s
+   * (test files run in parallel, so a loaded machine can be slow).
+   */
+  nextEmail(match: (message: EmailMessage) => boolean, after?: number): Promise<EmailMessage>;
   stop(): Promise<void>;
 }
 
@@ -51,8 +60,13 @@ export async function startDatabaseApp(overrides: Record<string, string> = {}): 
     STRIPE_PRO_PRICE_ID: '',
     GITHUB_API_TOKEN: '',
     YOUTUBE_API_KEY: '',
+    RESEND_API_KEY: '',
+    EMAIL_FROM: '',
+    ALERT_EMAIL_TO: '',
     ...overrides,
   });
+
+  const outbox: EmailMessage[] = [];
 
   // If anything below fails, stop the database: a running mongod would keep
   // the test process alive, and the run would hang instead of failing.
@@ -60,6 +74,10 @@ export async function startDatabaseApp(overrides: Record<string, string> = {}): 
   try {
     const { connectDB, disconnectDB } = await import('../core/config/db.js');
     const { createApp } = await import('../core/app.js');
+    const { setEmailTransportForTests } = await import('../core/email/email.js');
+    setEmailTransportForTests(async (message) => {
+      outbox.push(message);
+    });
     if (!(await connectDB())) throw new Error('test database did not connect');
     const server = createApp().listen(0);
     await new Promise((resolve) => server.once('listening', resolve));
@@ -90,10 +108,27 @@ export async function startDatabaseApp(overrides: Record<string, string> = {}): 
     call,
     post: (path, body, cookie) => call(path, { method: 'POST', body: JSON.stringify(body) }, cookie),
     patch: (path, body, cookie) => call(path, { method: 'PATCH', body: JSON.stringify(body) }, cookie),
+    outbox,
+    async nextEmail(match, after = 0) {
+      const deadline = Date.now() + 15_000;
+      for (;;) {
+        const found = outbox.slice(after).find(match);
+        if (found) return found;
+        if (Date.now() > deadline) throw new Error('no matching email was sent');
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+    },
     async stop() {
       await new Promise((resolve) => server.close(resolve));
       await disconnectDB();
       await mongo.stop();
     },
   };
+}
+
+/** The token in an emailed link (it travels in the fragment: #token=...). */
+export function linkToken(message: EmailMessage): string {
+  const token = /#token=([A-Za-z0-9_-]{43})/.exec(message.text)?.[1];
+  if (!token) throw new Error(`no link in the "${message.kind}" email`);
+  return token;
 }

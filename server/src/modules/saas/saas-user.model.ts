@@ -13,6 +13,8 @@ const saasUserSchema = new Schema<SaasUserDocument>(
       lowercase: true,
     },
     passwordHash: { type: String, required: true },
+    emailVerifiedAt: { type: Date },
+    existingAccountNoticeAt: { type: Date },
     stripeCustomerId: { type: String },
     stripeSubscriptionId: { type: String },
     subscriptionStatus: {

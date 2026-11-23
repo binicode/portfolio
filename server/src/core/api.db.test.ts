@@ -6,7 +6,7 @@
 // checks that an 11th is refused. A new sign-in test must fit that budget.
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ADMIN, startDatabaseApp, type DatabaseApp } from '../test-support/database-app.js';
+import { ADMIN, linkToken, startDatabaseApp, type DatabaseApp } from '../test-support/database-app.js';
 
 let app: DatabaseApp;
 let customer: string | undefined;
@@ -14,7 +14,7 @@ let admin: string | undefined;
 let projectId: string;
 
 before(async () => {
-  app = await startDatabaseApp();
+  app = await startDatabaseApp({ ALERT_EMAIL_TO: 'alerts@example.com' });
 });
 
 after(async () => {
@@ -27,10 +27,14 @@ test('health reports the database as connected', async () => {
   assert.equal(body.database, 'connected');
 });
 
-test('sign-up creates an account and a customer session', async () => {
+test('sign-up creates an account; its confirmation link signs in', async () => {
   const { status, cookie } = await app.post('/api/saas/auth/register', { email: 'Customer@Example.com', password: 'correct-horse-1' });
-  assert.equal(status, 201);
-  assert.match(cookie ?? '', /^saas_token=/);
+  assert.equal(status, 202);
+  assert.equal(cookie, undefined, 'sign-up itself signs nobody in');
+  const email = await app.nextEmail((m) => m.kind === 'verify-email' && m.to === 'customer@example.com');
+  const verified = await app.post('/api/saas/auth/verify-email', { token: linkToken(email) });
+  assert.equal(verified.status, 200);
+  assert.match(verified.cookie ?? '', /^saas_token=/);
 });
 
 test('sign-up rejects invalid input with field messages', async () => {
@@ -58,6 +62,8 @@ test('the session returns the account, and no session is refused', async () => {
   const me = await app.call('/api/saas/auth/me', {}, customer);
   assert.equal(me.status, 200);
   assert.equal(me.body.email, 'customer@example.com');
+  assert.equal(me.body.emailVerified, true);
+  assert.equal(me.body.hasBillingAccount, false);
   assert.equal(me.body.subscriptionStatus, 'none');
   assert.equal((await app.call('/api/saas/auth/me')).status, 401);
 });
@@ -155,6 +161,11 @@ test('a project brief is stored, and only the admin can read and manage it', asy
     transcript: [{ q: 'What are you building?', a: ['Web app'] }],
   };
   assert.equal((await app.post('/api/inquiries', brief)).status, 201);
+  const alert = await app.nextEmail((m) => m.kind === 'inquiry-alert');
+  assert.equal(alert.to, 'alerts@example.com');
+  assert.equal(alert.replyTo, 'ada@example.com', 'replying answers the visitor');
+  assert.match(alert.text, /A booking site/);
+  assert.match(alert.text, /http:\/\/localhost:3000\/dashboard\/inquiries/);
 
   // A customer's cookie is never read on admin routes: no admin session at all.
   assert.equal((await app.call('/api/admin/inquiries', {}, customer)).status, 401);
@@ -180,9 +191,11 @@ test('admin inquiry routes refuse a bad id or body with a 400', async () => {
 });
 
 test('a filled honeypot is answered like a real brief but not stored', async () => {
+  const sent = app.outbox.length;
   const bot = { name: 'Bot', contact: 'bot@example.com', brief: 'spam', transcript: [{ q: 'Q', a: ['A'] }], website: 'https://spam.example' };
   assert.equal((await app.post('/api/inquiries', bot)).status, 201);
   assert.equal((await app.call('/api/admin/inquiries/stats', {}, admin)).body.total, 0);
+  assert.equal(app.outbox.length, sent, 'and no alert is sent');
 });
 
 test('without a Gemini key the assistant answers with a plain error event, and keeps the question', async () => {

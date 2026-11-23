@@ -53,8 +53,44 @@ export const authLimiter = rateLimit({
 });
 
 /**
- * Starting a Stripe Checkout Session creates objects in Stripe: a person
- * needs a handful of tries at most. Keyed by account, since the route is
+ * Account links: confirming an address, resetting a password, and asking
+ * for either link again. The two that send email also wait a minute per
+ * account between sends (saas-auth.controller.ts); this bounds what one
+ * address can do across accounts, and the free email quota (100 a day).
+ */
+export const accountLinkLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: env.NODE_ENV === 'production' ? 10 : 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: {
+      message: 'Too many attempts. Please try again in 15 minutes.',
+    },
+  },
+});
+
+/**
+ * Deleting an account asks for its password again. The caller is already
+ * signed in, so this is keyed by account: a stolen session can't be used
+ * to guess the password quickly.
+ */
+export const accountDeletionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: accountOrIp,
+  message: {
+    error: {
+      message: 'Too many attempts. Please try again in 15 minutes.',
+    },
+  },
+});
+
+/**
+ * Checkout and portal sessions create objects in Stripe: a person needs a
+ * handful of tries at most. Keyed by account, since the routes are
  * signed-in only.
  */
 export const checkoutLimiter = rateLimit({
@@ -65,7 +101,7 @@ export const checkoutLimiter = rateLimit({
   keyGenerator: accountOrIp,
   message: {
     error: {
-      message: 'Too many checkout attempts. Please try again in 15 minutes.',
+      message: 'Too many billing requests. Please try again in 15 minutes.',
     },
   },
 });

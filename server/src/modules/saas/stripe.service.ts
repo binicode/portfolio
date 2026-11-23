@@ -99,3 +99,32 @@ export function verifyWebhookSignature(rawBody: Buffer, signature: string): Stri
     throw new AppError('Invalid webhook signature', 400);
   }
 }
+/**
+ * A Stripe customer portal session for this customer: update the card,
+ * see invoices, cancel. What the portal offers is set in the Stripe
+ * Dashboard (Settings > Billing > Customer portal).
+ */
+export async function createBillingPortalSession(stripeCustomerId: string, returnUrl: string): Promise<string> {
+  const stripeClient = stripe();
+  try {
+    const session = await stripeClient.billingPortal.sessions.create({ customer: stripeCustomerId, return_url: returnUrl });
+    return session.url;
+  } catch (error) {
+    throw billingError('creating a portal session', error);
+  }
+}
+
+/**
+ * Deletes the customer at Stripe, which also cancels its subscriptions at
+ * once (no further charges). A customer Stripe no longer has counts as
+ * deleted. Stripe keeps its own records of past payments.
+ */
+export async function deleteStripeCustomer(stripeCustomerId: string): Promise<void> {
+  const stripeClient = stripe();
+  try {
+    await stripeClient.customers.del(stripeCustomerId);
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'resource_missing') return;
+    throw billingError('deleting a customer', error);
+  }
+}

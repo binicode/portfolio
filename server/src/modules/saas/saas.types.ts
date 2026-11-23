@@ -3,6 +3,10 @@ export type SubscriptionStatus = 'none' | 'active' | 'canceled' | 'past_due';
 export interface SaasUserDocument {
   email: string;
   passwordHash: string;
+  /** When the account's owner confirmed the address (a link sent to it); unset until then. */
+  emailVerifiedAt?: Date;
+  /** Last "you already have an account" email, so repeated sign-ups can't flood the inbox. */
+  existingAccountNoticeAt?: Date;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   subscriptionStatus: SubscriptionStatus;
