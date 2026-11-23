@@ -19,13 +19,9 @@ export function logoutSaasUser(): Promise<{ success: true }> {
   return apiClient.post('/saas/auth/logout');
 }
 
-/** Uses an emailed confirmation link's token; signs in. */
-export function verifySaasEmail(token: string): Promise<AuthResult> {
-  return apiClient.post<AuthResult>('/saas/auth/verify-email', { token });
-}
-
-export function resendSaasVerification(): Promise<{ ok: true }> {
-  return apiClient.post('/saas/auth/verify-email/resend');
+/** Uses an emailed confirmation link's token with the account's password; signs in. */
+export function verifySaasEmail(token: string, password: string): Promise<AuthResult> {
+  return apiClient.post<AuthResult>('/saas/auth/verify-email', { token, password });
 }
 
 export function requestPasswordReset(email: string): Promise<{ ok: true }> {

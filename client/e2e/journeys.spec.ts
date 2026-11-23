@@ -112,6 +112,14 @@ async function signUp(page: Page, email: string, password: string) {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Check your inbox');
 }
 
+async function confirmEmail(page: Page, email: string, password: string) {
+  // The emailed link carries its token in the fragment; the password chosen at sign-up confirms it.
+  await page.goto(`/saas/verify-email#token=${await emailedToken(page, email, 'verify')}`);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Confirm and continue' }).click();
+  await expect(page).toHaveURL(/\/saas\/dashboard$/);
+}
+
 async function logIn(page: Page, email: string, password: string) {
   await page.goto('/saas/login');
   await page.getByLabel('Email').fill(email);
@@ -124,13 +132,9 @@ test('sign up, confirm the email, log out, log back in', async ({ page }) => {
   const email = newEmail();
   const password = 'fixture-password-1';
   await signUp(page, email, password);
-
-  // The emailed link carries its token in the fragment; one click confirms and signs in.
-  await page.goto(`/saas/verify-email#token=${await emailedToken(page, email, 'verify')}`);
-  await page.getByRole('button', { name: 'Confirm and continue' }).click();
+  await confirmEmail(page, email, password);
 
   // A new account has no subscription yet: the dashboard asks for one.
-  await expect(page).toHaveURL(/\/saas\/dashboard$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Unlock your dashboard');
 
   await page.getByRole('button', { name: 'Log out' }).first().click();
@@ -140,25 +144,37 @@ test('sign up, confirm the email, log out, log back in', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Unlock your dashboard');
 });
 
-test('an unconfirmed account is asked to confirm before subscribing', async ({ page }) => {
+test('an unconfirmed account can’t log in, and confirming needs its password', async ({ page }) => {
   const email = newEmail();
   await signUp(page, email, 'fixture-password-1');
-  await logIn(page, email, 'fixture-password-1');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Confirm your email');
-  await page.getByRole('button', { name: 'Send a new link' }).click();
-  await expect(page.getByText('Sent. The new link works for 24 hours.')).toBeVisible();
+
+  await page.goto('/saas/login');
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Password').fill('fixture-password-1');
+  await page.getByRole('button', { name: /log in/i }).click();
+  await expect(page.getByText('Just signed up? Confirm your email first.')).toBeVisible();
+
+  await page.goto(`/saas/verify-email#token=${await emailedToken(page, email, 'verify')}`);
+  await page.getByLabel('Password').fill('not-the-password');
+  await page.getByRole('button', { name: 'Confirm and continue' }).click();
+  await expect(page.getByText('That password doesn’t match the one chosen at sign-up.')).toBeVisible();
+
+  await page.getByLabel('Password').fill('fixture-password-1');
+  await page.getByRole('button', { name: 'Confirm and continue' }).click();
+  await expect(page).toHaveURL(/\/saas\/dashboard$/);
 });
 
 test('a used confirmation link is refused with a way forward', async ({ page }) => {
   const email = newEmail();
   await signUp(page, email, 'fixture-password-1');
   const token = await emailedToken(page, email, 'verify');
-  await page.request.post(`${MOCK_API}/api/saas/auth/verify-email`, { data: { token } });
+  await page.request.post(`${MOCK_API}/api/saas/auth/verify-email`, { data: { token, password: 'fixture-password-1' } });
 
   await page.goto(`/saas/verify-email#token=${token}`);
+  await page.getByLabel('Password').fill('fixture-password-1');
   await page.getByRole('button', { name: 'Confirm and continue' }).click();
   await expect(page.getByText('This link has expired or was already used.')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Log in' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Sign up again' })).toBeVisible();
 });
 
 test('forgot password: the reset link sets a new one and signs in', async ({ page }) => {
@@ -192,7 +208,7 @@ test('a reset page without a token says so and offers a new link', async ({ page
 test('deleting the account from settings', async ({ page }) => {
   const email = newEmail();
   await signUp(page, email, 'fixture-password-1');
-  await logIn(page, email, 'fixture-password-1');
+  await confirmEmail(page, email, 'fixture-password-1');
   await page.goto('/saas/dashboard/settings');
 
   const password = page.getByLabel('Your password');

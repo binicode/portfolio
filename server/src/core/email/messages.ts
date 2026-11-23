@@ -40,10 +40,11 @@ export function verifyEmailMessage(to: string, link: string): EmailMessage {
     to,
     subject: 'Confirm your email for the Creator Dashboard',
     text: [
-      'Confirm this address to finish setting up your Creator Dashboard account:',
+      'Confirm this address to finish setting up your Creator Dashboard account.',
+      'Open the link and enter the password you chose when you signed up:',
       link,
       '',
-      'The link works once, for 24 hours.',
+      'The link works once, for 24 hours. Lost it? Sign up again for a new one.',
       "If you didn't sign up, ignore this email and nothing happens.",
       '',
       SIGN_OFF,

@@ -37,8 +37,8 @@ export default function SaasSignupForm() {
       <div className="space-y-5" role="status">
         <h1 className="text-h2 font-medium">Check your inbox</h1>
         <p className="text-muted-foreground">
-          We sent an email to <span className="font-medium text-foreground">{sentTo}</span>. Open the link in it to confirm
-          your address and sign in. It works for 24 hours.
+          We sent an email to <span className="font-medium text-foreground">{sentTo}</span>. Open the link in it and enter
+          your password to confirm your address. The link works for 24 hours.
         </p>
         <p className="text-sm text-muted-foreground">
           Nothing there after a few minutes? Check spam, or{' '}

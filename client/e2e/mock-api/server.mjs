@@ -41,6 +41,7 @@ function redeemLink(token, kind) {
 }
 
 const LINK_INVALID = 'This link has expired or was already used.';
+const LOGIN_REFUSED = 'Invalid email or password. Just signed up? Confirm your email first.';
 const CLEAR_COOKIE = { 'Set-Cookie': `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0` };
 
 function cors(req, res) {
@@ -143,26 +144,30 @@ async function post(req, res, pathname) {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || password.length < 8) {
       return send(req, res, 400, { error: { message: 'Validation failed', details: {} } });
     }
-    // Like the real API: the same answer whether or not the address has an account.
-    if (!accounts.has(email)) {
+    // Like the real API: the same answer whether or not the address has an
+    // account; signing up again while unconfirmed replaces the password and
+    // sends a new link.
+    const existing = accounts.get(email);
+    if (!existing) {
       accounts.set(email, { email, password, verified: false });
+      issueLink(email, 'verify');
+    } else if (!existing.verified) {
+      existing.password = password;
       issueLink(email, 'verify');
     }
     return send(req, res, 202, { ok: true });
   }
 
   if (pathname === '/api/saas/auth/verify-email') {
-    const account = redeemLink((await readJson(req))?.token, 'verify');
-    if (!account) return send(req, res, 400, error(LINK_INVALID));
+    // Like the real API: the link and the sign-up password together.
+    const body = await readJson(req);
+    const link = links.get(String(body?.token ?? ''));
+    const pending = link?.kind === 'verify' ? accounts.get(link.email) : undefined;
+    if (!pending) return send(req, res, 400, error(LINK_INVALID));
+    if (pending.password !== body?.password) return send(req, res, 401, error('That password doesn’t match the one chosen at sign-up.'));
+    const account = redeemLink(body.token, 'verify');
     account.verified = true;
     return send(req, res, 200, { success: true }, signIn(account.email));
-  }
-
-  if (pathname === '/api/saas/auth/verify-email/resend') {
-    const email = sessionEmail(req);
-    if (!email) return send(req, res, 401, error('Authentication required'));
-    issueLink(email, 'verify');
-    return send(req, res, 200, { ok: true });
   }
 
   if (pathname === '/api/saas/auth/password/forgot') {
@@ -185,7 +190,7 @@ async function post(req, res, pathname) {
   if (pathname === '/api/saas/auth/login') {
     const body = await readJson(req);
     const account = accounts.get(String(body?.email ?? '').trim().toLowerCase());
-    if (!account || account.password !== body?.password) return send(req, res, 401, error('Invalid email or password'));
+    if (!account || account.password !== body?.password || !account.verified) return send(req, res, 401, error(LOGIN_REFUSED));
     return send(req, res, 200, { success: true }, signIn(account.email));
   }
 

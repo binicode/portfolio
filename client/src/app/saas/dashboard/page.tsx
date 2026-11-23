@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { requireSaasSession, getAggregatorStats } from '@/lib/saas-server';
 import SubscribeButton from './subscribe-button';
-import ResendVerificationButton from './resend-verification-button';
 import DashboardPreview from '@/components/saas/DashboardPreview';
 import DashboardBody from '@/components/saas/DashboardBody';
 import DashboardHeader, { displayName } from '@/components/saas/DashboardHeader';
@@ -32,26 +31,6 @@ export default async function SaasDashboardPage({
               Refresh
             </a>
           </div>
-        </div>
-      );
-    }
-
-    // Checkout needs a confirmed address (receipts and account email go there).
-    if (!me.emailVerified) {
-      return (
-        <div className="container-page py-[clamp(3rem,8vw,6rem)]">
-          <div className="grid gap-10 border-y border-foreground/80 py-12 lg:grid-cols-12 lg:items-end lg:gap-8 lg:py-16">
-            <div className="lg:col-span-8">
-              <h1 className="text-h2 font-medium">Confirm your email</h1>
-              <p className="mt-5 max-w-[36rem] text-lead text-muted-foreground">
-                Open the link we sent to <span className="text-foreground">{me.email}</span>, then subscribe from here.
-              </p>
-            </div>
-            <div className="lg:col-span-4 lg:justify-self-end">
-              <ResendVerificationButton />
-            </div>
-          </div>
-          <DashboardPreview className="mt-12 lg:mt-16" />
         </div>
       );
     }
