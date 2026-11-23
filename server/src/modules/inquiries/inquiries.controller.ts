@@ -31,7 +31,7 @@ export const postInquiry = async (req: Request, res: Response) => {
   res.status(201).json({ ok: true });
 };
 
-// --- Admin (mounted behind requireAuth + requireRole('admin')) ---
+// --- Admin (mounted behind requireAdmin) ---
 
 async function stats() {
   const [total, unread, last30Days] = await Promise.all([

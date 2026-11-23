@@ -6,7 +6,7 @@ import { getAggregatedStats } from './aggregator.service.js';
 /**
  * GET /saas/aggregator
  * Returns the current user's aggregated cross-platform stats. By the
- * time this handler runs, requireAuth + requireRole('user') +
+ * time this handler runs, requireCustomer and
  * requireActiveSubscription (applied in aggregator.routes.ts) have
  * already confirmed both identity and payment status.
  */

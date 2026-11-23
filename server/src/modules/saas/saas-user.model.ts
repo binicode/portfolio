@@ -21,6 +21,8 @@ const saasUserSchema = new Schema<SaasUserDocument>(
       required: true,
       default: 'none',
     },
+    // Sessions issued under an older version are revoked (customer-session.ts).
+    tokenVersion: { type: Number, default: 0 },
     // Later Stripe events win; an older one arriving late is skipped.
     subscriptionEventAt: { type: Date },
     githubUsername: { type: String, trim: true },

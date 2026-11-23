@@ -4,8 +4,7 @@ import { SaasUserModel } from './saas-user.model.js';
 
 /**
  * Guards a route behind an active Stripe subscription. Must run AFTER
- * requireAuth + requireRole('user'), since it depends on req.user
- * already being set.
+ * requireCustomer, since it depends on req.user already being set.
  *
  * Queries subscriptionStatus fresh from the database rather than
  * trusting anything on the JWT — a subscription's status can change

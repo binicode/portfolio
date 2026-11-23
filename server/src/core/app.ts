@@ -68,14 +68,18 @@ export function createApp(): Application {
   // --- Module routers get mounted here as each one is built ---
   app.use('/api/ai-chat', aiChatRouter);
   // Everything below the assistant needs MongoDB (the assistant has its own
-  // fallbacks without it), except signing in and out: the admin account is
-  // configured in the environment, and logging out only clears a cookie.
+  // fallbacks without it): sessions are checked against each account's token
+  // version there (auth.ts). Logging out is the exception: it can always
+  // clear the cookie, and revokes the session when the database is up.
+  const databaseExceptLogout: express.RequestHandler = (req, res, next) =>
+    req.path === '/logout' ? next() : database(req, res, next);
   app.use('/api/inquiries', database, inquiriesRouter);
   app.use('/api/admin/projects', database);
   app.use('/api/admin/inquiries', database);
+  app.use('/api/admin/auth', databaseExceptLogout);
   app.use('/api/admin', adminRouter);
   app.use('/api/projects', database, projectsPublicRouter);
-  app.use('/api/saas/auth', (req, res, next) => (req.path === '/logout' ? next() : database(req, res, next)), saasAuthRouter);
+  app.use('/api/saas/auth', databaseExceptLogout, saasAuthRouter);
   app.use('/api/saas/billing', database, billingRouter);
   app.use('/api/saas/aggregator', database, aggregatorRouter);
   app.use('/api/saas/settings', database, settingsRouter);

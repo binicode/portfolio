@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../../core/middleware/auth.js';
+import { requireCustomer } from './customer-session.js';
 import { requireActiveSubscription } from './require-active-subscription.middleware.js';
 import { getAggregatorStats } from './aggregator.controller.js';
 
 const router = Router();
 
-router.get('/', requireAuth, requireRole('user'), requireActiveSubscription, getAggregatorStats);
+router.get('/', requireCustomer, requireActiveSubscription, getAggregatorStats);
 
 export default router;

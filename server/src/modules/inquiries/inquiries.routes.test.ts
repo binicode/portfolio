@@ -1,6 +1,7 @@
 // Run with `npm test` in server/ (Node's test runner through tsx).
-// HTTP checks that never reach the database: the admin guard, validation
-// before any query, and the honeypot. Each test file runs in its own
+// HTTP checks that never reach the database: the admin guard's token
+// checks, validation before any query, and the honeypot. (An admin token
+// also needs the database, for its version: api.db.test.ts.) Each test file runs in its own
 // process, so setting the environment here affects only this file.
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -39,7 +40,7 @@ before(async () => {
 
 after(() => server.close());
 
-const bearer = (role: 'admin' | 'user') => ({ Authorization: `Bearer ${signAccessToken({ sub: 'id', role })}` });
+const customerBearer = { Authorization: `Bearer ${signAccessToken('customer', { sub: '507f1f77bcf86cd799439011', ver: 0 })}` };
 
 const request = (path: string, init: RequestInit = {}) =>
   fetch(`${base}${path}`, { ...init, headers: { 'Content-Type': 'application/json', ...init.headers } });
@@ -56,20 +57,9 @@ test('admin inquiry routes refuse visitors without a token', async () => {
   }
 });
 
-test('admin inquiry routes refuse a signed-in SaaS user', async () => {
-  const response = await request('/admin/inquiries', { headers: bearer('user') });
-  assert.equal(response.status, 403);
-});
-
-test('an admin passes the guard; bad ids and bodies stop before the database', async () => {
-  const badId = await request('/admin/inquiries/not-an-id', { method: 'PATCH', headers: bearer('admin'), body: '{"read":true}' });
-  assert.equal(badId.status, 400);
-  const badBody = await request('/admin/inquiries/507f1f77bcf86cd799439011', {
-    method: 'PATCH',
-    headers: bearer('admin'),
-    body: '{"read":"yes"}',
-  });
-  assert.equal(badBody.status, 400);
+test('admin inquiry routes refuse a signed-in SaaS customer: no admin session', async () => {
+  const response = await request('/admin/inquiries', { headers: customerBearer });
+  assert.equal(response.status, 401);
 });
 
 test('an invalid inquiry gets field messages, nothing internal', async () => {

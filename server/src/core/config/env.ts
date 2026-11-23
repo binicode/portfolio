@@ -62,7 +62,9 @@ const envSchema = z.object({
                 return z.NEVER;
             }
         }),
-    JWT_SECRET: optionalString(z.string().min(32, 'JWT_SECRET must be at least 32 characters')),
+    // Required: without it no one can sign in, and a server that starts anyway
+    // only fails later, on the first sign-in.
+    JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
     ADMIN_EMAIL: z.email(),
     ADMIN_PASSWORD_HASH: z.string().min(1),
 

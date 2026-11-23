@@ -22,7 +22,7 @@ const updateProjectBodySchema = createProjectBodySchema.partial();
 
 const objectIdParamSchema = z.string().refine(isValidObjectId, { message: 'Invalid project id' });
 
-// --- Admin-guarded handlers — mounted behind requireAuth + requireRole('admin') in content.routes.ts ---
+// --- Admin-guarded handlers — mounted behind requireAdmin in content.routes.ts ---
 
 export const createProject = async (req: Request, res: Response) => {
   const input = createProjectBodySchema.parse(req.body);

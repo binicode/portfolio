@@ -6,6 +6,8 @@ export interface SaasUserDocument {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   subscriptionStatus: SubscriptionStatus;
+  /** Bumped on sign-out (and password changes): older tokens stop working. */
+  tokenVersion?: number;
   /** When Stripe created the last subscription event applied (stripe-events.ts). */
   subscriptionEventAt?: Date;
   githubUsername?: string;

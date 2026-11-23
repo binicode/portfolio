@@ -2,8 +2,10 @@ import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { env } from '../../core/config/env.js';
+import { isDatabaseReady } from '../../core/config/db.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
-import { signAccessToken, SAAS_AUTH_COOKIE_NAME } from '../../core/middleware/auth.js';
+import { SAAS_AUTH_COOKIE_NAME, sessionToken, signAccessToken, verifyAccessToken } from '../../core/middleware/auth.js';
+import { bumpCustomerTokenVersion } from './customer-session.js';
 import { SaasUserModel } from './saas-user.model.js';
 import type { AuthResult } from './saas.types.js';
 import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
@@ -22,6 +24,11 @@ const loginBodySchema = z.object({
 
 const BCRYPT_SALT_ROUNDS = 10;
 
+// Compared against when no account has the email, so a log-in takes as long
+// for an unknown address as for a known one with a wrong password (the
+// response time must not reveal which addresses have accounts).
+const UNKNOWN_ACCOUNT_HASH = bcrypt.hashSync('no account has this password', BCRYPT_SALT_ROUNDS);
+
 export const postRegister = async (req: Request, res: Response) => {
   const { email, password } = registerBodySchema.parse(req.body);
 
@@ -33,11 +40,7 @@ export const postRegister = async (req: Request, res: Response) => {
     subscriptionStatus: 'none',
   });
 
-  const token = signAccessToken({
-    sub: user._id.toString(),
-    role: 'user',
-    email: user.email,
-  });
+  const token = signAccessToken('customer', { sub: user._id.toString(), email: user.email, ver: user.tokenVersion ?? 0 });
 
   res.cookie(SAAS_AUTH_COOKIE_NAME, token, sessionCookieOptions(cookieSettings()));
 
@@ -49,17 +52,13 @@ export const postLogin = async (req: Request, res: Response) => {
   const { email, password } = loginBodySchema.parse(req.body);
 
   const user = await SaasUserModel.findOne({ email: email.toLowerCase() });
-  const passwordMatches = user ? await bcrypt.compare(password, user.passwordHash) : false;
+  const passwordMatches = await bcrypt.compare(password, user?.passwordHash ?? UNKNOWN_ACCOUNT_HASH);
 
   if (!user || !passwordMatches) {
     throw new AppError('Invalid email or password', 401);
   }
 
-  const token = signAccessToken({
-    sub: user._id.toString(),
-    role: 'user',
-    email: user.email,
-  });
+  const token = signAccessToken('customer', { sub: user._id.toString(), email: user.email, ver: user.tokenVersion ?? 0 });
 
   res.cookie(SAAS_AUTH_COOKIE_NAME, token, sessionCookieOptions(cookieSettings()));
 
@@ -67,7 +66,22 @@ export const postLogin = async (req: Request, res: Response) => {
   res.status(200).json(result);
 };
 
-export const postLogout = async (_req: Request, res: Response) => {
+/**
+ * POST /saas/auth/logout
+ * Clears the cookie and, when the request carries a valid session, revokes
+ * every token issued for the account so far (a copied token stops working
+ * too). Without the database it can only clear the cookie.
+ */
+export const postLogout = async (req: Request, res: Response) => {
+  const token = sessionToken(req, 'customer');
+  // Without the database, revoking would wait for a connection; only clear the cookie.
+  if (token && isDatabaseReady()) {
+    try {
+      await bumpCustomerTokenVersion(verifyAccessToken('customer', token).sub);
+    } catch (error) {
+      if (!(error instanceof AppError)) console.warn('SaaS logout: could not revoke the session', error instanceof Error ? error.message : error);
+    }
+  }
   res.clearCookie(SAAS_AUTH_COOKIE_NAME, clearSessionCookieOptions(cookieSettings()));
   res.status(200).json({ success: true });
 };

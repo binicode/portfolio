@@ -1,6 +1,9 @@
 // Run with `npm test` in server/. The API end to end against a real MongoDB
 // (in memory): accounts, sessions, roles, the subscription gate, settings,
 // the CMS and public reads. The tests share one database and run in order.
+// Sign-up and both log-ins share one limit, 10 attempts per 15 minutes per
+// address (authLimiter); the tests below use exactly 10, and the last test
+// checks that an 11th is refused. A new sign-in test must fit that budget.
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ADMIN, startDatabaseApp, type DatabaseApp } from '../test-support/database-app.js';
@@ -44,9 +47,11 @@ test('log-in matches the email case-insensitively', async () => {
   assert.match(customer ?? '', /^saas_token=/);
 });
 
-test('a wrong password is refused', async () => {
-  const { status } = await app.post('/api/saas/auth/login', { email: 'customer@example.com', password: 'wrong-password' });
-  assert.equal(status, 401);
+test('a wrong password and an unknown email get the same refusal', async () => {
+  const wrong = await app.post('/api/saas/auth/login', { email: 'customer@example.com', password: 'wrong-password' });
+  const unknown = await app.post('/api/saas/auth/login', { email: 'nobody@example.com', password: 'wrong-password' });
+  assert.equal(wrong.status, 401);
+  assert.deepEqual(unknown, wrong);
 });
 
 test('the session returns the account, and no session is refused', async () => {
@@ -75,10 +80,18 @@ test('admin sign-in sets the admin session', async () => {
   assert.match(admin ?? '', /^admin_token=/);
 });
 
-test('a customer token cannot reach admin routes', async () => {
+test('admin sign-in refuses a wrong password and an unknown email alike', async () => {
+  const wrong = await app.post('/api/admin/auth/login', { email: ADMIN.email, password: 'wrong-password' });
+  const unknown = await app.post('/api/admin/auth/login', { email: 'nobody@example.com', password: ADMIN.password });
+  assert.equal(wrong.status, 401);
+  assert.deepEqual(unknown, wrong);
+});
+
+test('a customer token is no admin session, even in the admin cookie', async () => {
   const forged = customer?.replace('saas_token', 'admin_token');
-  assert.equal((await app.call('/api/admin/projects', {}, forged)).status, 403);
+  assert.equal((await app.call('/api/admin/projects', {}, forged)).status, 401);
   assert.equal((await app.call('/api/admin/projects')).status, 401);
+  assert.equal((await app.call('/api/admin/auth/me', {}, admin)).body.email, ADMIN.email);
 });
 
 test('a new project starts as a draft that is not public', async () => {
@@ -161,6 +174,11 @@ test('a project brief is stored, and only the admin can read and manage it', asy
   assert.equal((await app.call('/api/admin/inquiries/stats', {}, admin)).body.total, 0);
 });
 
+test('admin inquiry routes refuse a bad id or body with a 400', async () => {
+  assert.equal((await app.patch('/api/admin/inquiries/not-an-id', { read: true }, admin)).status, 400);
+  assert.equal((await app.patch('/api/admin/inquiries/507f1f77bcf86cd799439011', { read: 'yes' }, admin)).status, 400);
+});
+
 test('a filled honeypot is answered like a real brief but not stored', async () => {
   const bot = { name: 'Bot', contact: 'bot@example.com', brief: 'spam', transcript: [{ q: 'Q', a: ['A'] }], website: 'https://spam.example' };
   assert.equal((await app.post('/api/inquiries', bot)).status, 201);
@@ -175,4 +193,41 @@ test('without a Gemini key the assistant answers with a plain error event, and k
   assert.match(String(body), /can't answer right now/);
   const history = await app.call(`/api/ai-chat/chat/${sessionId}`);
   assert.deepEqual(history.body.messages.map((m: { role: string }) => m.role), ['user']);
+});
+
+// These end the sessions the tests above share, so they run last.
+
+test('signing out revokes the customer session, including copies of its token', async () => {
+  const copy = customer;
+  const out = await app.post('/api/saas/auth/logout', {}, customer);
+  assert.equal(out.status, 200);
+  assert.match(out.cookie ?? '', /^saas_token=$/, 'the cookie is cleared');
+  const me = await app.call('/api/saas/auth/me', {}, copy);
+  assert.equal(me.status, 401);
+  assert.equal(me.body.error.message, 'Your session has ended. Please sign in again.');
+
+  const again = await app.post('/api/saas/auth/login', { email: 'customer@example.com', password: 'correct-horse-1' });
+  assert.equal((await app.call('/api/saas/auth/me', {}, again.cookie)).status, 200, 'signing in again works');
+  assert.equal((await app.call('/api/saas/auth/me', {}, copy)).status, 401, 'the old token stays revoked');
+});
+
+test('signing out revokes the admin session, including copies of its token', async () => {
+  const copy = admin;
+  assert.equal((await app.post('/api/admin/auth/logout', {}, admin)).status, 200);
+  assert.equal((await app.call('/api/admin/projects', {}, copy)).status, 401);
+  assert.equal((await app.call('/api/admin/auth/me', {}, copy)).status, 401);
+
+  const again = await app.post('/api/admin/auth/login', ADMIN);
+  assert.equal((await app.call('/api/admin/projects', {}, again.cookie)).status, 200);
+});
+
+test('signing out without a session, or with a bad token, still answers 200', async () => {
+  assert.equal((await app.post('/api/saas/auth/logout', {})).status, 200);
+  assert.equal((await app.post('/api/admin/auth/logout', {}, 'admin_token=not-a-token')).status, 200);
+});
+
+test('an 11th sign-in attempt in 15 minutes is refused (brute-force limit)', async () => {
+  const { status, body } = await app.post('/api/saas/auth/login', { email: 'customer@example.com', password: 'correct-horse-1' });
+  assert.equal(status, 429);
+  assert.match(body.error.message, /Too many attempts/);
 });

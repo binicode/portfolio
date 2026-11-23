@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../../core/middleware/auth.js';
+import { requireAdmin } from './admin-session.js';
 import {
   createProject,
   listAllProjects,
@@ -11,10 +11,9 @@ import {
 const router = Router();
 
 // Every route in this router is admin-only, with no exceptions — a
-// single blanket guard here is safer than repeating requireAuth +
-// requireRole('admin') on each line individually, where forgetting it
-// on just one route would be a silent security hole.
-router.use(requireAuth, requireRole('admin'));
+// single blanket guard here is safer than repeating it on each line,
+// where forgetting it on just one route would be a silent security hole.
+router.use(requireAdmin);
 
 router.post('/', createProject);
 router.get('/', listAllProjects);
