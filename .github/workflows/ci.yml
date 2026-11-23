@@ -6,9 +6,11 @@
 #      production build of the client and a fixture stand-in for the API:
 #      journeys, axe and full-page screenshots.
 #
-# Unit tests use Node's built-in runner (`npm test` in each package): the
+# Tests use Node's built-in runner (`npm test` in each package): the
 # client's run on Node's native TypeScript stripping, the server's through
-# tsx. They cover pure modules only, so they need no services or secrets.
+# tsx. The server's also run the real API against an in-memory MongoDB
+# (mongodb-memory-server downloads the binary once; it is cached below).
+# No test needs secrets or a live service.
 #
 # No secrets are used. The client build gets placeholder public values that
 # point nowhere: build-time data fetches (the projects API) fail soft and
@@ -102,7 +104,17 @@ jobs:
       - name: Type-check
         run: npx tsc --noEmit
 
-      - name: Unit tests
+      # The MongoDB binary for the database tests, keyed on the package
+      # that chooses its version.
+      - name: Restore the MongoDB test binary
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: |
+            mongodb-binaries-${{ runner.os }}-
+
+      - name: Tests (unit and database)
         run: npm test
 
       # The compiled output the Dockerfile and `npm start` run.
