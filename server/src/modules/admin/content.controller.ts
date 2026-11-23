@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { isValidObjectId } from 'mongoose';
-import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { ProjectModel } from './content.model.js';
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -23,18 +23,18 @@ const objectIdParamSchema = z.string().refine(isValidObjectId, { message: 'Inval
 
 // --- Admin-guarded handlers — mounted behind requireAuth + requireRole('admin') in content.routes.ts ---
 
-export const createProject = asyncHandler(async (req: Request, res: Response) => {
+export const createProject = async (req: Request, res: Response) => {
   const input = createProjectBodySchema.parse(req.body);
   const project = await ProjectModel.create(input);
   res.status(201).json(project);
-});
+};
 
-export const listAllProjects = asyncHandler(async (_req: Request, res: Response) => {
+export const listAllProjects = async (_req: Request, res: Response) => {
   const projects = await ProjectModel.find().sort({ createdAt: -1 });
   res.status(200).json(projects);
-});
+};
 
-export const getProjectById = asyncHandler(async (req: Request, res: Response) => {
+export const getProjectById = async (req: Request, res: Response) => {
   const id = objectIdParamSchema.parse(req.params.id);
   const project = await ProjectModel.findById(id);
 
@@ -43,9 +43,9 @@ export const getProjectById = asyncHandler(async (req: Request, res: Response) =
   }
 
   res.status(200).json(project);
-});
+};
 
-export const updateProject = asyncHandler(async (req: Request, res: Response) => {
+export const updateProject = async (req: Request, res: Response) => {
   const id = objectIdParamSchema.parse(req.params.id);
   const updates = updateProjectBodySchema.parse(req.body);
 
@@ -62,9 +62,9 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
   }
 
   res.status(200).json(project);
-});
+};
 
-export const deleteProject = asyncHandler(async (req: Request, res: Response) => {
+export const deleteProject = async (req: Request, res: Response) => {
   const id = objectIdParamSchema.parse(req.params.id);
   const project = await ProjectModel.findByIdAndDelete(id);
 
@@ -73,16 +73,16 @@ export const deleteProject = asyncHandler(async (req: Request, res: Response) =>
   }
 
   res.status(204).send();
-});
+};
 
 // --- Public read-only handlers — no auth, used by the portfolio's public pages ---
 
-export const listPublishedProjects = asyncHandler(async (_req: Request, res: Response) => {
+export const listPublishedProjects = async (_req: Request, res: Response) => {
   const projects = await ProjectModel.find({ published: true }).sort({ createdAt: -1 });
   res.status(200).json(projects);
-});
+};
 
-export const getPublishedProjectBySlug = asyncHandler(async (req: Request, res: Response) => {
+export const getPublishedProjectBySlug = async (req: Request, res: Response) => {
   const slug = z.string().min(1).parse(req.params.slug);
   const project = await ProjectModel.findOne({ slug, published: true });
 
@@ -91,4 +91,4 @@ export const getPublishedProjectBySlug = asyncHandler(async (req: Request, res: 
   }
 
   res.status(200).json(project);
-});
+};

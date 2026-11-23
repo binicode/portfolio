@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { asyncHandler, AppError } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { env } from '../../core/config/env.js';
 import { SaasUserModel } from './saas-user.model.js';
 import { createStripeCustomer, createSubscriptionCheckoutSession } from './stripe.service.js';
@@ -36,7 +36,7 @@ async function getOrCreateStripeCustomerId(userId: string): Promise<string> {
  * to. This is hosted Checkout, not embedded — the client just does
  * window.location.href = url, no Stripe.js involved at all.
  */
-export const postCreateCheckoutSession = asyncHandler(async (req: Request, res: Response) => {
+export const postCreateCheckoutSession = async (req: Request, res: Response) => {
   const stripeCustomerId = await getOrCreateStripeCustomerId(req.user!.sub);
 
   // Back to the SaaS dashboard (it was /dashboard, the admin area, and a
@@ -45,4 +45,4 @@ export const postCreateCheckoutSession = asyncHandler(async (req: Request, res: 
   const url = await createSubscriptionCheckoutSession(stripeCustomerId, successUrl, cancelUrl);
 
   res.status(200).json({ url });
-});
+};

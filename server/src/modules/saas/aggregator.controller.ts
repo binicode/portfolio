@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { asyncHandler, AppError } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { SaasUserModel } from './saas-user.model.js';
 import { getAggregatedStats } from './aggregator.service.js';
 
@@ -10,7 +10,7 @@ import { getAggregatedStats } from './aggregator.service.js';
  * requireActiveSubscription (applied in aggregator.routes.ts) have
  * already confirmed both identity and payment status.
  */
-export const getAggregatorStats = asyncHandler(async (req: Request, res: Response) => {
+export const getAggregatorStats = async (req: Request, res: Response) => {
   const user = await SaasUserModel.findById(req.user!.sub);
 
   if (!user) {
@@ -19,4 +19,4 @@ export const getAggregatorStats = asyncHandler(async (req: Request, res: Respons
 
   const stats = await getAggregatedStats(user);
   res.status(200).json(stats);
-});
+};

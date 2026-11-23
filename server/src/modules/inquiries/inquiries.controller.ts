@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { isValidObjectId } from 'mongoose';
 import { z } from 'zod';
 import { isDatabaseReady } from '../../core/config/db.js';
-import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { InquiryModel } from './inquiry.model.js';
 import { inquiryBodySchema, isHoneypotFilled } from './inquiry.schema.js';
 
@@ -20,7 +20,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * answers 503 at once instead of waiting on Mongoose's buffer, so the
  * planner offers the LinkedIn route straight away.
  */
-export const postInquiry = asyncHandler(async (req: Request, res: Response) => {
+export const postInquiry = async (req: Request, res: Response) => {
   if (isHoneypotFilled(req.body)) {
     res.status(201).json({ ok: true });
     return;
@@ -29,7 +29,7 @@ export const postInquiry = asyncHandler(async (req: Request, res: Response) => {
   if (!isDatabaseReady()) throw new AppError('Briefs can’t be received right now.', 503);
   await InquiryModel.create(input);
   res.status(201).json({ ok: true });
-});
+};
 
 // --- Admin (mounted behind requireAuth + requireRole('admin')) ---
 
@@ -43,32 +43,32 @@ async function stats() {
 }
 
 /** GET /api/admin/inquiries: newest first, with counts (the planner's conversion measure). */
-export const listInquiries = asyncHandler(async (_req: Request, res: Response) => {
+export const listInquiries = async (_req: Request, res: Response) => {
   const [items, counts] = await Promise.all([InquiryModel.find().sort({ createdAt: -1 }).limit(LIST_LIMIT).lean(), stats()]);
   res.status(200).json({ items, stats: counts });
-});
+};
 
 /** GET /api/admin/inquiries/stats: counts only, for the admin nav. */
-export const getInquiryStats = asyncHandler(async (_req: Request, res: Response) => {
+export const getInquiryStats = async (_req: Request, res: Response) => {
   res.status(200).json(await stats());
-});
+};
 
 const idSchema = z.string().refine(isValidObjectId, { message: 'Invalid inquiry id' });
 const updateSchema = z.object({ read: z.boolean() });
 
 /** PATCH /api/admin/inquiries/:id  { read: boolean } */
-export const updateInquiry = asyncHandler(async (req: Request, res: Response) => {
+export const updateInquiry = async (req: Request, res: Response) => {
   const id = idSchema.parse(req.params.id);
   const { read } = updateSchema.parse(req.body);
   const inquiry = await InquiryModel.findByIdAndUpdate(id, { readAt: read ? new Date() : null }, { new: true }).lean();
   if (!inquiry) throw new AppError('Inquiry not found', 404);
   res.status(200).json(inquiry);
-});
+};
 
 /** DELETE /api/admin/inquiries/:id: for removal requests before the retention period ends. */
-export const deleteInquiry = asyncHandler(async (req: Request, res: Response) => {
+export const deleteInquiry = async (req: Request, res: Response) => {
   const id = idSchema.parse(req.params.id);
   const inquiry = await InquiryModel.findByIdAndDelete(id);
   if (!inquiry) throw new AppError('Inquiry not found', 404);
   res.status(204).send();
-});
+};

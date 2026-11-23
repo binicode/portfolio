@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { env } from '../../core/config/env.js';
-import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { signAccessToken, AUTH_COOKIE_NAME } from '../../core/middleware/auth.js';
 import type { AdminLoginResult } from './admin.types.js';
 import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
@@ -24,7 +24,7 @@ const adminLoginBodySchema = z.object({
  * returned in the JSON body — an httpOnly cookie that client-side JS
  * can also read out of a fetch response defeats its own purpose.
  */
-export const postAdminLogin = asyncHandler(async (req: Request, res: Response) => {
+export const postAdminLogin = async (req: Request, res: Response) => {
   const { email, password } = adminLoginBodySchema.parse(req.body);
 
   if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD_HASH) {
@@ -50,7 +50,7 @@ export const postAdminLogin = asyncHandler(async (req: Request, res: Response) =
 
   const result: AdminLoginResult = { success: true };
   res.status(200).json(result);
-});
+};
 
 /**
  * POST /admin/logout
@@ -59,10 +59,10 @@ export const postAdminLogin = asyncHandler(async (req: Request, res: Response) =
  * single-admin app, since clearing the cookie is sufficient: the
  * browser simply stops sending it.
  */
-export const postAdminLogout = asyncHandler(async (_req: Request, res: Response) => {
+export const postAdminLogout = async (_req: Request, res: Response) => {
   res.clearCookie(AUTH_COOKIE_NAME, clearSessionCookieOptions(cookieSettings()));
   res.status(200).json({ success: true });
-});
+};
 
 /**
  * GET /admin/auth/me
@@ -74,6 +74,6 @@ export const postAdminLogout = asyncHandler(async (_req: Request, res: Response)
  * to verify a JWT itself, has something to call to ask "is this
  * visitor actually logged in."
  */
-export const getAdminMe = asyncHandler(async (req: Request, res: Response) => {
+export const getAdminMe = async (req: Request, res: Response) => {
   res.status(200).json({ email: req.user!.email });
-});
+};

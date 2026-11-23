@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { env } from '../../core/config/env.js';
-import { AppError, asyncHandler } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { signAccessToken, SAAS_AUTH_COOKIE_NAME } from '../../core/middleware/auth.js';
 import { SaasUserModel } from './saas-user.model.js';
 import type { AuthResult } from './saas.types.js';
@@ -22,7 +22,7 @@ const loginBodySchema = z.object({
 
 const BCRYPT_SALT_ROUNDS = 10;
 
-export const postRegister = asyncHandler(async (req: Request, res: Response) => {
+export const postRegister = async (req: Request, res: Response) => {
   const { email, password } = registerBodySchema.parse(req.body);
 
   const passwordHash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
@@ -43,9 +43,9 @@ export const postRegister = asyncHandler(async (req: Request, res: Response) => 
 
   const result: AuthResult = { success: true };
   res.status(201).json(result);
-});
+};
 
-export const postLogin = asyncHandler(async (req: Request, res: Response) => {
+export const postLogin = async (req: Request, res: Response) => {
   const { email, password } = loginBodySchema.parse(req.body);
 
   const user = await SaasUserModel.findOne({ email: email.toLowerCase() });
@@ -65,12 +65,12 @@ export const postLogin = asyncHandler(async (req: Request, res: Response) => {
 
   const result: AuthResult = { success: true };
   res.status(200).json(result);
-});
+};
 
-export const postLogout = asyncHandler(async (_req: Request, res: Response) => {
+export const postLogout = async (_req: Request, res: Response) => {
   res.clearCookie(SAAS_AUTH_COOKIE_NAME, clearSessionCookieOptions(cookieSettings()));
   res.status(200).json({ success: true });
-});
+};
 
 /**
  * GET /saas/auth/me
@@ -79,7 +79,7 @@ export const postLogout = asyncHandler(async (_req: Request, res: Response) => {
  * user's full profile, and those fields are part of that profile, not
  * a separate concern deserving a duplicate read endpoint.
  */
-export const getMe = asyncHandler(async (req: Request, res: Response) => {
+export const getMe = async (req: Request, res: Response) => {
   const user = await SaasUserModel.findById(req.user!.sub);
 
   if (!user) {
@@ -93,4 +93,4 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
     youtubeChannelId: user.youtubeChannelId,
     brandSearchQuery: user.brandSearchQuery,
   });
-});
+};

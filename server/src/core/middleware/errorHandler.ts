@@ -1,4 +1,4 @@
-import type { NextFunction, Request, RequestHandler, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { env } from '../config/env.js';
 
@@ -19,19 +19,6 @@ export class AppError extends Error {
     Object.setPrototypeOf(this, AppError.prototype);
     Error.captureStackTrace(this, this.constructor);
   }
-}
-
-/**
- * Wraps async route handlers so rejected promises are forwarded to
- * Express's error pipeline automatically, instead of requiring a
- * try/catch in every controller.
- *
- * Usage: router.get('/foo', asyncHandler(fooController))
- */
-export function asyncHandler(fn: RequestHandler): RequestHandler {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
 }
 
 /**

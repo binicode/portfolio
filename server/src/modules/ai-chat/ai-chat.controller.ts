@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { asyncHandler, AppError } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { getSessionMessages, sendChatMessage } from './ai-chat.service.js';
 import type { ChatStreamEvent } from './ai-chat.types.js';
 
@@ -15,7 +15,7 @@ const sendMessageBodySchema = z.object({
  * ChatStreamEvent yielded by the orchestration service is forwarded to
  * the client as a single SSE `data:` frame.
  */
-export const postChatMessage = asyncHandler(async (req: Request, res: Response) => {
+export const postChatMessage = async (req: Request, res: Response) => {
   const { sessionId, message } = sendMessageBodySchema.parse(req.body);
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -65,7 +65,7 @@ export const postChatMessage = asyncHandler(async (req: Request, res: Response) 
       res.end();
     }
   }
-});
+};
 
 /**
  * GET /chat/:sessionId
@@ -73,11 +73,11 @@ export const postChatMessage = asyncHandler(async (req: Request, res: Response) 
  * widget's conversation on page reload. An unknown sessionId returns an
  * empty history rather than a 404 — a new visitor simply has none yet.
  */
-export const getChatHistory = asyncHandler(async (req: Request, res: Response) => {
+export const getChatHistory = async (req: Request, res: Response) => {
   const sessionId = z.string().uuid().parse(req.params.sessionId);
 
   // From MongoDB, or the in-memory store while the database is unreachable.
   const messages = await getSessionMessages(sessionId);
 
   res.status(200).json({ sessionId, messages });
-});
+};
