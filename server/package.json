@@ -41,5 +41,10 @@
   },
   "engines": {
     "node": ">=22.18"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "mongodb-memory-server": false,
+    "protobufjs": false
   }
 }
