@@ -52,7 +52,7 @@ The project already has a substantial, operational foundation:
 -   Google Gemini-powered RAG assistant.
 -   Voyage AI embeddings.
 -   Stripe subscription billing and webhooks.
--   Headless Shopify integration.
+-   Headless Shopify integration (being removed: the user dropped the shop, November 2026).
 -   Client-side application architecture and SaaS/admin interfaces.
 
 The revised direction should be:
@@ -470,6 +470,9 @@ Do not change code during this phase.
 
 ### Phase 3 --- Architecture and implementation plan
 
+**Status:** plan in `docs/rebuild/phase-3-plan.md`, awaiting the user's
+approval and hosting choice (its section 6).
+
 **Model:** Opus 5.5, High / Max.
 
 Turn the audit into a target architecture and an ordered implementation
@@ -560,15 +563,16 @@ The user prefers direct, honest, practical guidance.
     find it and stop it.
 -   **Docs reachable from cloud sessions:** nextjs.org, react.dev,
     expressjs.com, mongoosejs.com, www.mongodb.com, docs.stripe.com,
-    shopify.dev, ai.google.dev, docs.voyageai.com, tailwindcss.com,
+    ai.google.dev, aistudio.google.com, docs.voyageai.com, tailwindcss.com,
     playwright.dev, zod.dev, developer.mozilla.org,
     cheatsheetseries.owasp.org, web.dev, developers.google.com and
     code.claude.com, plus the package registries. Check versions with
     `npm view <package> version`. In cloud sessions the page-fetch tool
     cannot reach these hosts; fetch them with `curl` (which goes through
     the environment's proxy) into a new scratch folder and read the text.
-    Google's Gemini model docs moved to aistudio.google.com, which is not
-    allowed yet.
+    Google's Gemini model docs live on aistudio.google.com.
+    fastdl.mongodb.org is allowed so database-backed tests can download
+    MongoDB.
 -   **Next.js docs for the installed version** ship with the package:
     `client/node_modules/next/dist/docs/`. Read the relevant page there
     before using a Next.js API (see `client/AGENTS.md`).
