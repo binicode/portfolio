@@ -484,7 +484,8 @@ and the plan before Phase 4 starts.
 ### Phase 4 --- Complete the MVP
 
 **Status:** in progress on `rebuild/phase-4-mvp`, following
-`docs/rebuild/phase-3-plan.md` section 4.
+`docs/rebuild/phase-3-plan.md` section 4. Progress, findings and test
+counts: `docs/rebuild/phase-4-mvp.md`.
 
 **Model:** Sonnet 5.5, High; Opus 5.5, High for security-critical work.
 
