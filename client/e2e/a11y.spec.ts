@@ -12,6 +12,11 @@ const pages = [
   '/saas',
   '/saas/signup',
   '/saas/login',
+  '/saas/forgot-password',
+  '/saas/reset-password',
+  '/saas/verify-email',
+  '/privacy',
+  '/terms',
   '/no-such-page',
 ];
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];

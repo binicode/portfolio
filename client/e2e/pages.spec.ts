@@ -12,6 +12,9 @@ const pages = [
   { path: '/saas', h1: /Stars, subscribers, mentions\. One dashboard\./ },
   { path: '/saas/signup', h1: 'Create an account' },
   { path: '/saas/login', h1: 'Log in' },
+  { path: '/saas/forgot-password', h1: 'Reset your password' },
+  { path: '/privacy', h1: 'Privacy' },
+  { path: '/terms', h1: 'Terms' },
 ];
 
 // Static layout (no scroll-driven reveals), so the full-page screenshots show
