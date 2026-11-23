@@ -1,0 +1,97 @@
+import type { Request, Response } from 'express';
+import { isValidObjectId } from 'mongoose';
+import { z } from 'zod';
+import { isDatabaseReady } from '../../core/config/db.js';
+import { env } from '../../core/config/env.js';
+import { primaryClientOrigin } from '../../core/config/origins.js';
+import { inBackground } from '../../core/background.js';
+import { sendEmail } from '../../core/email/email.js';
+import { inquiryAlert } from '../../core/email/messages.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
+import { InquiryModel } from './inquiry.model.js';
+import { inquiryBodySchema, isHoneypotFilled } from './inquiry.schema.js';
+
+const LIST_LIMIT = 200;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// --- Public ---
+
+/**
+ * POST /api/inquiries
+ * Stores a brief sent from the assistant's planner. A filled honeypot gets
+ * the same reply as a real send, so a bot learns nothing, and is dropped.
+ * Validation errors are field messages; anything else is the generic 500.
+ * While the database is down (the server starts without it, db.ts) this
+ * answers 503 at once instead of waiting on Mongoose's buffer, so the
+ * planner offers the LinkedIn route straight away. With ALERT_EMAIL_TO set,
+ * the brief is also emailed there after the response (replying to that
+ * email answers the visitor when they left an address).
+ */
+export const postInquiry = async (req: Request, res: Response) => {
+  if (isHoneypotFilled(req.body)) {
+    res.status(201).json({ ok: true });
+    return;
+  }
+  const input = inquiryBodySchema.parse(req.body);
+  if (!isDatabaseReady()) throw new AppError('Briefs can’t be received right now.', 503);
+  const inquiry = await InquiryModel.create(input);
+  res.status(201).json({ ok: true });
+
+  const alertTo = env.ALERT_EMAIL_TO;
+  if (alertTo) {
+    inBackground('Enquiry alert', () =>
+      sendEmail(
+        inquiryAlert({
+          to: alertTo,
+          name: inquiry.name,
+          contact: inquiry.contact,
+          brief: inquiry.brief,
+          adminUrl: `${primaryClientOrigin(env.CLIENT_ORIGIN)}/dashboard/inquiries`,
+        }),
+        `inquiry-alert/${inquiry._id.toString()}`,
+      ),
+    );
+  }
+};
+
+// --- Admin (mounted behind requireAdmin) ---
+
+async function stats() {
+  const [total, unread, last30Days] = await Promise.all([
+    InquiryModel.countDocuments(),
+    InquiryModel.countDocuments({ readAt: null }),
+    InquiryModel.countDocuments({ createdAt: { $gte: new Date(Date.now() - 30 * DAY_MS) } }),
+  ]);
+  return { total, unread, last30Days };
+}
+
+/** GET /api/admin/inquiries: newest first, with counts (the planner's conversion measure). */
+export const listInquiries = async (_req: Request, res: Response) => {
+  const [items, counts] = await Promise.all([InquiryModel.find().sort({ createdAt: -1 }).limit(LIST_LIMIT).lean(), stats()]);
+  res.status(200).json({ items, stats: counts });
+};
+
+/** GET /api/admin/inquiries/stats: counts only, for the admin nav. */
+export const getInquiryStats = async (_req: Request, res: Response) => {
+  res.status(200).json(await stats());
+};
+
+const idSchema = z.string().refine(isValidObjectId, { message: 'Invalid inquiry id' });
+const updateSchema = z.object({ read: z.boolean() });
+
+/** PATCH /api/admin/inquiries/:id  { read: boolean } */
+export const updateInquiry = async (req: Request, res: Response) => {
+  const id = idSchema.parse(req.params.id);
+  const { read } = updateSchema.parse(req.body);
+  const inquiry = await InquiryModel.findByIdAndUpdate(id, { readAt: read ? new Date() : null }, { returnDocument: 'after' }).lean();
+  if (!inquiry) throw new AppError('Inquiry not found', 404);
+  res.status(200).json(inquiry);
+};
+
+/** DELETE /api/admin/inquiries/:id: for removal requests before the retention period ends. */
+export const deleteInquiry = async (req: Request, res: Response) => {
+  const id = idSchema.parse(req.params.id);
+  const inquiry = await InquiryModel.findByIdAndDelete(id);
+  if (!inquiry) throw new AppError('Inquiry not found', 404);
+  res.status(204).send();
+};

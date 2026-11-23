@@ -59,7 +59,7 @@ PROJECT HIGHLIGHTS
 I designed and built a full-stack portfolio monorepo featuring custom JWT authentication, rate-limiting, an Express SSE streaming server, and an interactive RAG AI assistant integrated with Gemini API and MongoDB Atlas Vector Search.`,
   },
   // The entries below describe what is live on this site, in the site's own
-  // words (the /saas and /shop pages, the assistant). Facts only: no prices,
+  // words (the /saas page, the assistant). Facts only: no prices,
   // client names or numbers that the site doesn't state.
   {
     sourceId: 'services',
@@ -93,14 +93,6 @@ How it is built: Next.js, Express, MongoDB, Stripe and TypeScript.
 - Sessions in httpOnly, SameSite=Strict, Secure cookies, out of reach of scripts.`,
   },
   {
-    sourceId: 'project-storefront',
-    sourceTitle: 'Headless Shopify Storefront',
-    sourceType: 'project',
-    content: `HEADLESS SHOPIFY STOREFRONT (live on this site at /shop)
-A storefront that reads products live from Shopify through the Shopify Storefront API and renders them on the server with Next.js, for fast pages and search-friendly HTML. Purchases go through Shopify's own checkout ("Buy now" and the cart hand over to Shopify).
-Built with Next.js, the Shopify Storefront API and TypeScript.`,
-  },
-  {
     sourceId: 'project-assistant',
     sourceTitle: 'Portfolio AI Assistant',
     sourceType: 'project',
@@ -114,6 +106,6 @@ Built with Next.js, Express, MongoDB Atlas Vector Search, Voyage AI, Gemini, SSE
     sourceTitle: 'This Portfolio Site',
     sourceType: 'project',
     content: `THIS PORTFOLIO SITE
-A full-stack monorepo: a Next.js (App Router) front end rendered on the server, and an Express API with MongoDB. It includes a private admin CMS (only I can log in to it; visitors can't try it) where I draft and publish the case studies shown on the Work page, plus the Creator Dashboard SaaS, the Shopify storefront and this assistant, which visitors can try. Rate limiting, input validation and server-side authorization protect the API.`,
+A full-stack monorepo: a Next.js (App Router) front end rendered on the server, and an Express API with MongoDB. It includes a private admin CMS (only I can log in to it; visitors can't try it) where I draft and publish the case studies shown on the Work page, plus the Creator Dashboard SaaS and this assistant, which visitors can try. Rate limiting, input validation and server-side authorization protect the API.`,
   },
 ];

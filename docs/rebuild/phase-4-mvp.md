@@ -1,0 +1,88 @@
+# Rebuild Phase 4: complete the MVP (record)
+
+- **Branch:** `rebuild/phase-4-mvp` (from `rebuild/phase-3-plan`)
+- **Plan:** `docs/rebuild/phase-3-plan.md`, section 4
+- **Status:** in progress; steps 4.1 to 4.4 done; 4.6 prepared (configuration and `docs/deploy.md`), waiting for the accounts and DNS; 4.5 next
+
+## Progress
+
+| Step | Status | Verified by |
+| --- | --- | --- |
+| 4.1.1 Merge PR #19 (enquiries) | Done | Lint, types, unit tests, builds |
+| 4.1.2 Advisories inside current majors | Done | `npm audit`: client 0; server only Zod (fixed in 4.2) |
+| 4.1.3 Remove the shop | Done | All checks; e2e 54 passed, 10 skipped by design |
+| 4.1.4 Dead code, README collection name | Done | All checks |
+| 4.2.1 Database-backed API tests | Done | In `npm test`; CI caches the MongoDB binary |
+| 4.2.2 Express 5, `asyncHandler` dropped | Done | Full suite, including errors thrown in async handlers |
+| 4.2.2 Mongoose 9 | Done | Full suite; no deprecation warnings |
+| 4.2.2 Zod 4 | Done | Full suite; server `npm audit` 0 |
+| 4.2.2 Stripe 23, API version pinned | Done | Full suite; a test ties the pin to the SDK |
+| 4.2.2 @google/genai 3, client only with a key | Done | Full suite; no-key chat test |
+| 4.2.2 TypeScript 6.0 (both packages) | Done | All checks in both packages |
+| 4.2.2 `dotenv` replaced by Node's `--env-file-if-exists` | Done | tsx, tsx watch, node and `npm start` checked |
+| Install-script policy | Done | Clean installs, all checks |
+| CI dependency audit (high and above) | Done | Both packages at 0 |
+| 4.3.1 `JWT_SECRET` required; HS256 only | Done | Unit tests: other algorithms, unsigned tokens, other secrets refused |
+| 4.3.2 Audiences per sign-in context | Done | Unit and database tests; QA boundary suite run against a local MongoDB |
+| 4.3.3 Revocable sessions (token version) | Done | Database tests: signing out revokes copied tokens, customer and admin |
+| 4.3.4 Log-in: one bcrypt comparison whatever the email | Done | Database tests: unknown email and wrong password answer identically |
+| 4.3.4 Sign-up answers the same for new and taken addresses | Done (4.4) | Database tests: same answer, the work happens after the response |
+| 4.4.1 Email through Resend (HTTP API, no SDK) | Done | Unit tests (request shape, retries); sending itself needs the account (4.6) |
+| 4.4.2 New-enquiry email to you | Done | Database test: alert sent, reply-to is the visitor |
+| 4.4.3 Email confirmation; checkout needs it | Done | Database tests; e2e journeys |
+| 4.4.4 Password reset (single-use, hashed, 30 minutes) | Done | Database tests; e2e journey |
+| 4.4.5 Stripe customer portal | Done | Database test without a Stripe customer; the portal itself in 4.6 (needs Stripe) |
+| 4.4.6 Account deletion | Done | Database tests (wrong password, Stripe unreachable keeps the account); e2e journey |
+| 4.4.7 Privacy and terms pages | Drafted | Your review (see "Needs the user") |
+| 4.6 Hosting configuration | Prepared | `netlify.toml`, `docs/deploy.md`; the API's production-only install started and answered |
+| Search engines kept out until launch | Done | `SITE_INDEXING`, off by default |
+
+## Tests now
+
+- **Server:** 122 tests, 37 of them against a real MongoDB (three suites, each with its own database): sign-up through the emailed confirmation link (with the password), sign-up that reveals nothing about existing accounts and can't be used to take one over, password reset, the checkout gate for unconfirmed addresses, the billing portal guard, account deletion, enquiry alerts, log-in, sessions and their revocation, equal refusals for unknown emails, the sign-in rate limit, the admin and customer separation, the subscription gate, settings, the CMS draft-and-publish flow, http(s)-only project links, project briefs (store, list, mark read, delete, honeypot), the assistant without a model key, and the API running without Stripe.
+- **Client:** 38 unit tests; e2e 80 passed (re-run after the 4.4 review fix: see below), 10 skipped by design (each skipped test belongs to the other viewport), now including the account journeys and the new pages' load and accessibility checks.
+- **QA suite** (manual, `npm run test:qa`): its API-boundary file was run for 4.3 against a throwaway local MongoDB without provider keys: 8 passed; the Stripe webhook check answered 503 instead of 400, as designed when no Stripe key is set (that suite expects the keys from `server/.env`).
+
+## Findings made during Phase 4
+
+1. **The API could not start without Stripe configured.** `stripe.service.ts` created the client at import with an empty key, and the SDK (22 and 23) throws on that, so every start without `STRIPE_SECRET_KEY` crashed, although the README called billing optional. Fixed: the client is created on first use, only with a key; billing answers 503 without one.
+2. **The Stripe API-version comment was wrong.** It said the account's default version applies; the SDK sends its own. The version is now pinned in code (`2026-11-18.endive`).
+3. **A customer's cookie gets 401, not 403, on admin routes.** Admin routes read only the admin cookie, so a customer session there is simply no admin session. Correct; noted because the earlier tests only covered a customer token placed in the admin cookie (403).
+4. **npm 11 blocks dependency install scripts by default.** Each package that has one is now explicitly denied; none is needed.
+5. **The audit's count of empty server files was 14; it was 11.** Corrected in the audit and the plan.
+6. **Changes in behaviour from 4.3**, deliberate:
+   - A customer token sent to an admin route (or the reverse) now gets 401, not 403: it is no session of that kind at all.
+   - Admin sign-in and `/api/admin/auth/me` need the database (the admin's token version lives there) and answer 503 without it. Logging out always works; without the database it only clears the cookie.
+   - Every signed-in request reads the account's token version: one small database read per request.
+   - Sign-up, both log-ins and registration share one rate-limit budget per address (unchanged), and the database tests use it exactly; the last test checks the 11th attempt is refused.
+7. **Security review of 4.3** (`security-review`): no vulnerability at the reporting bar. Every route guarded before is still guarded; no route still uses the old guards. Acted on one observation below the bar: logging out with an already revoked copy of a token could sign out the sessions that came after it. Logout now revokes only for a current token, and the database tests cover it for both kinds. Left as they are: the rate-limit key does not check the token version (it is not a guard), and registering a taken address answers 409 (fixed with 4.4).
+8. **Password changes bump the token version.** The 4.4 reset does (a reset signs out every device; tested). A change of `ADMIN_PASSWORD_HASH` should be followed by an admin sign-out, which bumps the admin's version.
+9. **Sign-up no longer signs in.** To answer the same for new and taken addresses, sign-up returns 202 at once and works after the response; the confirmation link signs in. Unconfirmed accounts can't log in (finding 14). A taken address gets a note to its owner (at most hourly) instead of a 409.
+10. **Database test files run in parallel**, so an email sent after the response can take seconds under load; the helper waits up to 15 s.
+11. **Hosting research (2026-11-23), recorded in `docs/deploy.md`:**
+    - Koyeb's sign-up selects its $29 Pro plan by default; the free instance comes with the pay-as-you-go Starter plan, which must be chosen.
+    - Resend generates a domain's records when it is added; domains added since August 2026 may get `CNAME` records instead of `MX` and `TXT`.
+    - With DNS outside Netlify, Netlify recommends a subdomain as the primary domain: the site's address is `www.biniyam.com`, and the bare domain redirects to it.
+    - Netlify Free charges 15 of its 300 monthly credits per production deploy, and pauses every site when they run out: production deploys come from `main` only.
+    - Koyeb appends the client's address as the last `X-Forwarded-For` entry and vouches for that one only: `TRUST_PROXY=1`.
+12. **Search engines were to be kept out until launch (plan section 3), but nothing did that.** Added: `SITE_INDEXING`, off by default (two builds checked).
+13. **Dependabot alerts are on.** The 26 open alerts are all on `main`; this branch has none (`npm audit`, development dependencies included, in both packages). They close when the rebuild is merged.
+14. **Security review of 4.4: a pre-account takeover, fixed.**
+    - **The problem:** anyone could sign up with another person's address and their own password, log in while the account was unconfirmed, and keep that session after the owner clicked the confirmation link (which signed them in), so both would share the account, its billing portal and its deletion.
+    - **The fix:**
+      - Unconfirmed accounts can't log in; the answer is the same as for a wrong password, which also closes a way to probe which addresses exist.
+      - Confirming needs the link and the sign-up password, and ends older sessions.
+      - Signing up again while unconfirmed replaces the pending password and sends a new link.
+    - **Tests:** the attack itself is now a test.
+    - **Also fixed:** two links for one purpose could briefly be live at once (now one write).
+    - **Accepted, documented in `docs/deploy.md`:** Atlas open to all addresses (Koyeb has no fixed outgoing address), and DMARC `p=none` until sending is checked.
+15. **Accounts created before 4.4 have no confirmed address**, so they can't log in until they reset their password (which confirms it). Only relevant if the old database is reused; `docs/deploy.md` starts a new one.
+16. **The manual QA suite's SaaS file (`client/e2e/qa/saas.qa.ts`) still assumes sign-up signs in.** To update before it is next run: follow the confirmation link the API prints in development (its log is kept by `start-api.mjs`).
+
+## Needs the user
+
+- **Accounts and settings, `docs/deploy.md` steps 1 to 5:** Atlas, Resend, Koyeb (choose Starter), Netlify, the Stripe sandbox. Secrets go into each host's settings, never into chat or git.
+- **DNS at Namecheap, `docs/deploy.md` step 6.**
+- **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
+- **The pull request that brings the rebuild into `main`:** deployment builds from `main`.
+- ~~Hosting choice~~ Netlify Free + Koyeb Free (2026-11-23). ~~DNS~~ Namecheap BasicDNS. ~~Dependabot alerts~~ on.

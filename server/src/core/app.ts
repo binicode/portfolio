@@ -8,12 +8,14 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 import { requestLog, requireDatabase, securityHeaders } from './middleware/http-hygiene.js';
 import { isDatabaseReady } from './config/db.js';
 import aiChatRouter from '../modules/ai-chat/ai-chat.routes.js';
+import inquiriesRouter from '../modules/inquiries/inquiries.routes.js';
 import adminRouter from '../modules/admin/admin.routes.js';
 import projectsPublicRouter from '../modules/admin/projects-public.routes.js';
 import saasAuthRouter from '../modules/saas/saas-auth.routes.js';
 import billingRouter from '../modules/saas/billing.routes.js';
 import aggregatorRouter from '../modules/saas/aggregator.routes.js';
 import settingsRouter from '../modules/saas/settings.routes.js';
+import accountRouter from '../modules/saas/account.routes.js';
 import { postStripeWebhook } from '../modules/saas/webhook.controller.js';
 
 export function createApp(): Application {
@@ -67,16 +69,22 @@ export function createApp(): Application {
   // --- Module routers get mounted here as each one is built ---
   app.use('/api/ai-chat', aiChatRouter);
   // Everything below the assistant needs MongoDB (the assistant has its own
-  // fallbacks without it), except signing in and out: the admin account is
-  // configured in the environment, and logging out only clears a cookie.
+  // fallbacks without it): sessions are checked against each account's token
+  // version there (auth.ts). Logging out is the exception: it can always
+  // clear the cookie, and revokes the session when the database is up.
+  const databaseExceptLogout: express.RequestHandler = (req, res, next) =>
+    req.path === '/logout' ? next() : database(req, res, next);
+  app.use('/api/inquiries', database, inquiriesRouter);
   app.use('/api/admin/projects', database);
+  app.use('/api/admin/inquiries', database);
+  app.use('/api/admin/auth', databaseExceptLogout);
   app.use('/api/admin', adminRouter);
   app.use('/api/projects', database, projectsPublicRouter);
-  app.use('/api/saas/auth', (req, res, next) => (req.path === '/logout' ? next() : database(req, res, next)), saasAuthRouter);
+  app.use('/api/saas/auth', databaseExceptLogout, saasAuthRouter);
   app.use('/api/saas/billing', database, billingRouter);
   app.use('/api/saas/aggregator', database, aggregatorRouter);
   app.use('/api/saas/settings', database, settingsRouter);
-  // app.use('/api/storefront', storefrontRouter);
+  app.use('/api/saas/account', database, accountRouter);
 
   // --- 404 + error handling MUST be last, in this order ---
   app.use(notFoundHandler);

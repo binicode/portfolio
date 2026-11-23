@@ -1,17 +1,20 @@
 # Checks every pull request and every push to main.
 #
-# client: clean install, lint, type-check, unit tests and a production build.
-# server: clean install, lint, type-check, unit tests and a build.
+# client: clean install, dependency audit, lint, type-check, unit tests and a
+#         production build.
+# server: clean install, dependency audit, lint, type-check, tests and a build.
 # e2e: Playwright browser tests (desktop and phone Chromium) against a
-#      production build of the client and fixture stand-ins for the API and
-#      Shopify: journeys, axe and full-page screenshots.
+#      production build of the client and a fixture stand-in for the API:
+#      journeys, axe and full-page screenshots.
 #
-# Unit tests use Node's built-in runner (`npm test` in each package): the
+# Tests use Node's built-in runner (`npm test` in each package): the
 # client's run on Node's native TypeScript stripping, the server's through
-# tsx. They cover pure modules only, so they need no services or secrets.
+# tsx. The server's also run the real API against an in-memory MongoDB
+# (mongodb-memory-server downloads the binary once; it is cached below).
+# No test needs secrets or a live service.
 #
 # No secrets are used. The client build gets placeholder public values that
-# point nowhere: build-time data fetches (projects API, Shopify) fail soft and
+# point nowhere: build-time data fetches (the projects API) fail soft and
 # render their empty states, so CI checks the code without depending on any
 # live service. Actions are pinned to commit SHAs (version in the comment).
 
@@ -43,8 +46,6 @@ jobs:
       NEXT_TELEMETRY_DISABLED: 1
       NEXT_PUBLIC_API_URL: http://127.0.0.1:9
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
-      NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: ci-placeholder.myshopify.com
-      NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN: ci-placeholder
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -56,6 +57,10 @@ jobs:
 
       - name: Install
         run: npm ci --no-audit --no-fund
+
+      # Known advisories in production dependencies, high or critical.
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Lint
         run: npm run lint
@@ -98,13 +103,27 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
+      # Known advisories in production dependencies, high or critical.
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Lint
         run: npm run lint
 
       - name: Type-check
         run: npx tsc --noEmit
 
-      - name: Unit tests
+      # The MongoDB binary for the database tests, keyed on the package
+      # that chooses its version.
+      - name: Restore the MongoDB test binary
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: |
+            mongodb-binaries-${{ runner.os }}-
+
+      - name: Tests (unit and database)
         run: npm test
 
       # The compiled output the Dockerfile and `npm start` run.
@@ -118,10 +137,9 @@ jobs:
     defaults:
       run:
         working-directory: client
-    # playwright.config.ts starts the stand-ins for the API and Shopify
-    # (client/e2e/mock-api; the Shopify one uses a self-signed certificate made
-    # with the runner's openssl), then builds and starts the client against
-    # them, so no secrets or live services are needed.
+    # playwright.config.ts starts the stand-in for the API
+    # (client/e2e/mock-api), then builds and starts the client against it, so
+    # no secrets or live services are needed.
     env:
       NEXT_TELEMETRY_DISABLED: 1
     steps:

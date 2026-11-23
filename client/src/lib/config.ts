@@ -21,22 +21,7 @@ function requireUrl(name: string, value: string | undefined): string {
   return value;
 }
 
-function requireValue(name: string, value: string | undefined): string {
-  if (!value) {
-    throw new Error(`Missing ${name} — check client/.env.local`);
-  }
-  return value;
-}
-
 export const clientEnv = {
   NEXT_PUBLIC_API_URL: requireUrl('NEXT_PUBLIC_API_URL', process.env.NEXT_PUBLIC_API_URL),
   NEXT_PUBLIC_SITE_URL: requireUrl('NEXT_PUBLIC_SITE_URL', process.env.NEXT_PUBLIC_SITE_URL),
-  NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: requireValue(
-    'NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN',
-    process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN,
-  ),
-  NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN: requireValue(
-    'NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN',
-    process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-  ),
 } as const;

@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../../core/middleware/auth.js';
+import { requireCustomer } from './customer-session.js';
 import { patchSettings } from './settings.controller.js';
 
 const router = Router();
 
-router.patch('/', requireAuth, requireRole('user'), patchSettings);
+router.patch('/', requireCustomer, patchSettings);
 
 export default router;

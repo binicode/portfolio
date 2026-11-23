@@ -27,7 +27,7 @@ test('a short follow-up is searched together with the previous question', () => 
 });
 
 test('a full question is searched on its own', () => {
-  const long = 'Can you tell me about the headless Shopify storefront and how the checkout works for customers?';
+  const long = 'Can you tell me about the AI assistant on this site and how it finds the answers it gives?';
   const history = [msg('user', 'Hi'), msg('assistant', 'Hello!'), msg('user', long)];
   assert.equal(buildRetrievalQuery(history), long);
 });
@@ -46,7 +46,7 @@ test('the static knowledge base has one chunk per source, with metadata', () => 
   }
   // Services and the live products are part of it.
   const ids = chunks.map((chunk) => chunk.metadata.sourceId);
-  for (const id of ['services', 'project-creator-dashboard', 'project-storefront', 'project-assistant']) {
+  for (const id of ['services', 'project-creator-dashboard', 'project-assistant']) {
     assert.ok(ids.includes(id), `missing ${id}`);
   }
 });
@@ -65,7 +65,7 @@ test('entries not yet in the vector store are appended, seeded ones are not', ()
 test('without vector search, matching notes are ranked and scored; a greeting gets everything unscored', () => {
   const stripe = rankedStaticChunks('Which project uses Stripe billing?');
   assert.ok(stripe.slice(0, 2).some((chunk) => chunk.metadata.sourceId === 'project-creator-dashboard'));
-  assert.equal(rankedStaticChunks('Tell me about the Shopify storefront')[0].metadata.sourceId, 'project-storefront');
+  assert.equal(rankedStaticChunks('Tell me about the retrieval-augmented assistant')[0].metadata.sourceId, 'project-assistant');
   assert.ok(stripe.every((chunk) => chunk.score > 0));
   assert.ok(stripe.length <= 6);
 
@@ -76,9 +76,9 @@ test('without vector search, matching notes are ranked and scored; a greeting ge
 
 test('unseeded entries: only matching ones when vector search found notes, all when it did not', () => {
   const seeded = new Set(['bio-main', 'certifications', 'personal-trivia', 'technical-stack']);
-  const onlyMatching = withUnseededSources([], seeded, 'Tell me about the Shopify storefront', true);
+  const onlyMatching = withUnseededSources([], seeded, 'Tell me about the retrieval-augmented assistant', true);
   const ids = onlyMatching.map((chunk) => chunk.metadata.sourceId);
-  assert.ok(ids.includes('project-storefront'));
+  assert.ok(ids.includes('project-assistant'));
   assert.ok(!ids.includes('project-creator-dashboard'), 'unrelated new entries are left out');
   assert.ok(onlyMatching.every((chunk) => chunk.score > 0));
   const all = withUnseededSources([], seeded, 'Hello', false);

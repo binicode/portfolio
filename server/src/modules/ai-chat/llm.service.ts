@@ -54,6 +54,8 @@ function modelsDueForCheck(): string[] {
 
 /** One tiny request: does the model answer at all, and in time? */
 async function checkModel(model: string): Promise<boolean> {
+  const ai = gemini();
+  if (!ai) return false;
   try {
     const response = await ai.models.generateContent({
       model,
@@ -71,6 +73,7 @@ async function checkModel(model: string): Promise<boolean> {
  * ones, or (by default) the down models whose back-off has passed.
  */
 export function checkModelsInBackground(models: readonly string[] = modelsDueForCheck()): void {
+  if (!env.GEMINI_API_KEY) return;
   for (const model of models) {
     if (probing.has(model)) continue;
     probing.add(model);
@@ -98,7 +101,21 @@ const BUSY_MESSAGE = 'The assistant is busy right now. Please try again in a min
 const INTERRUPTED_MESSAGE = 'The answer was cut off. Please try again.';
 const UNAVAILABLE_MESSAGE = "The assistant can't answer right now. Please try again later.";
 
-const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
+// Created on first use, and only when a key is configured: without one the
+// assistant answers with its "can't answer right now" message, and no
+// request (or SDK warning) is made.
+let client: GoogleGenAI | null = null;
+let missingKeyLogged = false;
+
+function gemini(): GoogleGenAI | null {
+  if (!env.GEMINI_API_KEY) {
+    if (!missingKeyLogged) console.warn('Gemini: GEMINI_API_KEY is not set; the assistant cannot answer');
+    missingKeyLogged = true;
+    return null;
+  }
+  client ??= new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
+  return client;
+}
 
 /**
  * Gemini uses 'model' for the assistant turn, not 'assistant'. This is
@@ -171,6 +188,12 @@ export async function* streamText(
   logLabel: string,
 ): AsyncGenerator<TextStreamEvent> {
   let hasYieldedToken = false;
+
+  const ai = gemini();
+  if (!ai) {
+    yield { type: 'error', message: UNAVAILABLE_MESSAGE };
+    return;
+  }
 
   // Any down model whose back-off has passed is checked in the background;
   // this request uses only the healthy ones.

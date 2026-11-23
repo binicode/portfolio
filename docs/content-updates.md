@@ -24,6 +24,8 @@ sales, client outcomes) only where you have them.
 
 ### Headless Shopify Storefront
 
+_The shop was removed from the site in the November 2026 rebuild. If you keep this case study as past work, change its last line, which says the store is live at /shop._
+
 ```text
 ## Problem
 A Shopify theme decides how the store looks and how fast it loads. I wanted the catalogue on this site, in its own design, without rebuilding what Shopify already does well: products, inventory and payment.

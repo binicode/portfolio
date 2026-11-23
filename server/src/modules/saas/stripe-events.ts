@@ -17,6 +17,14 @@ import type { SubscriptionStatus } from './saas.types.js';
  *   (require-active-subscription.middleware.ts), never from the client.
  */
 
+/**
+ * The Stripe API version every request uses (stripe.service.ts), pinned so
+ * an SDK update never changes it silently. Create the webhook endpoint at
+ * this same version (Dashboard > Developers > Webhooks), so the events it
+ * sends have the shapes this code and the SDK's types expect.
+ */
+export const STRIPE_API_VERSION = '2026-11-18.endive';
+
 export interface SubscriptionUpdate {
   stripeCustomerId: string;
   status: SubscriptionStatus;

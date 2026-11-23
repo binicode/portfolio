@@ -17,18 +17,8 @@ const nextConfig: NextConfig = {
     if (process.env.NODE_ENV !== 'production') return [];
     return securityHeaderRules({
       apiUrl: process.env.NEXT_PUBLIC_API_URL ?? '',
-      shopDomain: process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN ?? '',
       siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? '',
     });
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'cdn.shopify.com',
-        pathname: '/s/files/**',
-      },
-    ],
   },
 };
 

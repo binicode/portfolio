@@ -58,7 +58,7 @@ that balance: sand is the field, teal is the concentrated body.
 | Screen | Teal bodies | Teal share (1280px) |
 | --- | --- | --- |
 | Home | Header, the hero's stack frame, footer | 28% |
-| Work, case study, shop | Header, footer | 34–38% |
+| Work, case study | Header, footer | 34–38% |
 | SaaS | Header, the Deep Teal hero band (the sand demo window sits in it), window bar, footer | 37% |
 | Sign-in (SaaS) | The product aside beside the sand form | 51% (the reference's two halves) |
 | Admin sign-in | Header bar | 9% |
@@ -229,7 +229,7 @@ of action it is.
 - **Accent (terracotta): work with me.** Plan your project, Plan a
   similar project/product/store. All open the
   assistant's planner (`OpenChatButton mode="discovery"`), which ends in a
-  brief and "Copy brief and message me".
+  brief and "Send brief".
 - **Primary (bone): the main action of a product flow.** Create an account,
   Buy now, Continue to checkout, Save, Log in on its form.
 - **Secondary (outline): the alternative route** beside either: See the
@@ -244,8 +244,8 @@ of action it is.
 Wording:
 
 - Verb first and the outcome named: "Plan your project", "Continue to
-  checkout", "Copy brief and message me". No "Learn more", "Submit", "Click
-  here".
+  checkout", "Send brief", "Copy brief and message me". No "Learn more",
+  "Submit", "Click here".
 - A short line under a conversion CTA says what happens and how long it
   takes. For the planner it is always `PLANNER_NOTE` in `lib/site.ts` ("Free.
   2 minutes. You keep the brief."), word for word, wherever the planner
@@ -263,16 +263,27 @@ Where they sit (one contextual CTA where intent peaks, not on every block):
 | Home hero | Plan your project + See the work |
 | Case study | Need something like this? Plan a similar project (type preselected from its stack) + Ask how it was built (question placed in the chat box). Sticky beside the write-up on desktop, after it on phones (`ProjectCta`) |
 | SaaS page | Create an account (try it) + Plan a similar product (build one) |
-| Shop | Plan a similar store, after the products |
 | Footer (every page) | Plan your project + Message me on LinkedIn |
 | Assistant, chat | Planning a project? card in the empty state; Plan it in 2 minutes bar after an answer |
-| Assistant, brief | Copy brief and message me (copies, then opens LinkedIn), Copy only, Ask a question first |
+| Assistant, brief | Send brief (name + email or LinkedIn, accent); Copy brief and message me on LinkedIn, Copy only, Ask a question first as text links. If sending fails, Copy brief and message me becomes the accent button |
 
 `requestOpenChat(mode, { build, question })` (`chat-events.ts`) is the one
 way in: `build` preselects the planner's first answer when nothing is in
 progress, `question` places text in the chat box (never sent for the
 visitor). The copy in "Copy brief and message me" is synchronous
 (`lib/copy-text.ts`) so it completes before LinkedIn's tab takes focus.
+
+Send brief posts to `POST /api/inquiries` (`lib/inquiry-client.ts`; pure
+checks in `lib/inquiry.ts`). Two fields: Your name, and Email or LinkedIn
+profile (one field, either accepted). Under the button, the privacy line:
+"Only I see this, and only to reply to you. Deleted after 12 months." Sent
+shows "Brief sent" and how the reply will come (by email / on LinkedIn); a
+failure (including the 503 the server answers at once while its database is
+down) or a rate limit (429) swaps the form for "Copy brief and message me",
+with Try sending again after a failure. Inquiries land in the admin
+dashboard's Inquiries page, whose counts (total, new, last 30 days) are the
+planner's conversion measure; there is no third-party analytics. New
+inquiries are marked in the signal colour (a status, not an action).
 
 ## Components
 
@@ -426,34 +437,6 @@ visitor). The copy in "Copy brief and message me" is synchronous
 - Repository status comes from GitHub's archived flag and last push:
   Active (30 days), Quiet (6 months), Dormant (older).
 
-## Shop
-
-A compact catalogue that belongs to the dark interface, not an embedded
-Shopify page. The product photos are bright, white-backed studio shots;
-the UI frames them instead of changing them.
-
-- Photos are never cropped, tinted or blended: `object-contain` on a white
-  plate (their own background) with a little inner padding, inset in a dark
-  card (`bg-card`, border, `rounded-xl`, 8px inset). The bright area reads
-  as a framed object, and is kept small by the grid.
-- Grid (`ProductCard`): 2 columns on phones, 3 from `sm`, 4 from `lg`, 5
-  from `xl` (15 products: 8, 5, 4, 3 rows). `sizes` follows those widths,
-  so Shopify's CDN serves files that match (384px for a 1280px screen).
-  Only the first photo loads eagerly with high priority.
-- Card content: title (two lines, `min-h-[2lh]` so prices line up across a
-  row), then the price in `signal`, the figure to notice. "From" when the
-  variants' prices differ; a "Sold out" chip on the photo and a muted price
-  when no variant can be bought (`lib/shop-display.ts`, tested). A product
-  without a photo gets a quiet "No photo" plate, not a repeated title.
-- Hover and focus: the card border and the title turn the signal colour; the photo
-  scales 4% inside its plate. The whole card is one link.
-- A slim toolbar above the grid says what's there ("15 products", "Prices
-  in USD"), so the space before the grid carries information.
-- Product page: the same framed photo at 5 of 12 columns (about 430px)
-  beside a sticky column with the title, the price in `signal`, Buy now
-  (checkout on Shopify, unchanged) and the description at a readable
-  measure.
-
 ## Project discovery
 
 The assistant panel has two modes: Ask a question (RAG chat) and Plan a
@@ -482,11 +465,16 @@ writes a brief at the end.
   the brief), or the request fails, built-in text replaces it
   (`fallbackInsight`, `fallbackBrief`), so the flow never stalls.
 - The brief is light markdown rendered as elements, never as HTML
-  (`parseBrief`). Copy brief and Message me on LinkedIn end the flow; no
-  answers are stored on the server. Progress stays in localStorage.
+  (`parseBrief`, rendered by `BriefText`, which the admin list reuses). Send
+  brief ends the flow (see "Calls to action"); only then are the brief,
+  answers, name and reply address stored on the server, for 12 months (a
+  TTL index), with no IP address or user agent. Progress stays in
+  localStorage, plus whether this brief was sent (not the name or address).
 - Each step scrolls the visitor's latest answer to the top of the panel, so
   the recommendation and next question below it are read together. Focus
-  moves to the selected or first option, or to Copy brief.
+  moves to the selected or first option, or to the "Send it to me" heading
+  above the form (no input is focused for the visitor, so phones don't
+  raise the keyboard over the brief).
 - Entry points: the panel's mode switch and the footer's "Plan your
   project", which call `requestOpenChat('discovery')`. Everything ships in
   the lazily loaded panel chunk (about 10 KB gzip, chat included), so no
@@ -559,7 +547,7 @@ One orchestrated moment per page; no time-based entrance animations on load.
 
 - Server Components by default. Client components today: `SiteNav`,
   `ChatLauncher` (panel lazy-loaded on intent), `OpenChatButton`,
-  `CursorReadout`, `ShopifyImage`, forms,
+  `CursorReadout`, forms,
   the dashboard's page links and Log out (`DashboardNavLinks`,
   `LogoutButton`), and its `ChartFrame` and `RefreshControl` (on `/saas`
   and the dashboard only, never the home page).

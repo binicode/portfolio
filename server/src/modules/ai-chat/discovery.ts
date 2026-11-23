@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import { asyncHandler } from '../../core/middleware/errorHandler.js';
 import { streamText, type TextStreamEvent } from './llm.service.js';
 import { buildDiscoveryPrompt, discoveryBodySchema } from './discovery.prompt.js';
 
@@ -21,7 +20,7 @@ const MAX_TOKENS = { insight: 160, brief: 600 } as const;
  * Streams the recommendation or the brief over Server-Sent Events, in the
  * same frame format as /chat (`data: {...}\n\n`).
  */
-export const postDiscovery = asyncHandler(async (req: Request, res: Response) => {
+export const postDiscovery = async (req: Request, res: Response) => {
   const body = discoveryBodySchema.parse(req.body);
   const { systemInstruction, answers } = buildDiscoveryPrompt(body);
 
@@ -54,4 +53,4 @@ export const postDiscovery = asyncHandler(async (req: Request, res: Response) =>
   } finally {
     if (!res.writableEnded) res.end();
   }
-});
+};

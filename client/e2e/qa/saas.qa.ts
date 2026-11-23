@@ -282,7 +282,7 @@ test("one customer's data stays theirs", async ({ playwright, diag }) => {
 
   // B's session can't be stretched to A's account: the id lives in a signed token.
   const stored = await findSaasUser(a.email);
-  const forged = signToken({ sub: String(stored?._id), role: 'user', email: a.email }, { secret: 'guessed-secret-000000000000000000000000' });
+  const forged = signToken({ sub: String(stored?._id), role: 'user', email: a.email }, { kind: 'customer', secret: 'guessed-secret-000000000000000000000000' });
   const asA = await contextB.get(`${QA.apiURL}/saas/auth/me`, { headers: { Authorization: `Bearer ${forged}` } });
   diag.note('forgedAsA', asA.status());
   expect(asA.status()).toBe(401);

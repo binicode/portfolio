@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../../core/middleware/auth.js';
+import { requireCustomer } from './customer-session.js';
 import { checkoutLimiter } from '../../core/middleware/rateLimiter.js';
-import { postCreateCheckoutSession } from './billing.controller.js';
+import { postCreateCheckoutSession, postCreatePortalSession } from './billing.controller.js';
 
 const router = Router();
 
-router.post('/checkout', requireAuth, requireRole('user'), checkoutLimiter, postCreateCheckoutSession);
+router.post('/checkout', requireCustomer, checkoutLimiter, postCreateCheckoutSession);
+router.post('/portal', requireCustomer, checkoutLimiter, postCreatePortalSession);
 
 export default router;

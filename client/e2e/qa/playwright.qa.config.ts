@@ -108,9 +108,6 @@ export default defineConfig({
         NEXT_TELEMETRY_DISABLED: '1',
         NEXT_PUBLIC_API_URL: QA.apiURL,
         NEXT_PUBLIC_SITE_URL: QA.baseURL,
-        // No store behind the shop in QA: it renders its empty state.
-        NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: 'qa-placeholder.invalid',
-        NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN: 'qa-placeholder',
       },
       reuseExistingServer: false,
       timeout: 300_000,

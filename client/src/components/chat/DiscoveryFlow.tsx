@@ -1,9 +1,12 @@
 'use client';
 
-import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowLeft, ArrowUpRight, Check, Copy, Pencil } from 'lucide-react';
+import { Fragment, useEffect, useRef, useState, type FormEvent, type InputHTMLAttributes, type ReactNode, type Ref } from 'react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Copy, Pencil } from 'lucide-react';
 import { streamDiscovery } from '@/lib/ai-chat-client';
 import { copyText } from '@/lib/copy-text';
+import { CONTACT_MAX, NAME_MAX, contactKind, validateInquiry, type ContactKind, type InquiryErrors } from '@/lib/inquiry';
+import { sendInquiry } from '@/lib/inquiry-client';
+import BriefText from './BriefText';
 import {
   NOT_SURE,
   OTHER,
@@ -15,7 +18,6 @@ import {
   fallbackInsight,
   isBuildType,
   nextQuestion,
-  parseBrief,
   progress,
   recall,
   rewind,
@@ -41,12 +43,14 @@ interface Saved {
   other: OtherText;
   insights: Record<string, string>;
   brief: string;
+  /** Set once this brief was sent: how I'll reply. The name and address aren't kept here. */
+  sentVia: ContactKind | null;
 }
 
 const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every((item) => typeof item === 'string');
 
 function load(): Saved {
-  const saved: Saved = { answers: {}, other: {}, insights: {}, brief: '' };
+  const saved: Saved = { answers: {}, other: {}, insights: {}, brief: '', sentVia: null };
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') as Record<string, unknown>;
     for (const [id, values] of Object.entries((raw.answers ?? {}) as Record<string, unknown>)) {
@@ -58,6 +62,7 @@ function load(): Saved {
       }
     }
     if (typeof raw.brief === 'string') saved.brief = raw.brief;
+    if (saved.brief && (raw.sentVia === 'email' || raw.sentVia === 'linkedin')) saved.sentVia = raw.sentVia;
   } catch {
     // Storage blocked or unreadable: start fresh.
   }
@@ -83,8 +88,10 @@ function keep(record: Record<string, string>, answers: Answers, except?: string)
  * checkpoints and writes the brief at the end. When the AI is slow or down,
  * built-in text takes its place, so the flow never stalls.
  *
- * Nothing is sent anywhere but the AI request; progress stays in this
- * browser's localStorage.
+ * Progress stays in this browser's localStorage. Besides the AI requests,
+ * nothing leaves the browser until the visitor presses Send brief, which
+ * posts the brief, answers, name and reply address (POST /inquiries). If
+ * that fails, "Copy brief and message me" (LinkedIn) takes its place.
  */
 interface DiscoveryFlowProps {
   /** A project type to preselect, from "Plan a similar project". Used only with nothing in progress. */
@@ -106,6 +113,16 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
   );
   const [otherDraft, setOtherDraft] = useState('');
   const [copied, setCopied] = useState<'idle' | 'done' | 'failed'>('idle');
+  const [sentVia, setSentVia] = useState(initial.sentVia);
+  /** Sending the brief: 'failed' and 'limited' swap the form for the LinkedIn route. */
+  const [sendState, setSendState] = useState<'idle' | 'sending' | 'failed' | 'limited'>('idle');
+  // Kept in memory only, and across Start over, for a second project.
+  const [fields, setFields] = useState({ name: '', contact: '' });
+  const [errors, setErrors] = useState<InquiryErrors>({});
+  const nameRef = useRef<HTMLInputElement>(null);
+  const contactRef = useRef<HTMLInputElement>(null);
+  const trapRef = useRef<HTMLInputElement>(null);
+  const sendRun = useRef(0);
   /** Answers from before an edit, offered again as each later question returns. */
   const [remembered, setRemembered] = useState<{ answers: Answers; other: OtherText }>({ answers: {}, other: {} });
   const requestRef = useRef<AbortController | null>(null);
@@ -120,11 +137,11 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, other, insights, brief }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, other, insights, brief, sentVia }));
     } catch {
       // Private mode or storage full: the flow still works for this visit.
     }
-  }, [answers, other, insights, brief]);
+  }, [answers, other, insights, brief, sentVia]);
 
   // Closing discovery (switching to chat) stops any answer still streaming;
   // clearing the ref keeps its handlers from starting anything after.
@@ -166,6 +183,16 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
     requestRef.current?.abort();
     requestRef.current = null;
     setStreaming(null);
+  }
+
+  /** A changed or new brief hasn't been sent: back to the form. */
+  function resetSend() {
+    // A send still in flight belongs to the old brief: its result is ignored.
+    sendRun.current += 1;
+    setCopied('idle');
+    setSentVia(null);
+    setSendState('idle');
+    setErrors({});
   }
 
   /** Streams an insight or the brief; built-in text replaces it on silence, error or timeout. */
@@ -226,7 +253,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
     setBrief('');
     setDraft(recalled);
     setOtherDraft(upcoming && recalled.includes(OTHER) ? (remembered.other[upcoming.id] ?? '') : '');
-    setCopied('idle');
+    resetSend();
     wantFocus.current = true;
     if (current.insight && !values.includes(SKIPPED)) stream('insight', current.id, nextAnswers, nextOther);
     else if (!nextQuestion(nextAnswers)) stream('brief', 'brief', nextAnswers, nextOther);
@@ -244,7 +271,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
     setOther(keep(other, nextAnswers));
     setInsights(keep(insights, nextAnswers));
     setBrief('');
-    setCopied('idle');
+    resetSend();
     wantFocus.current = true;
   }
 
@@ -256,7 +283,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
     setBrief('');
     setDraft([]);
     setOtherDraft('');
-    setCopied('idle');
+    resetSend();
     setRemembered({ answers: {}, other: {} });
     wantFocus.current = true;
   }
@@ -275,6 +302,54 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
   // opens its tab only after this returns.
   async function copyBrief() {
     setCopied((await copyText(`Project brief\n\n${brief}`)) ? 'done' : 'failed');
+  }
+
+  function editField(field: 'name' | 'contact', value: string) {
+    setFields((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function showErrors(next: InquiryErrors) {
+    setErrors(next);
+    (next.name ? nameRef : contactRef).current?.focus();
+  }
+
+  async function sendBrief(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (sendState === 'sending') return;
+    const invalid = validateInquiry(fields);
+    if (invalid.name || invalid.contact) {
+      showErrors(invalid);
+      return;
+    }
+    setErrors({});
+    setSendState('sending');
+    const run = sendRun.current;
+    const result = await sendInquiry({
+      name: fields.name.trim(),
+      contact: fields.contact.trim(),
+      brief,
+      transcript: transcript(answers, other),
+      website: trapRef.current?.value ?? '',
+    });
+    if (run !== sendRun.current) return;
+    if (result.status === 'invalid') {
+      setSendState('idle');
+      showErrors(result.errors);
+      return;
+    }
+    wantFocus.current = true;
+    if (result.status === 'sent') {
+      setSendState('idle');
+      setSentVia(contactKind(fields.contact) ?? 'email');
+    } else {
+      setSendState(result.status);
+    }
+  }
+
+  function retrySend() {
+    setSendState('idle');
+    wantFocus.current = true;
   }
 
   const last = answered[answered.length - 1];
@@ -335,7 +410,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
               {streaming?.kind === 'brief' ? 'Writing your brief.' : brief ? 'Your brief is ready.' : ''}
             </p>
             {streaming?.kind === 'brief' && !streaming.text && <p className="mt-3 text-sm text-muted-foreground">Writing your brief…</p>}
-            <Brief text={briefText} />
+            <BriefText text={briefText} />
 
             {!streaming && !brief && (
               <button
@@ -350,24 +425,115 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
 
             {!streaming && brief && (
               <div className="mt-4 border-t border-border pt-4">
-                <h4 className="text-sm font-medium">Send it to me</h4>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  The button copies your brief and opens my LinkedIn. Press Message there, then paste.
-                </p>
-                {/* One click: the copy finishes inside the click (lib/copy-text), then the link opens. */}
-                <a
-                  href={contactHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-autofocus
-                  onClick={() => void copyBrief()}
-                  className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-bright"
-                >
-                  Copy brief and message me
-                  <ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.75} />
-                  <span className="sr-only"> (opens LinkedIn in a new tab)</span>
-                </a>
+                {sentVia ? (
+                  <>
+                    <h4 tabIndex={-1} data-autofocus className="flex items-center gap-1.5 text-sm font-medium outline-none">
+                      <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-signal" strokeWidth={2.25} />
+                      Brief sent
+                    </h4>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      Thanks. I’ll read it and reply {sentVia === 'email' ? 'by email' : 'on LinkedIn'}.
+                    </p>
+                  </>
+                ) : sendState === 'failed' || sendState === 'limited' ? (
+                  <>
+                    <h4 className="text-sm font-medium">Send it to me</h4>
+                    <p role="alert" className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      {sendState === 'limited' ? 'You’ve sent a few briefs already, so this one can’t go through here.' : 'Your brief couldn’t be sent just now.'}{' '}
+                      The button copies it and opens my LinkedIn. Press Message there, then paste.
+                    </p>
+                    {/* One click: the copy finishes inside the click (lib/copy-text), then the link opens. */}
+                    <a
+                      href={contactHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-autofocus
+                      onClick={() => void copyBrief()}
+                      className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-bright"
+                    >
+                      Copy brief and message me
+                      <ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                      <span className="sr-only"> (opens LinkedIn in a new tab)</span>
+                    </a>
+                  </>
+                ) : (
+                  <form onSubmit={sendBrief} noValidate aria-labelledby="discovery-send">
+                    <h4 id="discovery-send" tabIndex={-1} data-autofocus className="text-sm font-medium outline-none">
+                      Send it to me
+                    </h4>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      Your brief and answers come straight to me. Tell me where to reply.
+                    </p>
+                    <div className="mt-3 space-y-2.5">
+                      <Field
+                        ref={nameRef}
+                        id="inquiry-name"
+                        label="Your name"
+                        error={errors.name}
+                        value={fields.name}
+                        onChange={(e) => editField('name', e.target.value)}
+                        readOnly={sendState === 'sending'}
+                        autoComplete="name"
+                        maxLength={NAME_MAX}
+                      />
+                      <Field
+                        ref={contactRef}
+                        id="inquiry-contact"
+                        label="Email or LinkedIn profile"
+                        error={errors.contact}
+                        value={fields.contact}
+                        onChange={(e) => editField('contact', e.target.value)}
+                        readOnly={sendState === 'sending'}
+                        autoComplete="email"
+                        autoCapitalize="none"
+                        spellCheck={false}
+                        maxLength={CONTACT_MAX}
+                        placeholder="you@example.com or linkedin.com/in/you"
+                      />
+                    </div>
+                    {/* Honeypot: never shown or announced (display: none, so never autofilled
+                        either). Bots that fill every field fill it; the server then drops the send. */}
+                    <div hidden>
+                      <label htmlFor="inquiry-website">Website</label>
+                      <input ref={trapRef} id="inquiry-website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+                    </div>
+                    <button
+                      type="submit"
+                      aria-busy={sendState === 'sending' || undefined}
+                      disabled={sendState === 'sending'}
+                      className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-bright disabled:opacity-70"
+                    >
+                      {sendState === 'sending' ? 'Sending…' : 'Send brief'}
+                      {sendState !== 'sending' && <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.75} />}
+                    </button>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      Only I see this, and only to reply to you. Deleted after 12 months.
+                    </p>
+                  </form>
+                )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-4">
+                  {!sentVia && sendState !== 'failed' && sendState !== 'limited' && (
+                    <a
+                      href={contactHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => void copyBrief()}
+                      className="inline-flex h-9 items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Copy brief and message me on LinkedIn
+                      <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+                      <span className="sr-only"> (opens LinkedIn in a new tab)</span>
+                    </a>
+                  )}
+                  {sendState === 'failed' && !sentVia && (
+                    <button
+                      type="button"
+                      onClick={retrySend}
+                      className="inline-flex h-9 items-center text-xs text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Try sending again
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => void copyBrief()}
@@ -378,7 +544,7 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
                     ) : (
                       <Copy aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
                     )}
-                    {copied === 'done' ? 'Copied' : 'Copy only'}
+                    {copied === 'done' ? 'Copied' : sentVia ? 'Copy for yourself' : 'Copy only'}
                   </button>
                   {onAsk && (
                     <button
@@ -386,12 +552,12 @@ export default function DiscoveryFlow({ seed, onAsk }: DiscoveryFlowProps) {
                       onClick={onAsk}
                       className="inline-flex h-9 items-center text-xs text-muted-foreground transition-colors hover:text-foreground"
                     >
-                      Ask a question first
+                      {sentVia ? 'Ask a question' : 'Ask a question first'}
                     </button>
                   )}
                 </div>
                 <p role="status" className="text-xs text-muted-foreground">
-                  {copied === 'done' ? 'Brief copied. Paste it into your message.' : ''}
+                  {copied === 'done' ? (sentVia ? 'Brief copied.' : 'Brief copied. Paste it into your message.') : ''}
                 </p>
                 {copied === 'failed' && (
                   <p role="alert" className="text-xs text-muted-foreground">
@@ -624,32 +790,37 @@ function Chip({ on, disabled, onClick, children }: { on: boolean; disabled?: boo
   );
 }
 
-/** The brief's ## headings and - items as elements; the text is never parsed as HTML. */
-function Brief({ text }: { text: string }) {
-  if (!text) return null;
+interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
+  id: string;
+  label: string;
+  error?: string;
+  ref?: Ref<HTMLInputElement>;
+}
+
+/** A labelled input with its error tied to it. 16px text on touch screens, so iOS doesn't zoom on focus. */
+function Field({ id, label, error, ref, ...input }: FieldProps) {
+  const errorId = `${id}-error`;
   return (
-    <div className="mt-3 space-y-2 text-sm leading-relaxed">
-      {parseBrief(text).map((block, index) => {
-        if (block.kind === 'heading') {
-          return (
-            <h4 key={index} className="pt-1 text-xs font-semibold text-muted-foreground">
-              {block.text}
-            </h4>
-          );
-        }
-        if (block.kind === 'list') {
-          return (
-            <ul key={index} className="space-y-1">
-              {block.items.map((item, itemIndex) => (
-                <li key={itemIndex} className="relative pl-3.5 before:absolute before:left-0 before:top-[0.6em] before:h-px before:w-2 before:bg-signal">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          );
-        }
-        return <p key={index}>{block.text}</p>;
-      })}
+    <div>
+      <label htmlFor={id} className="block text-xs text-muted-foreground">
+        {label}
+      </label>
+      <input
+        ref={ref}
+        id={id}
+        type="text"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className={`mt-1 h-11 w-full rounded-lg border bg-transparent px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 pointer-coarse:text-base ${
+          error ? 'border-destructive focus:border-destructive focus:ring-destructive/30' : 'border-input focus:border-ring focus:ring-ring/30'
+        }`}
+        {...input}
+      />
+      {error && (
+        <p id={errorId} className="mt-1 text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

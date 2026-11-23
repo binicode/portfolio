@@ -55,10 +55,3 @@ export function parseTrustProxy(value: string | undefined): TrustProxySetting {
   }
   return entries.join(',');
 }
-
-/** One line for the startup log. */
-export function describeTrustProxy(setting: TrustProxySetting): string {
-  if (setting === false) return 'client IPs: the connecting address (TRUST_PROXY not set; set it when the API runs behind a proxy)';
-  if (typeof setting === 'number') return `client IPs: from X-Forwarded-For, trusting ${setting} proxy hop${setting === 1 ? '' : 's'}`;
-  return `client IPs: from X-Forwarded-For, trusting proxies ${setting}`;
-}

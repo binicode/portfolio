@@ -58,6 +58,12 @@ export default function SaasLoginForm() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
+      <p className="-mt-2 text-sm">
+        <Link href="/saas/forgot-password" className="link text-muted-foreground">
+          Forgot your password?
+        </Link>
+      </p>
+
       <Button type="submit" isLoading={isSubmitting} loadingText="Logging in…" className="w-full">
         Log in
       </Button>

@@ -1,4 +1,5 @@
 import { expect, test } from './support/fixtures';
+import { adminTokenVersion } from './support/db';
 import { signToken, stripeSignature } from './support/jwt';
 import { QA } from './settings';
 
@@ -16,8 +17,8 @@ test.skip(({ isMobile }) => isMobile, 'API checks run once, on desktop');
 
 const api = (path: string) => `${QA.apiURL}${path}`;
 const bearer = (token: string) => ({ Authorization: `Bearer ${token}` });
-const saasUser = () => signToken({ sub: '64b000000000000000000001', role: 'user', email: 'qa.user@example.com' });
-const admin = () => signToken({ sub: 'admin', role: 'admin', email: QA.admin.email });
+const saasUser = () => signToken({ sub: '64b000000000000000000001', role: 'user', email: 'qa.user@example.com' }, { kind: 'customer' });
+const admin = async () => signToken({ sub: 'admin', role: 'admin', email: QA.admin.email, ver: await adminTokenVersion() });
 
 const protectedRoutes = [
   ['GET', '/saas/auth/me'],
@@ -61,16 +62,19 @@ test('forged, unsigned and expired tokens are rejected with 401', async ({ reque
   expect(results.expired).toContain('Token has expired');
 });
 
+// Each kind of token names its audience: a customer token is no admin
+// session and the admin's is no customer session, so both get a 401.
 test('role boundaries: a SaaS user cannot reach admin routes, the admin cannot reach SaaS routes', async ({ request, diag }) => {
+  const adminToken = await admin();
   const results: string[] = [];
   for (const path of ['/admin/projects', '/admin/auth/me']) {
     const response = await request.get(api(path), { headers: bearer(saasUser()) });
     results.push(`user → GET ${path} → ${response.status()}`);
-    expect.soft(response.status(), `user → ${path}`).toBe(403);
+    expect.soft(response.status(), `user → ${path}`).toBe(401);
   }
   const create = await request.post(api('/admin/projects'), { headers: bearer(saasUser()), data: { title: 'x' } });
   results.push(`user → POST /admin/projects → ${create.status()}`);
-  expect.soft(create.status()).toBe(403);
+  expect.soft(create.status()).toBe(401);
 
   for (const [method, path] of [
     ['GET', '/saas/auth/me'],
@@ -78,16 +82,16 @@ test('role boundaries: a SaaS user cannot reach admin routes, the admin cannot r
     ['PATCH', '/saas/settings'],
     ['POST', '/saas/billing/checkout'],
   ] as const) {
-    const response = await request.fetch(api(path), { method, headers: bearer(admin()), data: method === 'GET' ? undefined : {} });
+    const response = await request.fetch(api(path), { method, headers: bearer(adminToken), data: method === 'GET' ? undefined : {} });
     results.push(`admin → ${method} ${path} → ${response.status()}`);
-    expect.soft(response.status(), `admin → ${path}`).toBe(403);
+    expect.soft(response.status(), `admin → ${path}`).toBe(401);
   }
   diag.note('results', results);
 });
 
 test('cookies are scoped: the admin cookie does not authenticate SaaS routes and vice versa', async ({ playwright, diag }) => {
   const context = await playwright.request.newContext({
-    extraHTTPHeaders: { Cookie: `admin_token=${admin()}` },
+    extraHTTPHeaders: { Cookie: `admin_token=${await admin()}` },
   });
   const saasWithAdminCookie = await context.get(api('/saas/auth/me'));
   const adminWithAdminCookie = await context.get(api('/admin/auth/me'));

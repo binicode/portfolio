@@ -1,19 +1,23 @@
-import { config } from 'dotenv';
 import { z } from 'zod';
 import { parseTrustProxy } from './trust-proxy.js';
 import { parseClientOrigins } from './origins.js';
 import { parseCookieDomain } from './session-cookie.js';
 
-config();
+// Read from the process environment. Locally, `npm run dev`, `npm start`
+// and `npm run seed:kb` load server/.env into it first (Node's
+// --env-file-if-exists); a variable already set in the environment wins.
 
 /**
  * Treats empty-string env vars as "not provided." Without this, an
  * optional field left blank in .env (e.g. `STRIPE_SECRET_KEY=`) fails
- * validation instead of being treated as absent, since dotenv loads
+ * validation instead of being treated as absent, since env files load
  * blank values as "" rather than undefined.
  */
-const optionalString = (schema: z.ZodString) =>
+const optionalString = (schema: z.ZodType<string>) =>
     z.preprocess((val) => (val === '' ? undefined : val), schema.optional());
+
+// An email sender: "Name <address>" or a bare address.
+const SENDER = /^(?:[^<>\r\n]+ <[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+>|[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+)$/;
 
 const envSchema = z.object({
     // --- Core server ---
@@ -31,7 +35,7 @@ const envSchema = z.object({
             try {
                 parseClientOrigins(value);
             } catch (error) {
-                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                ctx.addIssue({ code: 'custom', message: (error as Error).message });
             }
         }),
 
@@ -43,7 +47,7 @@ const envSchema = z.object({
             try {
                 return parseTrustProxy(value);
             } catch (error) {
-                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                ctx.addIssue({ code: 'custom', message: (error as Error).message });
                 return z.NEVER;
             }
         }),
@@ -57,12 +61,14 @@ const envSchema = z.object({
             try {
                 return parseCookieDomain(value);
             } catch (error) {
-                ctx.addIssue({ code: z.ZodIssueCode.custom, message: (error as Error).message });
+                ctx.addIssue({ code: 'custom', message: (error as Error).message });
                 return z.NEVER;
             }
         }),
-    JWT_SECRET: optionalString(z.string().min(32, 'JWT_SECRET must be at least 32 characters')),
-    ADMIN_EMAIL: z.string().email(),
+    // Required: without it no one can sign in, and a server that starts anyway
+    // only fails later, on the first sign-in.
+    JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
+    ADMIN_EMAIL: z.email(),
     ADMIN_PASSWORD_HASH: z.string().min(1),
 
     // --- AI chat module ---
@@ -76,6 +82,16 @@ const envSchema = z.object({
     GITHUB_API_TOKEN: optionalString(z.string().min(1)),
     YOUTUBE_API_KEY: optionalString(z.string().min(1)),
 
+    // --- Email (Resend, email.ts): off without RESEND_API_KEY ---
+    RESEND_API_KEY: optionalString(z.string().min(1)),
+    // The sender, on the domain verified in Resend.
+    EMAIL_FROM: optionalString(z.string().regex(SENDER, 'EMAIL_FROM must be "Name <address>" or an address')),
+    // Where new-enquiry alerts go. No alerts without it.
+    ALERT_EMAIL_TO: optionalString(z.email()),
+}).superRefine((value, ctx) => {
+    if (value.RESEND_API_KEY && !value.EMAIL_FROM) {
+        ctx.addIssue({ code: 'custom', path: ['EMAIL_FROM'], message: 'EMAIL_FROM is required when RESEND_API_KEY is set' });
+    }
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -85,7 +101,7 @@ function loadEnv(): Env {
 
     if (!parsed.success) {
         console.error('❌ Invalid environment variables:');
-        console.error(parsed.error.flatten().fieldErrors);
+        console.error(z.flattenError(parsed.error).fieldErrors);
         process.exit(1);
     }
 

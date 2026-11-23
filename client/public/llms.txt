@@ -2,14 +2,13 @@
 
 > Biniyam Abera is a full-stack software engineer with a background in civil engineering, building web applications and SaaS products with Next.js, TypeScript, Node.js, Express and MongoDB.
 
-Certifications: Meta Front-End Developer and IBM JavaScript Back-End Developer professional certificates. This site is Biniyam's portfolio, and it also runs three working systems: a retrieval-augmented AI assistant, a subscription SaaS product with Stripe billing, and a headless Shopify storefront.
+Certifications: Meta Front-End Developer and IBM JavaScript Back-End Developer professional certificates. This site is Biniyam's portfolio, and it also runs two working systems: a retrieval-augmented AI assistant, and a subscription SaaS product with Stripe billing.
 
 ## Pages
 
 - [Home](/): Introduction, selected work and background
 - [Work](/projects): Case studies of products Biniyam designed and built
 - [Creator Dashboard](/saas): A subscription SaaS that combines GitHub, YouTube and Hacker News numbers in one dashboard, with accounts and Stripe Checkout
-- [Shop](/shop): A headless storefront built on the Shopify Storefront API
 
 ## Profiles
 

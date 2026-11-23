@@ -38,7 +38,7 @@ export default function HeroSystem() {
             Your product, built to <em className="emph">hold up</em>.
           </h1>
           <p className="mx-auto mt-6 max-w-[30rem] text-muted-foreground sm:text-lead">
-            SaaS, AI features and online stores. Three run live on this site.
+            SaaS, AI features and online stores. Two run live on this site.
           </p>
           {/* For a prospective client: start the project, or see proof first. */}
           <div className="mt-8 flex flex-wrap justify-center gap-3">

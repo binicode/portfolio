@@ -6,7 +6,7 @@ import LiveSystemsList from '@/components/work/LiveSystemsList';
 export const metadata: Metadata = {
   title: 'Work',
   description:
-    'Case studies of products Biniyam Abera designed and built: a subscription SaaS with Stripe billing, a retrieval-augmented AI assistant, a headless Shopify storefront and more.',
+    'Case studies of products Biniyam Abera designed and built: a subscription SaaS with Stripe billing, a retrieval-augmented AI assistant and more.',
   alternates: { canonical: '/projects' },
   openGraph: { url: '/projects' },
 };

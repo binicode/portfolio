@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { Schema, model } from 'mongoose';
-import { asyncHandler, AppError } from '../../core/middleware/errorHandler.js';
+import { AppError } from '../../core/middleware/errorHandler.js';
 import { verifyWebhookSignature } from './stripe.service.js';
 import { SaasUserModel } from './saas-user.model.js';
 import { handleStripeEvent, subscriptionUpdateFilter, type WebhookStore } from './stripe-events.js';
@@ -50,7 +50,7 @@ const mongoStore: WebhookStore = {
  * and why redeliveries and out-of-order events are safe, is in
  * stripe-events.ts. A failure answers 500, so Stripe retries.
  */
-export const postStripeWebhook = asyncHandler(async (req: Request, res: Response) => {
+export const postStripeWebhook = async (req: Request, res: Response) => {
   const signature = req.headers['stripe-signature'];
 
   if (typeof signature !== 'string') {
@@ -61,4 +61,4 @@ export const postStripeWebhook = asyncHandler(async (req: Request, res: Response
   const outcome = await handleStripeEvent(event, mongoStore);
 
   res.status(200).json({ received: true, outcome });
-});
+};

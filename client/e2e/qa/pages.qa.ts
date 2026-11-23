@@ -14,7 +14,6 @@ const pages = [
   { path: '/', name: 'home', h1: 'Your product, built to hold up.' },
   { path: '/projects', name: 'work-index', h1: 'Work' },
   { path: '/saas', name: 'saas-landing', h1: /Stars, subscribers, mentions\. One dashboard\./ },
-  { path: '/shop', name: 'shop-empty-state', h1: 'Shop' },
   { path: '/saas/signup', name: 'saas-signup', h1: 'Create an account' },
   { path: '/saas/login', name: 'saas-login', h1: 'Log in' },
   { path: '/login', name: 'admin-login', h1: 'Admin sign in' },

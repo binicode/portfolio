@@ -1,0 +1,23 @@
+# Netlify builds the site (client/) only; the API runs on Koyeb from
+# server/Dockerfile. Setup, secrets and DNS: docs/deploy.md.
+#
+# Free plan: each production deploy costs 15 of 300 monthly credits, and
+# when credits run out every site on the account pauses until next month.
+# So production deploys come only from main (set in the Netlify UI, with
+# branch deploys and Deploy Previews off), and a push that changes nothing
+# under client/ doesn't build at all (Netlify's default for a base
+# directory).
+
+[build]
+  base = "client"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Public values only: they are built into the pages. Secrets and the launch
+# switch (SITE_INDEXING) go in the Netlify UI.
+[context.production.environment]
+  NEXT_PUBLIC_API_URL = "https://api.biniyam.com/api"
+  NEXT_PUBLIC_SITE_URL = "https://www.biniyam.com"

@@ -8,15 +8,13 @@
  * pages. So scripts and styles keep 'unsafe-inline' (Next's inline
  * bootstrap and the style attributes), and the policy's value is in what
  * it closes: every other origin for scripts, connections only to this
- * site, the API and the Shopify store, images only from here and Shopify's
- * CDN, no plugins, no framing, no <base> or form hijacking.
+ * site and the API, images only from here, no plugins, no framing, no
+ * <base> or form hijacking.
  */
 
 export interface SecurityHeaderOptions {
   /** NEXT_PUBLIC_API_URL: the browser calls the API (chat, sign-in, dashboards). */
   apiUrl: string;
-  /** NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: Buy now creates a cart from the browser. */
-  shopDomain: string;
   /** NEXT_PUBLIC_SITE_URL: HSTS only when the site is served over HTTPS. */
   siteUrl: string;
 }
@@ -29,14 +27,13 @@ const origin = (url: string): string | null => {
   }
 };
 
-export function contentSecurityPolicy({ apiUrl, shopDomain }: Pick<SecurityHeaderOptions, 'apiUrl' | 'shopDomain'>): string {
-  const shop = origin(`https://${shopDomain}`);
-  const connect = ["'self'", origin(apiUrl), shop].filter(Boolean).join(' ');
+export function contentSecurityPolicy({ apiUrl }: Pick<SecurityHeaderOptions, 'apiUrl'>): string {
+  const connect = ["'self'", origin(apiUrl)].filter(Boolean).join(' ');
   return [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://cdn.shopify.com",
+    "img-src 'self' data: blob:",
     "font-src 'self'",
     `connect-src ${connect}`,
     "object-src 'none'",

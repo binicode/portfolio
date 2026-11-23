@@ -84,12 +84,12 @@ function Systems({ id }: { id: string }) {
             <h2 id="systems-title" className="text-h2 font-medium">
               Try before you hire.
             </h2>
-            <p className="mt-5 max-w-[28rem] text-muted-foreground">Three live products, built end to end.</p>
+            <p className="mt-5 max-w-[28rem] text-muted-foreground">Two live products, built end to end.</p>
           </div>
           <DashboardPoster className="reveal lg:col-span-7" />
         </div>
 
-        <ul className="mt-16 grid gap-px border-y border-border bg-border lg:mt-24 lg:grid-cols-3">
+        <ul className="mt-16 grid gap-px border-y border-border bg-border lg:mt-24 lg:grid-cols-2">
           {LIVE_SYSTEMS.map((system) => (
             <li key={system.name} className="flex flex-col bg-background py-8 lg:px-8 lg:first:pl-0 lg:last:pr-0">
               <h3 className="text-h3 font-semibold">{system.name}</h3>
@@ -122,14 +122,10 @@ function About() {
         <>
           <OpenChatButton mode="chat" className="link text-left">
             AI assistant
-          </OpenChatButton>
-          ,{' '}
+          </OpenChatButton>{' '}
+          and{' '}
           <Link href="/saas" className="link">
             SaaS dashboard
-          </Link>
-          ,{' '}
-          <Link href="/shop" className="link">
-            Shopify store
           </Link>
         </>
       ),

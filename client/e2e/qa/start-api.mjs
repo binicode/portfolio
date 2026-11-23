@@ -5,7 +5,7 @@
 // real. Everything that decides identity or where data goes is overridden
 // here with the QA run's test values (passed in by playwright.qa.config.ts).
 // Node gives variables already in the environment precedence over
-// --env-file, and the server's dotenv call never overrides them either.
+// --env-file.
 
 import { spawn } from 'node:child_process';
 import { createWriteStream, existsSync, mkdirSync } from 'node:fs';
