@@ -611,6 +611,11 @@ Use these when they apply; do not add tools that duplicate them.
     containers are discarded.
 -   Open a pull request only when the user asks.
 -   Never commit secrets, `.env` files, build output or QA media.
+-   **The user is the repository's only contributor.** Before the first
+    commit in a session, set `git config user.name` and `user.email` to
+    the author shown by `git log -1 --format='%an <%ae>' origin/main`.
+    No AI co-author lines, session links or "Generated with" lines in
+    commits or pull requests.
 
 **North star:** Make the existing project trustworthy, then make it
 exceptional. Do not sacrifice maintainability, security, or real-world
