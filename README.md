@@ -60,7 +60,7 @@ background. With Atlas, add your IP address under Network Access first.
 
 `npm run seed:kb` (in `server/`) embeds the notes in
 `server/src/modules/ai-chat/knowledge-base.content.ts` with Voyage AI and
-**replaces** the `knowledgechunks` collection in the database `MONGODB_URI`
+**replaces** the `knowledge_chunks` collection in the database `MONGODB_URI`
 points at. Run it deliberately, once per environment and after editing the
 notes; it needs `VOYAGE_API_KEY`.
 
@@ -153,7 +153,7 @@ database on every request, never from the browser.
 The API creates this index on start-up when it can
 (`ensureKnowledgeVectorIndex`). To create it by hand: Atlas > Database >
 Search & Vector Search > Create Search Index > Atlas Vector Search > JSON
-editor, on the `knowledgechunks` collection, named `knowledge_vector_index`:
+editor, on the `knowledge_chunks` collection, named `knowledge_vector_index`:
 
 ```json
 {
