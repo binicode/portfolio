@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { clientEnv } from '@/lib/config';
+import { indexingAllowed } from '@/lib/indexing';
 import { site } from '@/lib/site';
 import './globals.css';
 
@@ -36,6 +37,9 @@ export const metadata: Metadata = {
   applicationName: site.name,
   authors: [{ name: site.name, url: clientEnv.NEXT_PUBLIC_SITE_URL }],
   creator: site.name,
+  // Before launch every page also says noindex (lib/indexing.ts). Pages that
+  // set their own robots (sign-in, dashboards, 404) are noindex either way.
+  robots: indexingAllowed ? undefined : { index: false, follow: false },
   // Canonical URLs and og:url are set per page; defining them here would
   // make every page without its own value point at the home page.
   openGraph: {
