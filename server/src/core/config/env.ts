@@ -1,15 +1,16 @@
-import { config } from 'dotenv';
 import { z } from 'zod';
 import { parseTrustProxy } from './trust-proxy.js';
 import { parseClientOrigins } from './origins.js';
 import { parseCookieDomain } from './session-cookie.js';
 
-config();
+// Read from the process environment. Locally, `npm run dev`, `npm start`
+// and `npm run seed:kb` load server/.env into it first (Node's
+// --env-file-if-exists); a variable already set in the environment wins.
 
 /**
  * Treats empty-string env vars as "not provided." Without this, an
  * optional field left blank in .env (e.g. `STRIPE_SECRET_KEY=`) fails
- * validation instead of being treated as absent, since dotenv loads
+ * validation instead of being treated as absent, since env files load
  * blank values as "" rather than undefined.
  */
 const optionalString = (schema: z.ZodString) =>

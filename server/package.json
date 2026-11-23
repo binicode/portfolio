@@ -5,10 +5,10 @@
   "type": "module",
   "main": "src/core/server.ts",
   "scripts": {
-    "dev": "tsx watch src/core/server.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/core/server.ts",
     "build": "tsc",
-    "start": "node dist/core/server.js",
-    "seed:kb": "tsx src/modules/ai-chat/scripts/seed-knowledge-base.ts",
+    "start": "node --env-file-if-exists=.env dist/core/server.js",
+    "seed:kb": "tsx --env-file-if-exists=.env src/modules/ai-chat/scripts/seed-knowledge-base.ts",
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "lint": "eslint ."
   },
@@ -17,7 +17,6 @@
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
     "express": "^5.3.0",
     "express-rate-limit": "^8.6.0",
     "jsonwebtoken": "^9.0.3",
