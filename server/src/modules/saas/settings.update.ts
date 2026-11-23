@@ -12,12 +12,14 @@ import { parseGithubUsername, parseYoutubeChannel } from './source-identifiers.j
  * Unknown keys are stripped by the schema, so only these three fields can
  * ever be written here (never, say, subscriptionStatus).
  */
-const sourceField = z.string().optional();
+// Long enough for a pasted profile or channel link (stored shortened); the
+// search term goes to Hacker News's search as typed, so it stays short.
+const sourceField = (max: number) => z.string().max(max, { error: `Use at most ${max} characters.` }).optional();
 
 export const updateSettingsBodySchema = z.object({
-  githubUsername: sourceField,
-  youtubeChannelId: sourceField,
-  brandSearchQuery: sourceField,
+  githubUsername: sourceField(200),
+  youtubeChannelId: sourceField(200),
+  brandSearchQuery: sourceField(100),
 });
 
 export type UpdateSettingsBody = z.infer<typeof updateSettingsBodySchema>;
