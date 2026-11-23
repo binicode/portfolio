@@ -13,8 +13,11 @@ import { parseCookieDomain } from './session-cookie.js';
  * validation instead of being treated as absent, since env files load
  * blank values as "" rather than undefined.
  */
-const optionalString = (schema: z.ZodString) =>
+const optionalString = (schema: z.ZodType<string>) =>
     z.preprocess((val) => (val === '' ? undefined : val), schema.optional());
+
+// An email sender: "Name <address>" or a bare address.
+const SENDER = /^(?:[^<>\r\n]+ <[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+>|[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+)$/;
 
 const envSchema = z.object({
     // --- Core server ---
@@ -79,6 +82,16 @@ const envSchema = z.object({
     GITHUB_API_TOKEN: optionalString(z.string().min(1)),
     YOUTUBE_API_KEY: optionalString(z.string().min(1)),
 
+    // --- Email (Resend, email.ts): off without RESEND_API_KEY ---
+    RESEND_API_KEY: optionalString(z.string().min(1)),
+    // The sender, on the domain verified in Resend.
+    EMAIL_FROM: optionalString(z.string().regex(SENDER, 'EMAIL_FROM must be "Name <address>" or an address')),
+    // Where new-enquiry alerts go. No alerts without it.
+    ALERT_EMAIL_TO: optionalString(z.email()),
+}).superRefine((value, ctx) => {
+    if (value.RESEND_API_KEY && !value.EMAIL_FROM) {
+        ctx.addIssue({ code: 'custom', path: ['EMAIL_FROM'], message: 'EMAIL_FROM is required when RESEND_API_KEY is set' });
+    }
 });
 
 export type Env = z.infer<typeof envSchema>;
