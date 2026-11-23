@@ -16,7 +16,7 @@ export const patchSettings = async (req: Request, res: Response) => {
   const updates = settingsUpdate(updateSettingsBodySchema.parse(req.body));
 
   const user = await SaasUserModel.findByIdAndUpdate(req.user!.sub, updates, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 

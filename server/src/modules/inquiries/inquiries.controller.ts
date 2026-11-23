@@ -60,7 +60,7 @@ const updateSchema = z.object({ read: z.boolean() });
 export const updateInquiry = async (req: Request, res: Response) => {
   const id = idSchema.parse(req.params.id);
   const { read } = updateSchema.parse(req.body);
-  const inquiry = await InquiryModel.findByIdAndUpdate(id, { readAt: read ? new Date() : null }, { new: true }).lean();
+  const inquiry = await InquiryModel.findByIdAndUpdate(id, { readAt: read ? new Date() : null }, { returnDocument: 'after' }).lean();
   if (!inquiry) throw new AppError('Inquiry not found', 404);
   res.status(200).json(inquiry);
 };

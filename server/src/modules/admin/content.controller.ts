@@ -53,7 +53,7 @@ export const updateProject = async (req: Request, res: Response) => {
   // a partial update could silently bypass the schema's own validation
   // (e.g. slug format) on the fields being changed.
   const project = await ProjectModel.findByIdAndUpdate(id, updates, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 
