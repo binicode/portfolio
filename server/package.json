@@ -22,7 +22,7 @@
     "express-rate-limit": "^8.6.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.12.3",
-    "stripe": "^22.4.0",
+    "stripe": "^23.2.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

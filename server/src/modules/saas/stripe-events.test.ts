@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import Stripe from 'stripe';
 import {
+  STRIPE_API_VERSION,
   checkoutReturnUrls,
   handleStripeEvent,
   subscriptionUpdateFromEvent,
@@ -134,4 +135,10 @@ test('Checkout returns to the SaaS dashboard, not the admin', () => {
     successUrl: 'https://example.com/saas/dashboard?checkout=success',
     cancelUrl: 'https://example.com/saas/dashboard?checkout=cancelled',
   });
+});
+
+test('the pinned API version is the one this SDK was built for', () => {
+  // When this fails after an SDK update: read the new version's changelog,
+  // then move the pin and the webhook endpoint to it together.
+  assert.equal(STRIPE_API_VERSION, Stripe.API_VERSION);
 });

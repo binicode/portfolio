@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
-import { verifyStripeEvent } from './stripe-events.js';
+import { STRIPE_API_VERSION, verifyStripeEvent } from './stripe-events.js';
 
 // What a visitor sees when Stripe fails. Stripe's own message (which can
 // name prices, accounts or key fragments) is logged here, never returned.
@@ -14,7 +14,7 @@ function billingError(context: string, error: unknown): AppError {
 
 // Created on first use, and only when a key is configured: the SDK throws
 // when given no key, which used to stop the whole API from starting
-// without billing set up. (The SDK sends its own pinned API version.)
+// without billing set up.
 let client: Stripe | null = null;
 
 function stripe(): Stripe {
@@ -22,7 +22,7 @@ function stripe(): Stripe {
     console.error('Stripe: STRIPE_SECRET_KEY is not set; billing is off');
     throw new AppError(BILLING_UNAVAILABLE, 503);
   }
-  client ??= new Stripe(env.STRIPE_SECRET_KEY);
+  client ??= new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: STRIPE_API_VERSION });
   return client;
 }
 
