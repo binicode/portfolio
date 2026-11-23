@@ -166,7 +166,7 @@ Why it reads as generic:
 | 6 | Major versions behind: express 4 to 5.3, mongoose 8 to 9, zod 3 to 4, stripe 22 to 23, @google/genai 2 to 3, @shopify/storefront-api-client 1 to 2, typescript 5 to 7, eslint 9 to 10, dotenv 16 to 18; Node 24 while 26 is the active LTS | npm registry, 2026-11-22 | FIX, one at a time, each against its migration guide |
 | 7 | Contracts written three times (client types, server types, mock API) | section 4 | REFACTOR |
 | 8 | Optional features required by the site's config | `client/src/lib/config.ts:34-41` | REFACTOR |
-| 9 | Dead code and assets: 14 empty server files (`src/index.ts`, `modules/admin-cms/*`, `api-aggregator/*`, `storefront/*`, `ai-chat/vectorStore.ts`), unused `describeTrustProxy`, a commented-out route mount, five unused SVGs | `grep` finds no references | FIX |
+| 9 | Dead code and assets: 11 empty server files (`src/index.ts`, `modules/admin-cms/*`, `api-aggregator/*`, `storefront/*`, `ai-chat/vectorStore.ts`), unused `describeTrustProxy`, a commented-out route mount, five unused SVGs | `grep` finds no references | FIX |
 | 10 | Mixed logging | section 6 | FIX |
 | 11 | CI has no dependency audit or automated update PRs; no npm install-script policy (npm 11 warns about `unrs-resolver`) | `.github/workflows/ci.yml` | FIX |
 | 12 | `.continue/rules/portfolio-conventions.md` tells another assistant that `cors()` runs open globally; the API uses an origin allowlist, and the Stripe webhook needs its raw body before `express.json()` | `core/app.ts:32-46` | FIX or remove (your call) |

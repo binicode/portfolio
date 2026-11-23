@@ -79,7 +79,7 @@ Each step ends with lint, type-check, unit, database-backed and e2e tests where 
 1. Merge PR #19 (enquiries) into the rebuild branch; run every check.
 2. Patch advisories inside the current majors (`npm audit fix`; client PostCSS tooling).
 3. Remove the shop: routes, components, Shopify client and types, CSP and image settings, sitemap entries, e2e fixtures and tests, nav and footer links, the knowledge-base note, docs. The site config stops requiring Shopify values.
-4. Remove dead code and assets: 14 empty server files, `describeTrustProxy`, the commented route, five create-next-app SVGs.
+4. Remove dead code and assets: 11 empty server files, `describeTrustProxy`, the commented route, five create-next-app SVGs.
 5. Fix the README's collection name (`knowledge_chunks`).
 
 ### 4.2 Tests and upgrades
