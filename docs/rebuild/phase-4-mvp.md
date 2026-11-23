@@ -2,7 +2,7 @@
 
 - **Branch:** `rebuild/phase-4-mvp` (from `rebuild/phase-3-plan`)
 - **Plan:** `docs/rebuild/phase-3-plan.md`, section 4
-- **Status:** in progress; steps 4.1 to 4.4 done; 4.6 prepared (configuration and `docs/deploy.md`), waiting for the accounts and DNS; 4.5 next
+- **Status:** in progress; steps 4.1 to 4.5 done (4.5 on `rebuild/phase-4-integrations`); 4.6 prepared (configuration and `docs/deploy.md`), waiting for the accounts, DNS and the merge
 
 ## Progress
 
@@ -34,12 +34,21 @@
 | 4.4.5 Stripe customer portal | Done | Database test without a Stripe customer; the portal itself in 4.6 (needs Stripe) |
 | 4.4.6 Account deletion | Done | Database tests (wrong password, Stripe unreachable keeps the account); e2e journey |
 | 4.4.7 Privacy and terms pages | Drafted | Your review (see "Needs the user") |
+| 4.5.1 Stripe customer created once (idempotency key) | Done | Database tests through the real SDK against a local stand-in for Stripe; the test fails without the key |
+| 4.5.2 Pinned Gemini models, thinking set per model | Done | Database tests through the real SDK against a local stand-in: settings per model, fallback. Order provisional until measured with your key |
+| 4.5.2 Daily AI cost cap with one alert | Done | Same suite: the cap stops calls; one alert email a day |
+| 4.5.3 `voyage-4-lite` at 512 dimensions, model-filtered search | Done | Unit tests (request, index check); the live index and re-seed at deployment |
+| 4.5.4 Dashboard sources cached 10 minutes | Done | Unit tests (expiry, failures not kept, shared loads, size limit) |
+| 4.5.5 Timeouts on the site's server-side fetches | Done | Unit tests; production build; e2e |
+| 4.5.6 Length limits: CMS fields and settings | Done | Database and unit tests |
+| 4.5.7 Configuration errors, `/health`, one structured logger | Done | Database test (`/health` fields); sample production log lines checked |
+| 4.5.8 Shared Open Graph base | Done | e2e: every public page has the site name, type, locale, URL and a working image |
 | 4.6 Hosting configuration | Prepared | `netlify.toml`, `docs/deploy.md`; the API's production-only install started and answered |
 | Search engines kept out until launch | Done | `SITE_INDEXING`, off by default |
 
 ## Tests now
 
-- **Server:** 122 tests, 37 of them against a real MongoDB (three suites, each with its own database): sign-up through the emailed confirmation link (with the password), sign-up that reveals nothing about existing accounts and can't be used to take one over, password reset, the checkout gate for unconfirmed addresses, the billing portal guard, account deletion, enquiry alerts, log-in, sessions and their revocation, equal refusals for unknown emails, the sign-in rate limit, the admin and customer separation, the subscription gate, settings, the CMS draft-and-publish flow, http(s)-only project links, project briefs (store, list, mark read, delete, honeypot), the assistant without a model key, and the API running without Stripe.
+- **Server:** 141 tests, 45 of them against a real MongoDB (five suites, each with its own database; two also run the real Stripe and Gemini SDKs against local stand-ins): billing (checkout, portal, deletion at Stripe), the assistant's models and daily cost cap, sign-up through the emailed confirmation link (with the password), sign-up that reveals nothing about existing accounts and can't be used to take one over, password reset, the checkout gate for unconfirmed addresses, the billing portal guard, account deletion, enquiry alerts, log-in, sessions and their revocation, equal refusals for unknown emails, the sign-in rate limit, the admin and customer separation, the subscription gate, settings, the CMS draft-and-publish flow, http(s)-only project links, project briefs (store, list, mark read, delete, honeypot), the assistant without a model key, and the API running without Stripe.
 - **Client:** 38 unit tests; e2e 80 passed (re-run after the 4.4 review fix: see below), 10 skipped by design (each skipped test belongs to the other viewport), now including the account journeys and the new pages' load and accessibility checks.
 - **QA suite** (manual, `npm run test:qa`): its API-boundary file was run for 4.3 against a throwaway local MongoDB without provider keys: 8 passed; the Stripe webhook check answered 503 instead of 400, as designed when no Stripe key is set (that suite expects the keys from `server/.env`).
 
@@ -78,11 +87,15 @@
     - **Accepted, documented in `docs/deploy.md`:** Atlas open to all addresses (Koyeb has no fixed outgoing address), and DMARC `p=none` until sending is checked.
 15. **Accounts created before 4.4 have no confirmed address**, so they can't log in until they reset their password (which confirms it). Only relevant if the old database is reused; `docs/deploy.md` starts a new one.
 16. **The manual QA suite's SaaS file (`client/e2e/qa/saas.qa.ts`) still assumes sign-up signs in.** To update before it is next run: follow the confirmation link the API prints in development (its log is kept by `start-api.mjs`).
+17. **Link previews had no image or site name on any public page (4.5.8).** Each page set its own `openGraph` for `og:url`, and Next.js replaces a layout's whole `openGraph` with a page's, so the shared image and site fields were lost; the built HTML had only title, description and URL. Every page now builds on one shared base.
+18. **Gemini 4 Hydrogen thinks at "high" by default, and thinking counts towards the output limit**, which would have left the planner's 160-token note empty or cut answers short. Each model now has its thinking level and headroom set explicitly (4.5.2).
+19. **A knowledge base embedded with another model would have matched badly without any error** (vectors from different models aren't comparable). Chunks now record their model and search filters on it (4.5.3).
 
 ## Needs the user
 
 - **Accounts and settings, `docs/deploy.md` steps 1 to 5:** Atlas, Resend, Koyeb (choose Starter), Netlify, the Stripe sandbox. Secrets go into each host's settings, never into chat or git.
 - **DNS at Namecheap, `docs/deploy.md` step 6.**
 - **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
-- **The pull request that brings the rebuild into `main`:** deployment builds from `main`.
+- **Merge [binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27)** (still open on 2026-11-23); step 4.5 follows in its own pull request from `rebuild/phase-4-integrations`. Deployment builds from `main`.
+- **A Gemini API key for the model measurement** (4.5.2): entered through this session's secure form, never chat. Without it the provisional order stays (Flash-Lite first).
 - ~~Hosting choice~~ Netlify Free + Koyeb Free (2026-11-23). ~~DNS~~ Namecheap BasicDNS. ~~Dependabot alerts~~ on.
