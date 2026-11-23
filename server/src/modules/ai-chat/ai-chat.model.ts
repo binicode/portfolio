@@ -6,12 +6,17 @@ import type {
 } from './ai-chat.types.js';
 
 /**
- * Must match the output dimension of the embedding model used in
- * embedding.service.ts. voyage-3-lite produces 512-dimensional vectors.
- * If the embedding model changes, this constant AND the Atlas vector
- * index must be updated together — a mismatch fails silently at query
- * time, not at write time.
+ * The embedding model and its output size (embedding.service.ts requests
+ * this size explicitly). voyage-4-lite supports 256, 512, 1024 and 2048
+ * dimensions; 512 keeps the index as small as before.
+ *
+ * Vectors from different models can't be compared, so each chunk records
+ * the model that embedded it and vector search considers only chunks from
+ * EMBEDDING_MODEL. After changing the model, re-seed (`npm run seed:kb`):
+ * until then retrieval falls back to the whole knowledge base instead of
+ * returning poor matches.
  */
+export const EMBEDDING_MODEL = 'voyage-4-lite';
 export const EMBEDDING_DIMENSIONS = 512;
 
 export const VECTOR_INDEX_NAME = 'knowledge_vector_index';
@@ -72,6 +77,7 @@ const knowledgeChunkSchema = new Schema<KnowledgeChunkDocument>(
         message: `embedding must have exactly ${EMBEDDING_DIMENSIONS} dimensions`,
       },
     },
+    embeddingModel: { type: String, required: true },
     metadata: { type: knowledgeChunkMetadataSchema, required: true },
     createdAt: { type: Date, required: true, default: () => new Date() },
   },
@@ -85,45 +91,57 @@ export const KnowledgeChunkModel = model<KnowledgeChunkDocument>(
   knowledgeChunkSchema,
 );
 
+export const KNOWLEDGE_INDEX_DEFINITION = {
+  fields: [
+    { type: 'vector', path: 'embedding', numDimensions: EMBEDDING_DIMENSIONS, similarity: 'cosine' },
+    { type: 'filter', path: 'metadata.sourceType' },
+    { type: 'filter', path: 'embeddingModel' },
+  ],
+};
+
+interface SearchIndexField {
+  type?: string;
+  path?: string;
+  numDimensions?: number;
+  similarity?: string;
+}
+
 /**
- * Creates the Atlas Vector Search index on the knowledge_chunks collection
- * if it doesn't already exist. Safe to call on every server boot — Atlas
- * index creation is asynchronous server-side, so this only issues the
- * create command and does not block on the index becoming queryable.
- *
- * Call this once after mongoose.connect() resolves, e.g. from db.ts's
- * connection success path.
+ * Whether an existing index has what retrieval relies on: the vector field
+ * at EMBEDDING_DIMENSIONS and both filter fields. Only these are compared:
+ * Atlas adds defaults of its own to a stored definition.
+ */
+export function indexDefinitionIsCurrent(fields: SearchIndexField[] | undefined): boolean {
+  const vector = fields?.find((field) => field.type === 'vector' && field.path === 'embedding');
+  const filters = new Set(fields?.filter((field) => field.type === 'filter').map((field) => field.path));
+  return (
+    vector?.numDimensions === EMBEDDING_DIMENSIONS &&
+    vector.similarity === 'cosine' &&
+    filters.has('metadata.sourceType') &&
+    filters.has('embeddingModel')
+  );
+}
+
+/**
+ * Creates the Atlas Vector Search index on the knowledge_chunks collection,
+ * or updates an older definition of it (for example one without the
+ * embeddingModel filter). Safe to call on every server boot: Atlas builds
+ * the index asynchronously, so this only issues the command and does not
+ * wait for the index to become queryable.
  */
 export async function ensureKnowledgeVectorIndex(): Promise<void> {
   const collection = KnowledgeChunkModel.collection;
-  const existingIndexes = (await collection
-    .listSearchIndexes()
-    .toArray()) as Array<{ name: string }>;
+  const existing = (await collection.listSearchIndexes(VECTOR_INDEX_NAME).toArray()) as Array<{
+    name: string;
+    latestDefinition?: { fields?: SearchIndexField[] };
+  }>;
+  const current = existing.find((index) => index.name === VECTOR_INDEX_NAME);
 
-  const alreadyExists = existingIndexes.some(
-    (index) => index.name === VECTOR_INDEX_NAME,
-  );
-
-  if (alreadyExists) {
+  if (!current) {
+    await collection.createSearchIndex({ name: VECTOR_INDEX_NAME, type: 'vectorSearch', definition: KNOWLEDGE_INDEX_DEFINITION });
     return;
   }
-
-  await collection.createSearchIndex({
-    name: VECTOR_INDEX_NAME,
-    type: 'vectorSearch',
-    definition: {
-      fields: [
-        {
-          type: 'vector',
-          path: 'embedding',
-          numDimensions: EMBEDDING_DIMENSIONS,
-          similarity: 'cosine',
-        },
-        {
-          type: 'filter',
-          path: 'metadata.sourceType',
-        },
-      ],
-    },
-  });
+  if (!indexDefinitionIsCurrent(current.latestDefinition?.fields)) {
+    await collection.updateSearchIndex(VECTOR_INDEX_NAME, KNOWLEDGE_INDEX_DEFINITION);
+  }
 }
