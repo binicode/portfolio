@@ -7,7 +7,6 @@ import {
   postLogin,
   postLogout,
   postRegister,
-  postResendVerification,
   postResetPassword,
   postVerifyEmail,
 } from './saas-auth.controller.js';
@@ -19,7 +18,6 @@ router.post('/login', authLimiter, postLogin);
 router.post('/logout', postLogout);
 router.get('/me', requireCustomer, getMe);
 router.post('/verify-email', accountLinkLimiter, postVerifyEmail);
-router.post('/verify-email/resend', requireCustomer, accountLinkLimiter, postResendVerification);
 router.post('/password/forgot', accountLinkLimiter, postForgotPassword);
 router.post('/password/reset', accountLinkLimiter, postResetPassword);
 

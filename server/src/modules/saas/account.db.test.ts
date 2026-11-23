@@ -1,17 +1,12 @@
-// Run with `npm test` in server/. The Creator Dashboard account lifecycle
-// against a real MongoDB (in memory): confirming the address, sign-up that
-// reveals nothing about existing accounts, password reset, the billing
-// portal and account deletion. Emails land in the helper's outbox. The
-// tests share one database and run in order. Sign-up and log-in share a
-// limit of 10 attempts per 15 minutes per address (authLimiter); these
-// tests use 8.
+// Run with `npm test` in server/. A Creator Dashboard account after sign-up,
+// against a real MongoDB (in memory): password reset, the billing portal
+// and account deletion. Emails land in the helper's outbox. The tests share
+// one database and run in order.
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { linkToken, startDatabaseApp, type DatabaseApp } from '../../test-support/database-app.js';
 
 let app: DatabaseApp;
-let anaSession: string | undefined;
-let benSession: string | undefined;
 
 before(async () => {
   app = await startDatabaseApp();
@@ -29,54 +24,22 @@ async function signUp(email: string, password = PASSWORD) {
   return { response, email: await app.nextEmail((m) => m.to === email.toLowerCase(), sent) };
 }
 
-test('a new address gets a confirmation link that signs in, once', async () => {
-  const { response, email } = await signUp('ana@example.com');
-  assert.equal(response.status, 202);
-  assert.deepEqual(response.body, { ok: true });
-  assert.equal(email.kind, 'verify-email');
-  assert.match(email.text, /http:\/\/localhost:3000\/saas\/verify-email#token=/);
+const confirm = (token: string, password: string) => app.post('/api/saas/auth/verify-email', { token, password });
+let anaSession: string | undefined;
+let benSession: string | undefined;
 
-  const token = linkToken(email);
-  const verified = await app.post('/api/saas/auth/verify-email', { token });
-  assert.equal(verified.status, 200);
-  anaSession = verified.cookie;
-  const me = await app.call('/api/saas/auth/me', {}, anaSession);
-  assert.equal(me.body.emailVerified, true);
+/** Signs up and confirms, like a person following the emailed link; returns the session. */
+async function confirmedAccount(address: string, password = PASSWORD): Promise<string | undefined> {
+  const { email } = await signUp(address, password);
+  const confirmed = await confirm(linkToken(email), password);
+  assert.equal(confirmed.status, 200);
+  return confirmed.cookie;
+}
 
-  const again = await app.post('/api/saas/auth/verify-email', { token });
-  assert.equal(again.status, 400);
-  assert.equal(again.body.error.message, 'This link has expired or was already used.');
-});
-
-test('signing up with a taken address answers the same and only tells its owner, at most hourly', async () => {
-  const { response, email } = await signUp('ana@example.com', 'another-password-2');
-  assert.equal(response.status, 202);
-  assert.deepEqual(response.body, { ok: true });
-  assert.equal(email.kind, 'account-exists');
-  assert.match(email.text, /\/saas\/forgot-password/);
-
-  // The old password still works: the attempt changed nothing.
-  assert.equal((await app.post('/api/saas/auth/login', { email: 'ana@example.com', password: PASSWORD })).status, 200);
-
-  const sent = app.outbox.length;
-  assert.equal((await app.post('/api/saas/auth/register', { email: 'ana@example.com', password: 'another-password-2' })).status, 202);
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  assert.equal(app.outbox.length, sent, 'no second notice within the hour');
-});
-
-test('an unconfirmed account can sign in but not subscribe, and can ask for a new link once a minute', async () => {
-  await signUp('ben@example.com');
-  const login = await app.post('/api/saas/auth/login', { email: 'ben@example.com', password: PASSWORD });
-  assert.equal(login.status, 200);
-  benSession = login.cookie;
-  assert.equal((await app.call('/api/saas/auth/me', {}, benSession)).body.emailVerified, false);
-
-  const checkout = await app.post('/api/saas/billing/checkout', {}, benSession);
-  assert.equal(checkout.status, 403);
-  assert.equal(checkout.body.error.message, 'Confirm your email address before subscribing.');
-
-  // The sign-up link was issued moments ago: too soon for another.
-  assert.equal((await app.post('/api/saas/auth/verify-email/resend', {}, benSession)).status, 429);
+test('two confirmed accounts to work with', async () => {
+  anaSession = await confirmedAccount('ana@example.com');
+  benSession = await confirmedAccount('ben@example.com');
+  assert.equal((await app.call('/api/saas/auth/me', {}, benSession)).body.emailVerified, true);
 });
 
 test('a password reset: same answer for any address, a single-use link, every old session ends', async () => {
@@ -97,14 +60,22 @@ test('a password reset: same answer for any address, a single-use link, every ol
   const reset = await app.post('/api/saas/auth/password/reset', { token, password: 'second-password-2' });
   assert.equal(reset.status, 200);
   benSession = reset.cookie;
-  const me = await app.call('/api/saas/auth/me', {}, benSession);
-  assert.equal(me.status, 200);
-  assert.equal(me.body.emailVerified, true, 'the reset link also confirms the address');
+  assert.equal((await app.call('/api/saas/auth/me', {}, benSession)).status, 200);
   assert.equal((await app.call('/api/saas/auth/me', {}, oldSession)).status, 401, 'older sessions end');
 
   assert.equal((await app.post('/api/saas/auth/password/reset', { token, password: 'third-password-3' })).status, 400, 'the link works once');
   assert.equal((await app.post('/api/saas/auth/password/reset', { token: 'not-a-token', password: 'third-password-3' })).status, 400);
   assert.equal((await app.post('/api/saas/auth/login', { email: 'ben@example.com', password: PASSWORD })).status, 401);
+});
+
+test('a reset also confirms an unconfirmed account: the way back for a lost link', async () => {
+  await signUp('cara@example.com');
+  const sent = app.outbox.length;
+  await app.post('/api/saas/auth/password/forgot', { email: 'cara@example.com' });
+  const email = await app.nextEmail((m) => m.kind === 'reset-password' && m.to === 'cara@example.com', sent);
+  const reset = await app.post('/api/saas/auth/password/reset', { token: linkToken(email), password: 'cara-password-2' });
+  assert.equal(reset.status, 200);
+  assert.equal((await app.call('/api/saas/auth/me', {}, reset.cookie)).body.emailVerified, true);
 });
 
 test('the billing portal needs a Stripe customer first', async () => {

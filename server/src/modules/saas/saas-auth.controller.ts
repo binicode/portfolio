@@ -10,7 +10,7 @@ import { sendEmail } from '../../core/email/email.js';
 import { accountExistsMessage, passwordResetMessage, verifyEmailMessage } from '../../core/email/messages.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { SAAS_AUTH_COOKIE_NAME, sessionToken, signAccessToken, verifyAccessToken } from '../../core/middleware/auth.js';
-import { accountTokenSchemaInput, consumeAccountToken, deleteAccountTokens, issueAccountToken, lastIssuedAt } from './account-tokens.js';
+import { accountTokenSchemaInput, consumeAccountToken, deleteAccountTokens, issueAccountToken, lastIssuedAt, peekAccountToken } from './account-tokens.js';
 import { endCustomerSession } from './customer-session.js';
 import { SaasUserModel, type SaasUserHydratedDocument } from './saas-user.model.js';
 import type { AuthResult } from './saas.types.js';
@@ -25,7 +25,7 @@ const newPasswordSchema = z.string().min(8, { error: 'Use at least 8 characters.
 const registerBodySchema = z.object({ email: emailSchema, password: newPasswordSchema });
 const loginBodySchema = z.object({ email: emailSchema, password: z.string().min(1) });
 const emailBodySchema = z.object({ email: emailSchema });
-const tokenBodySchema = z.object({ token: accountTokenSchemaInput });
+const verifyBodySchema = z.object({ token: accountTokenSchemaInput, password: z.string().min(1, { error: 'Enter your password.' }) });
 const resetBodySchema = z.object({ token: accountTokenSchemaInput, password: newPasswordSchema });
 
 const BCRYPT_SALT_ROUNDS = 10;
@@ -36,6 +36,9 @@ const BCRYPT_SALT_ROUNDS = 10;
 const UNKNOWN_ACCOUNT_HASH = bcrypt.hashSync('no account has this password', BCRYPT_SALT_ROUNDS);
 
 const LINK_INVALID = 'This link has expired or was already used.';
+// One answer for an unknown address, a wrong password and an unconfirmed
+// account, so log-in reveals nothing about which addresses have accounts.
+const LOGIN_REFUSED = 'Invalid email or password. Just signed up? Confirm your email first.';
 // A new link of the same kind at most this often, per account.
 const RESEND_INTERVAL_MS = 60 * 1000;
 // "You already have an account" at most this often, per account.
@@ -63,13 +66,20 @@ async function sendVerificationLink(user: SaasUserHydratedDocument): Promise<boo
   return sendEmail(verifyEmailMessage(user.email, links().verify(token)), randomUUID());
 }
 
+const issuedWithinInterval = (issuedAt: Date | null) => issuedAt !== null && Date.now() - issuedAt.getTime() < RESEND_INTERVAL_MS;
+
 /**
  * POST /saas/auth/register
  * Answers the same, at once, whether or not the address has an account,
  * so sign-up can't be used to find out who has one. The work happens
- * after the response: a new address gets an account and a confirmation
- * link; an address that has an account gets a note saying so (at most
- * hourly). Nobody is signed in here: the confirmation link does that.
+ * after the response:
+ * - a new address gets an unconfirmed account and a confirmation link;
+ * - an unconfirmed account takes the new password and gets a new link (at
+ *   most one a minute), so signing up again is how a lost link is replaced;
+ * - a confirmed account's owner gets a note saying so (at most hourly).
+ * Nobody is signed in here, and an unconfirmed account can't log in:
+ * confirming needs both the emailed link and the password, so whoever
+ * typed someone else's address can't get into the account that results.
  */
 export const postRegister = async (req: Request, res: Response) => {
   const { email, password } = registerBodySchema.parse(req.body);
@@ -82,6 +92,15 @@ export const postRegister = async (req: Request, res: Response) => {
       await sendVerificationLink(user);
     } catch (error) {
       if ((error as { code?: number }).code !== DUPLICATE_KEY) throw error;
+      const pending = await SaasUserModel.findOneAndUpdate(
+        { email: email.toLowerCase(), emailVerifiedAt: { $exists: false } },
+        { $set: { passwordHash } },
+        { returnDocument: 'after' },
+      );
+      if (pending) {
+        if (!issuedWithinInterval(await lastIssuedAt(pending._id, 'verify-email'))) await sendVerificationLink(pending);
+        return;
+      }
       const noticeDue = new Date(Date.now() - EXISTING_ACCOUNT_NOTICE_INTERVAL_MS);
       const existing = await SaasUserModel.findOneAndUpdate(
         { email: email.toLowerCase(), $or: [{ existingAccountNoticeAt: { $exists: false } }, { existingAccountNoticeAt: { $lt: noticeDue } }] },
@@ -98,8 +117,8 @@ export const postLogin = async (req: Request, res: Response) => {
   const user = await SaasUserModel.findOne({ email: email.toLowerCase() });
   const passwordMatches = await bcrypt.compare(password, user?.passwordHash ?? UNKNOWN_ACCOUNT_HASH);
 
-  if (!user || !passwordMatches) {
-    throw new AppError('Invalid email or password', 401);
+  if (!user || !passwordMatches || !user.emailVerifiedAt) {
+    throw new AppError(LOGIN_REFUSED, 401);
   }
 
   signIn(res, user);
@@ -109,41 +128,28 @@ export const postLogin = async (req: Request, res: Response) => {
 
 /**
  * POST /saas/auth/verify-email
- * Uses a confirmation link: marks the address confirmed and signs in
- * (the link proves the inbox, and its owner chose the password).
+ * Uses a confirmation link together with the account's password: the link
+ * proves the inbox and the password proves who signed up, so both must
+ * belong to the same person. A wrong password leaves the link usable.
+ * Confirming ends any older session of the account and signs in.
  */
 export const postVerifyEmail = async (req: Request, res: Response) => {
-  const { token } = tokenBodySchema.parse(req.body);
-  const userId = await consumeAccountToken(token, 'verify-email');
+  const { token, password } = verifyBodySchema.parse(req.body);
+  const userId = await peekAccountToken(token, 'verify-email');
   const user = userId ? await SaasUserModel.findById(userId) : null;
   if (!user) throw new AppError(LINK_INVALID, 400);
-
-  if (!user.emailVerifiedAt) {
-    user.emailVerifiedAt = new Date();
-    await user.save();
+  if (!(await bcrypt.compare(password, user.passwordHash))) {
+    throw new AppError('That password doesn’t match the one chosen at sign-up.', 401);
   }
+  // Used up only now, atomically: a second request racing with the same link fails here.
+  if (!(await consumeAccountToken(token, 'verify-email'))) throw new AppError(LINK_INVALID, 400);
+
+  user.emailVerifiedAt ??= new Date();
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+  await user.save();
   signIn(res, user);
   const result: AuthResult = { success: true };
   res.status(200).json(result);
-};
-
-/**
- * POST /saas/auth/verify-email/resend
- * A new confirmation link for the signed-in account, at most once a minute.
- */
-export const postResendVerification = async (req: Request, res: Response) => {
-  const user = await SaasUserModel.findById(req.user!.sub);
-  if (!user) throw new AppError('User not found', 404);
-  if (user.emailVerifiedAt) {
-    res.status(200).json({ ok: true });
-    return;
-  }
-  const last = await lastIssuedAt(user._id, 'verify-email');
-  if (last && Date.now() - last.getTime() < RESEND_INTERVAL_MS) {
-    throw new AppError('A link was sent less than a minute ago. Check your inbox, then try again.', 429);
-  }
-  if (!(await sendVerificationLink(user))) throw new AppError('The email could not be sent. Try again in a few minutes.', 502);
-  res.status(200).json({ ok: true });
 };
 
 /**
@@ -158,8 +164,7 @@ export const postForgotPassword = async (req: Request, res: Response) => {
   inBackground('Password reset request', async () => {
     const user = await SaasUserModel.findOne({ email: email.toLowerCase() });
     if (!user) return;
-    const last = await lastIssuedAt(user._id, 'reset-password');
-    if (last && Date.now() - last.getTime() < RESEND_INTERVAL_MS) return;
+    if (issuedWithinInterval(await lastIssuedAt(user._id, 'reset-password'))) return;
     const token = await issueAccountToken(user._id, 'reset-password');
     await sendEmail(passwordResetMessage(user.email, links().reset(token)), randomUUID());
   });

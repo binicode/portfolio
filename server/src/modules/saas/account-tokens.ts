@@ -8,8 +8,8 @@ import { z } from 'zod';
  * The link carries 32 random bytes; the database keeps only their SHA-256,
  * so a copy of the database can't be turned into working links. A token is
  * deleted when used (so it works once) and expires on its own (TTL index).
- * Issuing a new one for the same purpose replaces the account's earlier
- * one: only the latest link works.
+ * An account has at most one link per purpose: issuing a new one replaces
+ * the earlier one in a single write, so only the latest link works.
  */
 
 export type AccountTokenPurpose = 'verify-email' | 'reset-password';
@@ -21,14 +21,15 @@ export const TOKEN_LIFETIME_MS: Record<AccountTokenPurpose, number> = {
 
 const accountTokenSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, required: true, index: true },
+    userId: { type: Schema.Types.ObjectId, required: true },
     purpose: { type: String, enum: ['verify-email', 'reset-password'], required: true },
     tokenHash: { type: String, required: true, unique: true },
+    issuedAt: { type: Date, required: true },
     // MongoDB deletes the document once this time has passed (about a minute later).
     expiresAt: { type: Date, required: true, expires: 0 },
   },
-  { timestamps: { createdAt: true, updatedAt: false } },
 );
+accountTokenSchema.index({ userId: 1, purpose: 1 }, { unique: true });
 
 const AccountTokenModel = model('AccountToken', accountTokenSchema, 'account_tokens');
 
@@ -40,20 +41,25 @@ const hash = (token: string) => createHash('sha256').update(token).digest('hex')
 /** Creates a token for the account and returns it (only its hash is stored). */
 export async function issueAccountToken(userId: Types.ObjectId | string, purpose: AccountTokenPurpose): Promise<string> {
   const token = randomBytes(32).toString('base64url');
-  await AccountTokenModel.deleteMany({ userId, purpose });
-  await AccountTokenModel.create({
-    userId,
-    purpose,
-    tokenHash: hash(token),
-    expiresAt: new Date(Date.now() + TOKEN_LIFETIME_MS[purpose]),
-  });
+  const now = Date.now();
+  await AccountTokenModel.updateOne(
+    { userId, purpose },
+    { $set: { tokenHash: hash(token), issuedAt: new Date(now), expiresAt: new Date(now + TOKEN_LIFETIME_MS[purpose]) } },
+    { upsert: true },
+  );
   return token;
 }
 
 /** When the account's current token for this purpose was issued, if it has one. */
 export async function lastIssuedAt(userId: Types.ObjectId | string, purpose: AccountTokenPurpose): Promise<Date | null> {
-  const token = await AccountTokenModel.findOne({ userId, purpose }, { createdAt: 1 }).lean();
-  return (token?.createdAt as Date | undefined) ?? null;
+  const token = await AccountTokenModel.findOne({ userId, purpose }, { issuedAt: 1 }).lean();
+  return token?.issuedAt ?? null;
+}
+
+/** The account a valid (unused, unexpired) token belongs to, without using it up. */
+export async function peekAccountToken(token: string, purpose: AccountTokenPurpose): Promise<Types.ObjectId | null> {
+  const found = await AccountTokenModel.findOne({ tokenHash: hash(token), purpose, expiresAt: { $gt: new Date() } }, { userId: 1 }).lean();
+  return found ? (found.userId as Types.ObjectId) : null;
 }
 
 /**

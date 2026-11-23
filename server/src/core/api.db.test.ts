@@ -32,7 +32,7 @@ test('sign-up creates an account; its confirmation link signs in', async () => {
   assert.equal(status, 202);
   assert.equal(cookie, undefined, 'sign-up itself signs nobody in');
   const email = await app.nextEmail((m) => m.kind === 'verify-email' && m.to === 'customer@example.com');
-  const verified = await app.post('/api/saas/auth/verify-email', { token: linkToken(email) });
+  const verified = await app.post('/api/saas/auth/verify-email', { token: linkToken(email), password: 'correct-horse-1' });
   assert.equal(verified.status, 200);
   assert.match(verified.cookie ?? '', /^saas_token=/);
 });
