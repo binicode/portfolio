@@ -1,5 +1,5 @@
 /**
- * The three products that run on this site. Shown on the home page, and
+ * The products that run on this site. Shown on the home page, and
  * on the work page while the CMS has no published case studies.
  */
 export type LiveSystem = {
@@ -22,11 +22,5 @@ export const LIVE_SYSTEMS: LiveSystem[] = [
     body: 'A paid SaaS: sign-up, Stripe subscriptions, live data dashboard.',
     action: { kind: 'link', label: 'Explore the dashboard', href: '/saas' },
     stack: ['Next.js', 'Express', 'MongoDB', 'Stripe', 'TypeScript'],
-  },
-  {
-    name: 'Shopify store',
-    body: 'A custom storefront with Shopify’s own checkout.',
-    action: { kind: 'link', label: 'Browse the store', href: '/shop' },
-    stack: ['Next.js', 'Shopify Storefront API', 'TypeScript'],
   },
 ];

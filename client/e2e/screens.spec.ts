@@ -11,8 +11,6 @@ const pages = [
   ['saas', '/saas'],
   ['saas-signup', '/saas/signup'],
   ['saas-login', '/saas/login'],
-  ['shop', '/shop'],
-  ['product', '/shop/fixture-desk-lamp'],
   ['not-found', '/no-such-page'],
 ] as const;
 const viewports = [

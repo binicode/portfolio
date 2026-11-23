@@ -52,7 +52,7 @@ The project already has a substantial, operational foundation:
 -   Google Gemini-powered RAG assistant.
 -   Voyage AI embeddings.
 -   Stripe subscription billing and webhooks.
--   Headless Shopify integration (being removed: the user dropped the shop, November 2026).
+-   Headless Shopify integration: removed (the user dropped the shop, November 2026).
 -   Client-side application architecture and SaaS/admin interfaces.
 
 The revised direction should be:

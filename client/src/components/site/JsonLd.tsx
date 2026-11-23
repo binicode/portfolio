@@ -1,7 +1,7 @@
 /**
  * Structured data as a JSON-LD script tag.
  *
- * JSON.stringify does not escape "<", so a CMS or Shopify value containing
+ * JSON.stringify does not escape "<", so a CMS value containing
  * "</script>" could close the tag and inject markup. Escaping "<" as
  * < keeps the JSON identical for parsers while making that
  * impossible (the approach recommended in the Next.js JSON-LD guide).

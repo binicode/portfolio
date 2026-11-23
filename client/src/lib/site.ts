@@ -7,7 +7,7 @@ export const site = {
   name: 'Biniyam Abera',
   role: 'Freelance full-stack engineer',
   description:
-    'Freelance full-stack engineer building SaaS, AI features and online stores with Next.js, Node.js and MongoDB. Try three live products, then plan yours.',
+    'Freelance full-stack engineer building SaaS, AI features and online stores with Next.js, Node.js and MongoDB. Try the live products, then plan yours.',
   githubUsername: 'binicode',
 } as const;
 
@@ -19,7 +19,6 @@ export const socials = [
 export const primaryNav = [
   { label: 'Work', href: '/projects' },
   { label: 'SaaS', href: '/saas' },
-  { label: 'Shop', href: '/shop' },
   { label: 'About', href: '/#about' },
 ] as const;
 

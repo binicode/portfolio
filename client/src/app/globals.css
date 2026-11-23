@@ -336,7 +336,7 @@
 
 /* The public <main> keeps the sand roles but paints nothing where its
    sections paint the field (a background here would only be overdraw);
-   on pages built without sections (work, shop, case study, product) it
+   on pages built without sections (work, case study) it
    paints the field itself, once. */
 .site-frame main.theme-sand {
   background: none;

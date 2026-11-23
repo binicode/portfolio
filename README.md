@@ -1,6 +1,6 @@
 # Biniyam Abera: portfolio and live products
 
-A freelance full-stack engineer's site, with three products running on it:
+A freelance full-stack engineer's site, with two products running on it:
 
 - **AI assistant**: answers questions about the work from a knowledge base
   (MongoDB Atlas Vector Search, Voyage AI embeddings, Google Gemini), and a
@@ -8,8 +8,6 @@ A freelance full-stack engineer's site, with three products running on it:
 - **Creator Dashboard** (`/saas`): a subscription SaaS. Sign-up, Stripe
   Checkout and webhooks, GitHub, YouTube and Hacker News numbers in one
   dashboard.
-- **Shop** (`/shop`): a server-rendered storefront on the Shopify Storefront
-  API, with Shopify's own checkout.
 
 Plus a CMS admin (`/login`) for the case studies.
 
@@ -29,7 +27,7 @@ The client's design rules are in [`client/DESIGN-SYSTEM.md`](client/DESIGN-SYSTE
   a local Atlas deployment); any MongoDB for local development without the
   assistant's vector search.
 - Accounts for the features you turn on: Google AI Studio (Gemini), Voyage
-  AI, Stripe, Shopify, a GitHub token and a YouTube Data API key. Every one
+  AI, Stripe, a GitHub token and a YouTube Data API key. Every one
   is optional for running the site; each feature says when it isn't
   configured.
 
@@ -77,8 +75,8 @@ notes; it needs `VOYAGE_API_KEY`.
 | End to end | `npm run test:e2e` | |
 
 `npm run test:e2e` installs nothing on its own: run `npx playwright install
-chromium` once. It builds the site against local stand-ins for the API and
-Shopify (`client/e2e/mock-api`), so it needs no keys or database, and runs
+chromium` once. It builds the site against a local stand-in for the API
+(`client/e2e/mock-api`), so it needs no keys or database, and runs
 the journeys, axe and full-page screenshots on desktop and phone profiles.
 `npm run test:e2e:report` opens the results. CI
 ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs all of the
@@ -97,8 +95,8 @@ shares the session with the site's server.
    detects Next.js; the defaults (`npm ci`, `next build`) are right.
 2. Add the variables from `client/.env.example` for Production (and Preview
    if you use previews): `NEXT_PUBLIC_API_URL=https://api.example.com/api`,
-   `NEXT_PUBLIC_SITE_URL=https://example.com`, the Shopify domain and public
-   token, optionally `GITHUB_API_TOKEN`.
+   `NEXT_PUBLIC_SITE_URL=https://example.com`, optionally
+   `GITHUB_API_TOKEN`.
 3. Add the domain. `NEXT_PUBLIC_*` values are built into the pages: change
    one, redeploy.
 
@@ -172,8 +170,7 @@ new index and a fresh `npm run seed:kb`.
 ## Security notes
 
 - Secrets live only in the API's environment. The site's only browser
-  values are the public `NEXT_PUBLIC_*` ones (the Shopify token there is
-  Shopify's public Storefront token).
+  values are the public `NEXT_PUBLIC_*` ones.
 - Admin and Creator Dashboard sessions are separate httpOnly cookies, checked
   on the server for every protected route.
 - Sign-in, sign-up, the assistant, the planner and Stripe Checkout have

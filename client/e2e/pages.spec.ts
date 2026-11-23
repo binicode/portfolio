@@ -3,8 +3,8 @@ import { attachFullPage, collectPageErrors } from './support';
 
 // Key public pages: each answers 200, shows its h1, logs no console errors,
 // and leaves a full-page screenshot in the HTML report for a visual check.
-// Project data comes from e2e/fixtures/projects.json and the shop's from
-// e2e/fixtures/shop-products.json, through the stand-ins in e2e/mock-api.
+// Project data comes from e2e/fixtures/projects.json, through the stand-in
+// in e2e/mock-api.
 const pages = [
   { path: '/', h1: 'Your product, built to hold up.' },
   { path: '/projects', h1: 'Work' },
@@ -12,8 +12,6 @@ const pages = [
   { path: '/saas', h1: /Stars, subscribers, mentions\. One dashboard\./ },
   { path: '/saas/signup', h1: 'Create an account' },
   { path: '/saas/login', h1: 'Log in' },
-  { path: '/shop', h1: 'Shop' },
-  { path: '/shop/fixture-desk-lamp', h1: 'Fixture Desk Lamp' },
 ];
 
 // Static layout (no scroll-driven reveals), so the full-page screenshots show

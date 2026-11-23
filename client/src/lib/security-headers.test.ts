@@ -3,14 +3,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { contentSecurityPolicy, DOCUMENT_SOURCE, securityHeaderRules } from './security-headers.ts';
 
-const options = { apiUrl: 'https://api.example.com/api', shopDomain: 'store.myshopify.com', siteUrl: 'https://example.com' };
+const options = { apiUrl: 'https://api.example.com/api', siteUrl: 'https://example.com' };
 
-test('the CSP connects only to this site, the API and the store', () => {
+test('the CSP connects only to this site and the API', () => {
   const csp = contentSecurityPolicy(options);
-  assert.match(csp, /connect-src 'self' https:\/\/api\.example\.com https:\/\/store\.myshopify\.com(;|$)/);
+  assert.match(csp, /connect-src 'self' https:\/\/api\.example\.com(;|$)/);
   assert.match(csp, /frame-ancestors 'none'/);
   assert.match(csp, /object-src 'none'/);
-  assert.match(csp, /img-src 'self' data: blob: https:\/\/cdn\.shopify\.com/);
+  assert.match(csp, /img-src 'self' data: blob:(;|$)/);
   assert.doesNotMatch(csp, /unsafe-eval/);
 });
 
@@ -38,5 +38,5 @@ test('the page-only rule skips hashed static files and optimised images', () => 
 });
 
 test('a malformed API URL is left out rather than breaking the policy', () => {
-  assert.match(contentSecurityPolicy({ apiUrl: 'not a url', shopDomain: 'store.myshopify.com' }), /connect-src 'self' https:\/\/store\.myshopify\.com/);
+  assert.match(contentSecurityPolicy({ apiUrl: 'not a url' }), /connect-src 'self'(;|$)/);
 });

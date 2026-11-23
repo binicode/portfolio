@@ -3,15 +3,15 @@
 # client: clean install, lint, type-check, unit tests and a production build.
 # server: clean install, lint, type-check, unit tests and a build.
 # e2e: Playwright browser tests (desktop and phone Chromium) against a
-#      production build of the client and fixture stand-ins for the API and
-#      Shopify: journeys, axe and full-page screenshots.
+#      production build of the client and a fixture stand-in for the API:
+#      journeys, axe and full-page screenshots.
 #
 # Unit tests use Node's built-in runner (`npm test` in each package): the
 # client's run on Node's native TypeScript stripping, the server's through
 # tsx. They cover pure modules only, so they need no services or secrets.
 #
 # No secrets are used. The client build gets placeholder public values that
-# point nowhere: build-time data fetches (projects API, Shopify) fail soft and
+# point nowhere: build-time data fetches (the projects API) fail soft and
 # render their empty states, so CI checks the code without depending on any
 # live service. Actions are pinned to commit SHAs (version in the comment).
 
@@ -43,8 +43,6 @@ jobs:
       NEXT_TELEMETRY_DISABLED: 1
       NEXT_PUBLIC_API_URL: http://127.0.0.1:9
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
-      NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: ci-placeholder.myshopify.com
-      NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN: ci-placeholder
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -118,10 +116,9 @@ jobs:
     defaults:
       run:
         working-directory: client
-    # playwright.config.ts starts the stand-ins for the API and Shopify
-    # (client/e2e/mock-api; the Shopify one uses a self-signed certificate made
-    # with the runner's openssl), then builds and starts the client against
-    # them, so no secrets or live services are needed.
+    # playwright.config.ts starts the stand-in for the API
+    # (client/e2e/mock-api), then builds and starts the client against it, so
+    # no secrets or live services are needed.
     env:
       NEXT_TELEMETRY_DISABLED: 1
     steps:

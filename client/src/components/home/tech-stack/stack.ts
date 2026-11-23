@@ -52,7 +52,6 @@ export const STACK: readonly StackCategory[] = [
     name: 'Services',
     technologies: [
       { name: 'Stripe', logo: 'stripe' },
-      { name: 'Shopify', logo: 'shopify' },
       { name: 'Google Gemini', logo: 'gemini' },
       { name: 'Voyage AI', logo: 'voyage' },
     ],

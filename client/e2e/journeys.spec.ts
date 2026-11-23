@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { collectPageErrors } from './support';
 
-// The journeys a visitor takes, against the fixture API and the Shopify
-// stand-in (e2e/mock-api/server.mjs). Reduced motion keeps the hero static,
+// The journeys a visitor takes, against the fixture API
+// (e2e/mock-api/server.mjs). Reduced motion keeps the hero static,
 // so links and buttons are where a reader expects them.
 test.use({ reducedMotion: 'reduce' });
 
@@ -18,7 +18,6 @@ test.describe('navigation', () => {
     const stops: [string, RegExp, string | RegExp][] = [
       ['Work', /\/projects$/, 'Work'],
       ['SaaS', /\/saas$/, /One dashboard/],
-      ['Shop', /\/shop$/, 'Shop'],
     ];
     for (const [label, url, h1] of stops) {
       await nav.getByRole('link', { name: label, exact: true }).click();
@@ -127,28 +126,10 @@ test('a wrong password is refused with a message', async ({ page }) => {
   await expect(page).toHaveURL(/\/saas\/login$/);
 });
 
-test('shop: from the catalogue to a product', async ({ page }) => {
-  const errors = collectPageErrors(page);
-  await page.goto('/shop');
-  await expect(page.getByText('3 products')).toBeVisible();
-  await expect(page.getByRole('link', { name: /Fixture Mug/ })).toContainText('Sold out');
-
-  await page.getByRole('link', { name: /Fixture Desk Lamp/ }).click();
-  await expect(page).toHaveURL(/\/shop\/fixture-desk-lamp$/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Fixture Desk Lamp');
-  await expect(page.getByRole('button', { name: 'Buy now' })).toBeEnabled();
-
-  await page.goto('/shop/fixture-mug');
-  await expect(page.getByText('Sold out.', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Buy now' })).toHaveCount(0);
-  expect(errors).toEqual([]);
-});
-
 test('an unknown page is a real 404 with a way back', async ({ page }) => {
   const response = await page.goto('/no-such-page');
   expect(response?.status()).toBe(404);
   await expect(page).toHaveTitle(/Page not found/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page doesn’t exist.');
   expect((await page.goto('/projects/no-such-project'))?.status()).toBe(404);
-  expect((await page.goto('/shop/no-such-product'))?.status()).toBe(404);
 });

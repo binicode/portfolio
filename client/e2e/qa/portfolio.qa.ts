@@ -4,7 +4,7 @@ import { expectHitTarget } from '../support';
 /**
  * A visitor browsing the public site, with motion on (as most visitors see
  * it): the hero scene, both hero buttons, every home section, the header
- * navigation, the work index, a case study, the SaaS page and the shop.
+ * navigation, the work index, a case study and the SaaS page.
  */
 
 test.use({ reducedMotion: 'no-preference' });
@@ -13,7 +13,7 @@ test.beforeEach(async ({ diag }) => {
   diag.expect(/\/auth\/me/, 'signed-out session check');
 });
 
-test('visitor browses home, work, a case study, SaaS and shop', async ({ page, media, diag }, testInfo) => {
+test('visitor browses home, work, a case study and SaaS', async ({ page, media, diag }, testInfo) => {
   test.skip(testInfo.project.name === 'mobile', 'the phone journey is in mobile.qa.ts');
   media.video('portfolio', 'public-browsing-journey');
 
@@ -96,18 +96,13 @@ test('visitor browses home, work, a case study, SaaS and shop', async ({ page, m
     await media.shot('errors', 'work-index-without-case-studies', { fullPage: true });
   }
 
-  // SaaS landing and the shop.
+  // SaaS landing.
   await page.goto('/saas');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Stars, subscribers, mentions\. One dashboard\./);
   await media.pause();
   await media.shot('portfolio', 'saas-landing-top');
   await media.smoothScrollTo('bottom');
   await media.pause(600);
-
-  await page.goto('/shop');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Shop');
-  await media.pause();
-  await media.shot('portfolio', 'shop-empty-state');
 
   // Back home with the logo/home link.
   await page.goto('/');
