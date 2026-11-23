@@ -60,6 +60,8 @@ export async function getGithubActivity(username: string, limit: number = 5): Pr
     const response = await fetch(`${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/events/public`, {
       headers,
       next: { revalidate: 300 },
+      // A slow GitHub must not hold the home page: the list is optional.
+      signal: AbortSignal.timeout(5_000),
     });
 
     if (!response.ok) {

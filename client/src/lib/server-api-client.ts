@@ -2,6 +2,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { clientEnv } from './config';
 import { ApiError } from './api-client';
+import { withTimeout } from './fetch-timeout';
 
 interface ApiErrorResponseBody {
   error: {
@@ -31,7 +32,7 @@ async function serverApiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${clientEnv.NEXT_PUBLIC_API_URL}${path}`, {
-      ...init,
+      ...withTimeout(init),
       headers: {
         'Content-Type': 'application/json',
         Cookie: cookieStore.toString(),
