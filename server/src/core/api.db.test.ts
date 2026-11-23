@@ -127,3 +127,36 @@ test('without Stripe configured the API still runs, and checkout answers 503', a
   assert.equal(status, 503);
   assert.doesNotMatch(body.error.message, /STRIPE|key/i, 'no configuration detail reaches the visitor');
 });
+
+test('a project brief is stored, and only the admin can read and manage it', async () => {
+  const brief = {
+    name: 'Ada Client',
+    contact: 'ada@example.com',
+    brief: '## Project\n- A booking site',
+    transcript: [{ q: 'What are you building?', a: ['Web app'] }],
+  };
+  assert.equal((await app.post('/api/inquiries', brief)).status, 201);
+
+  // A customer's cookie is never read on admin routes: no admin session at all.
+  assert.equal((await app.call('/api/admin/inquiries', {}, customer)).status, 401);
+  const list = await app.call('/api/admin/inquiries', {}, admin);
+  assert.equal(list.status, 200);
+  assert.equal(list.body.items.length, 1);
+  assert.deepEqual(list.body.items[0].contact, { kind: 'email', value: 'ada@example.com' });
+  assert.equal(list.body.stats.unread, 1);
+
+  const id = list.body.items[0]._id;
+  const read = await app.patch(`/api/admin/inquiries/${id}`, { read: true }, admin);
+  assert.equal(read.status, 200);
+  assert.ok(read.body.readAt, 'the updated inquiry comes back marked read');
+  assert.equal((await app.call('/api/admin/inquiries/stats', {}, admin)).body.unread, 0);
+
+  assert.equal((await app.call(`/api/admin/inquiries/${id}`, { method: 'DELETE' }, admin)).status, 204);
+  assert.equal((await app.call('/api/admin/inquiries/stats', {}, admin)).body.total, 0);
+});
+
+test('a filled honeypot is answered like a real brief but not stored', async () => {
+  const bot = { name: 'Bot', contact: 'bot@example.com', brief: 'spam', transcript: [{ q: 'Q', a: ['A'] }], website: 'https://spam.example' };
+  assert.equal((await app.post('/api/inquiries', bot)).status, 201);
+  assert.equal((await app.call('/api/admin/inquiries/stats', {}, admin)).body.total, 0);
+});
