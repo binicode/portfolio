@@ -5,21 +5,24 @@ import { z } from 'zod';
  * no SDK or config imports, so it can be tested on its own.
  */
 
-// Control characters are what this strips, on purpose.
+/** Control characters (newlines included) become one space; the ends are trimmed. */
 // eslint-disable-next-line no-control-regex
-const clean = (value: string) => value.replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
+export const clean = (value: string) => value.replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
+
+/** The questions and answers the visitor saw, as plain text. Also stored with an inquiry. */
+export const transcriptSchema = z
+  .array(
+    z.object({
+      q: z.string().min(1).max(160).transform(clean),
+      a: z.array(z.string().min(1).max(220).transform(clean)).min(1).max(12),
+    }),
+  )
+  .min(1)
+  .max(14);
 
 export const discoveryBodySchema = z.object({
   kind: z.enum(['insight', 'brief']),
-  transcript: z
-    .array(
-      z.object({
-        q: z.string().min(1).max(160).transform(clean),
-        a: z.array(z.string().min(1).max(220).transform(clean)).min(1).max(12),
-      }),
-    )
-    .min(1)
-    .max(14),
+  transcript: transcriptSchema,
 });
 
 export type DiscoveryBody = z.infer<typeof discoveryBodySchema>;

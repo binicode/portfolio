@@ -229,7 +229,7 @@ of action it is.
 - **Accent (terracotta): work with me.** Plan your project, Plan a
   similar project/product/store. All open the
   assistant's planner (`OpenChatButton mode="discovery"`), which ends in a
-  brief and "Copy brief and message me".
+  brief and "Send brief".
 - **Primary (bone): the main action of a product flow.** Create an account,
   Buy now, Continue to checkout, Save, Log in on its form.
 - **Secondary (outline): the alternative route** beside either: See the
@@ -244,8 +244,8 @@ of action it is.
 Wording:
 
 - Verb first and the outcome named: "Plan your project", "Continue to
-  checkout", "Copy brief and message me". No "Learn more", "Submit", "Click
-  here".
+  checkout", "Send brief", "Copy brief and message me". No "Learn more",
+  "Submit", "Click here".
 - A short line under a conversion CTA says what happens and how long it
   takes. For the planner it is always `PLANNER_NOTE` in `lib/site.ts` ("Free.
   2 minutes. You keep the brief."), word for word, wherever the planner
@@ -266,13 +266,25 @@ Where they sit (one contextual CTA where intent peaks, not on every block):
 | Shop | Plan a similar store, after the products |
 | Footer (every page) | Plan your project + Message me on LinkedIn |
 | Assistant, chat | Planning a project? card in the empty state; Plan it in 2 minutes bar after an answer |
-| Assistant, brief | Copy brief and message me (copies, then opens LinkedIn), Copy only, Ask a question first |
+| Assistant, brief | Send brief (name + email or LinkedIn, accent); Copy brief and message me on LinkedIn, Copy only, Ask a question first as text links. If sending fails, Copy brief and message me becomes the accent button |
 
 `requestOpenChat(mode, { build, question })` (`chat-events.ts`) is the one
 way in: `build` preselects the planner's first answer when nothing is in
 progress, `question` places text in the chat box (never sent for the
 visitor). The copy in "Copy brief and message me" is synchronous
 (`lib/copy-text.ts`) so it completes before LinkedIn's tab takes focus.
+
+Send brief posts to `POST /api/inquiries` (`lib/inquiry-client.ts`; pure
+checks in `lib/inquiry.ts`). Two fields: Your name, and Email or LinkedIn
+profile (one field, either accepted). Under the button, the privacy line:
+"Only I see this, and only to reply to you. Deleted after 12 months." Sent
+shows "Brief sent" and how the reply will come (by email / on LinkedIn); a
+failure (including the 503 the server answers at once while its database is
+down) or a rate limit (429) swaps the form for "Copy brief and message me",
+with Try sending again after a failure. Inquiries land in the admin
+dashboard's Inquiries page, whose counts (total, new, last 30 days) are the
+planner's conversion measure; there is no third-party analytics. New
+inquiries are marked in the signal colour (a status, not an action).
 
 ## Components
 
@@ -482,11 +494,16 @@ writes a brief at the end.
   the brief), or the request fails, built-in text replaces it
   (`fallbackInsight`, `fallbackBrief`), so the flow never stalls.
 - The brief is light markdown rendered as elements, never as HTML
-  (`parseBrief`). Copy brief and Message me on LinkedIn end the flow; no
-  answers are stored on the server. Progress stays in localStorage.
+  (`parseBrief`, rendered by `BriefText`, which the admin list reuses). Send
+  brief ends the flow (see "Calls to action"); only then are the brief,
+  answers, name and reply address stored on the server, for 12 months (a
+  TTL index), with no IP address or user agent. Progress stays in
+  localStorage, plus whether this brief was sent (not the name or address).
 - Each step scrolls the visitor's latest answer to the top of the panel, so
   the recommendation and next question below it are read together. Focus
-  moves to the selected or first option, or to Copy brief.
+  moves to the selected or first option, or to the "Send it to me" heading
+  above the form (no input is focused for the visitor, so phones don't
+  raise the keyboard over the brief).
 - Entry points: the panel's mode switch and the footer's "Plan your
   project", which call `requestOpenChat('discovery')`. Everything ships in
   the lazily loaded panel chunk (about 10 KB gzip, chat included), so no

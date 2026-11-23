@@ -86,3 +86,20 @@ export const aiChatLimiter = rateLimit({
     },
   },
 });
+
+/**
+ * Project inquiries from the assistant's planner. A real visitor sends one
+ * brief, maybe a corrected second; this stops one address filling the
+ * admin inbox. The client offers the LinkedIn route on a 429.
+ */
+export const inquiryLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: env.NODE_ENV === 'production' ? 5 : 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: {
+      message: 'You have sent a few briefs already. Please try again later.',
+    },
+  },
+});
