@@ -114,6 +114,7 @@ DNS is last: three of its values come from the accounts made before it.
 | `ALERT_EMAIL_TO` | the inbox that should receive new enquiries |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` | secrets, from step 5 |
 | `GEMINI_API_KEY`, `VOYAGE_API_KEY` | secrets, the AI assistant's keys |
+| `AI_DAILY_COST_CAP_USD` | optional, default `1`: the most Gemini may cost per day (UTC) before the assistant pauses until midnight |
 | `GITHUB_API_TOKEN`, `YOUTUBE_API_KEY` | secrets, the dashboard's data sources |
 
 ### 4. Netlify (the site)

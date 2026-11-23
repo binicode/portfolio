@@ -87,3 +87,18 @@ export function passwordResetMessage(to: string, link: string): EmailMessage {
     ].join('\n'),
   };
 }
+
+/** To the site owner, at most once a day, when the assistant reaches its daily cost cap. */
+export function aiBudgetAlert(to: string, day: string, capUsd: number): EmailMessage {
+  return {
+    kind: 'ai-budget-alert',
+    to,
+    subject: `The assistant reached its daily cost cap (${day})`,
+    text: [
+      `The assistant and the planner used their daily allowance of $${capUsd} in Gemini costs on ${day} (UTC, at paid-tier prices).`,
+      'Until midnight UTC they answer with a short "try again tomorrow" message instead of calling Gemini.',
+      '',
+      'If this was real traffic, raise AI_DAILY_COST_CAP_USD on the API host. If it looks like abuse, check the API logs.',
+    ].join('\n'),
+  };
+}

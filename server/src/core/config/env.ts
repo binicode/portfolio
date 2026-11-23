@@ -74,6 +74,9 @@ const envSchema = z.object({
     // --- AI chat module ---
     GEMINI_API_KEY: optionalString(z.string().min(1)),
     VOYAGE_API_KEY: optionalString(z.string().min(1)),
+    // The most the assistant and the planner may spend on Gemini per UTC day,
+    // in US dollars at paid-tier prices (ai-budget.ts).
+    AI_DAILY_COST_CAP_USD: z.preprocess((val) => (val === '' ? undefined : val), z.coerce.number().positive().max(1000).default(1)),
 
     // --- SaaS MVP billing module ---
     STRIPE_SECRET_KEY: optionalString(z.string().min(1)),

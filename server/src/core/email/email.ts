@@ -11,7 +11,7 @@ import { log } from '../logger.js';
  * is printed instead (and counts as sent), so links can be followed locally.
  */
 
-export type EmailKind = 'inquiry-alert' | 'verify-email' | 'account-exists' | 'reset-password';
+export type EmailKind = 'inquiry-alert' | 'verify-email' | 'account-exists' | 'reset-password' | 'ai-budget-alert';
 
 export interface EmailMessage {
   kind: EmailKind;
