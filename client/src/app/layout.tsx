@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { clientEnv } from '@/lib/config';
 import { indexingAllowed } from '@/lib/indexing';
+import { OG_IMAGE, pageOpenGraph } from '@/lib/open-graph';
 import { site } from '@/lib/site';
 import './globals.css';
 
@@ -42,17 +43,15 @@ export const metadata: Metadata = {
   robots: indexingAllowed ? undefined : { index: false, follow: false },
   // Canonical URLs and og:url are set per page; defining them here would
   // make every page without its own value point at the home page.
-  openGraph: {
-    type: 'website',
-    siteName: site.name,
-    locale: 'en_US',
+  openGraph: pageOpenGraph({
     title: `${site.name} | ${site.role}`,
     description: site.description,
-  },
+  }),
   twitter: {
     card: 'summary_large_image',
     title: `${site.name} | ${site.role}`,
     description: site.description,
+    images: [{ url: OG_IMAGE.url, alt: OG_IMAGE.alt }],
   },
 };
 

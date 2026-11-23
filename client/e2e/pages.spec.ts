@@ -44,3 +44,27 @@ test('structured data is valid JSON with the expected types', async ({ page }) =
   const types = blocks.flatMap((text) => [JSON.parse(text)].flat().map((item: { '@type': string }) => item['@type']));
   expect(types).toEqual(expect.arrayContaining(['Person', 'WebSite']));
 });
+
+// A page that sets its own Open Graph fields replaces the layout's (Next.js
+// merges metadata shallowly): every public page must still carry the shared
+// ones, so a shared link shows the image and the site's name.
+for (const path of ['/', '/projects', '/projects/fixture-storefront', '/saas', '/privacy', '/terms']) {
+  test(`${path} has complete link-preview metadata`, async ({ page, request }) => {
+    await page.goto(path);
+    const og = async (property: string) => page.locator(`meta[property="og:${property}"]`).getAttribute('content');
+    expect(await og('site_name')).toBe('Biniyam Abera');
+    expect(await og('locale')).toBe('en_US');
+    expect(await og('type')).toBe(path.startsWith('/projects/') ? 'article' : 'website');
+    expect(await og('url')).toMatch(new RegExp(`${path === '/' ? '' : path}$`));
+    expect(await og('title')).toBeTruthy();
+    expect(await og('description')).toBeTruthy();
+
+    const image = await og('image');
+    expect(image).toMatch(/\/opengraph-image$/);
+    expect(await og('image:alt')).toMatch(/Biniyam Abera/);
+    const response = await request.get(new URL(image!).pathname);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toBe('image/png');
+    expect(await page.locator('meta[name="twitter:image"]').getAttribute('content')).toMatch(/\/opengraph-image$/);
+  });
+}

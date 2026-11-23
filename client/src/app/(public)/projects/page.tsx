@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import { getProjects } from '@/lib/projects';
 import ProjectShowcase from '@/components/work/ProjectShowcase';
 import LiveSystemsList from '@/components/work/LiveSystemsList';
+import { pageOpenGraph } from '@/lib/open-graph';
 
 export const metadata: Metadata = {
   title: 'Work',
   description:
     'Case studies of products Biniyam Abera designed and built: a subscription SaaS with Stripe billing, a retrieval-augmented AI assistant and more.',
   alternates: { canonical: '/projects' },
-  openGraph: { url: '/projects' },
+  openGraph: pageOpenGraph({ url: '/projects' }),
 };
 
 export default async function ProjectsPage() {

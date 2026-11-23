@@ -4,13 +4,14 @@ import OpenChatButton from '@/components/chat/OpenChatButton';
 import { buttonClasses } from '@/components/ui/button-styles';
 import DashboardPreview from '@/components/saas/DashboardPreview';
 import { PLANNER_NOTE } from '@/lib/site';
+import { pageOpenGraph } from '@/lib/open-graph';
 
 export const metadata: Metadata = {
   title: 'Creator Dashboard',
   description:
     'Creator Dashboard is a working subscription product: sign up, subscribe through Stripe Checkout, and see GitHub, YouTube and Hacker News numbers in one dashboard.',
   alternates: { canonical: '/saas' },
-  openGraph: { url: '/saas' },
+  openGraph: pageOpenGraph({ url: '/saas' }),
 };
 
 const STEPS = [

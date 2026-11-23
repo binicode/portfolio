@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import LegalPage from '@/components/site/LegalPage';
 import { contactHref, site } from '@/lib/site';
+import { pageOpenGraph } from '@/lib/open-graph';
 
 export const metadata: Metadata = {
   title: 'Privacy',
   description: 'What this site collects, why, where it goes and how long it is kept.',
   alternates: { canonical: '/privacy' },
-  openGraph: { url: '/privacy' },
+  openGraph: pageOpenGraph({ url: '/privacy' }),
 };
 
 // Every statement here is checked against the code: retention periods are
