@@ -470,8 +470,8 @@ Do not change code during this phase.
 
 ### Phase 3 --- Architecture and implementation plan
 
-**Status:** plan in `docs/rebuild/phase-3-plan.md`, awaiting the user's
-approval and hosting choice (its section 6).
+**Status:** approved 2026-11-23; plan in `docs/rebuild/phase-3-plan.md`.
+Hosting choice pending (its section 3); needed by step 4.6.
 
 **Model:** Opus 5.5, High / Max.
 
@@ -482,6 +482,9 @@ versions. The user approves the scope (especially any feature removal)
 and the plan before Phase 4 starts.
 
 ### Phase 4 --- Complete the MVP
+
+**Status:** in progress on `rebuild/phase-4-mvp`, following
+`docs/rebuild/phase-3-plan.md` section 4.
 
 **Model:** Sonnet 5.5, High; Opus 5.5, High for security-critical work.
 

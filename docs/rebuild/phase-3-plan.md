@@ -3,7 +3,7 @@
 - **Date:** 2026-11-23
 - **Branch:** `rebuild/phase-3-plan`
 - **Inputs:** `docs/rebuild/phase-2-audit.md` and the user's answers there; checks run for this plan (below)
-- **Status:** awaiting the user's approval. Phase 4 starts when it is approved.
+- **Status:** approved by the user on 2026-11-23 (hosting: economical options, section 3). Phase 4 runs on `rebuild/phase-4-mvp`.
 
 ## 1. Scope
 
@@ -57,14 +57,19 @@ flowchart LR
 
 ### Hosting (your choice, section 6)
 
-| | A: Vercel Pro (site) + Render (API) | B: Render (site and API) |
-| --- | --- | --- |
-| Monthly | $20 + $7 = **$27** | $7 + $7 = **$14** |
-| Site performance | Global edge network built for Next.js | One region; visitors far from it wait longer for each page |
-| Notes | Vercel's free Hobby plan is for non-commercial use only; a freelance site with a paid product needs Pro | Simpler: one platform, one bill |
-| Recommendation | **A**, because mobile speed for clients worldwide is a stated goal | B if keeping cost down matters more |
+The user asked for free or very economical hosting. Checked on 2026-11-23 against each provider's own pages:
 
-Plus the database: Atlas Free while building (0.5 GB, no backups), then Atlas **Flex** at launch ($0.011 an hour, capped at $30 a month, daily snapshots), because paying subscribers' data needs backups. Resend, Stripe, Gemini and Voyage start free or pay-per-use.
+| | 1: Railway (site and API) | 2: Cloudflare Workers (site) + Koyeb free (API) | 3: Netlify free (site) + Koyeb free (API) |
+| --- | --- | --- | --- |
+| Monthly | **about $5**: the $5 Hobby fee includes $5 of usage (memory about $10 per GB-month, CPU about $20 per vCPU-month); two small always-on services should fit, and a usage limit stops surprises | **$5**: Workers Free allows only 10 ms of CPU per request, too little for server-rendered pages, so the $5 Paid plan; Koyeb's one free instance for the API | **$0** |
+| Always on | Yes | Site yes; the API sleeps after 1 hour idle and wakes in 1 to 5 s | Site within its credits; API as option 2 |
+| Speed for visitors worldwide | One region | Site served from Cloudflare's global network | Netlify's network |
+| Risks | Usage above $5 is billed (set the limit) | More setup (Cloudflare's Next.js adapter, checked for Next 16); first assistant or dashboard request after an idle hour waits | 300 credits a month, 15 per deploy; when they run out, **every** project pauses until next month |
+| Recommendation | **Recommended**: cheapest option with nothing that sleeps or pauses, and the least setup | Best speed for the money, at more setup | Only if $0 is a must |
+
+Commercial use is allowed on all three (a freelance site with a paid product is commercial; Vercel's free plan is not, and its Pro plan is $20 a month).
+
+Database: Atlas Free ($0; 0.5 GB, no backups). Stripe remains the record of who pays and each enquiry is also emailed to you, so a data loss would cost accounts and chat history but not billing state or enquiries. Atlas Flex ($0.011 an hour, at most $30 a month, daily snapshots) once paying customers make backups worth it. Email (Resend), Gemini and Voyage start on free tiers.
 
 ## 4. Phase 4 plan, in order
 
@@ -127,7 +132,7 @@ Each step ends with lint, type-check, unit, database-backed and e2e tests where 
 
 ## 6. What I need from you
 
-1. **Approve this plan** (scope, order, and the additions in 4.4).
-2. **Hosting:** option A ($27 a month, recommended) or B ($14 a month), plus Atlas Flex at launch.
-3. **biniyam.com:** do you already own it, and where is its DNS managed? DNS records are needed in 4.4 and 4.6.
+1. ~~Approve this plan~~ approved 2026-11-23.
+2. **Hosting:** option 1, 2 or 3 above (needed by step 4.6).
+3. ~~biniyam.com~~ owned by the user; where its DNS is managed is needed by step 4.4.
 4. **Later, at step 4.4 and 4.6 (not now):** accounts for the chosen host, Resend and Atlas, and keys for Gemini, Voyage, Stripe (test), GitHub and YouTube. You add them in each service's settings; I will say exactly which, when.
