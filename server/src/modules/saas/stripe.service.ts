@@ -12,10 +12,19 @@ function billingError(context: string, error: unknown): AppError {
   return new AppError(BILLING_UNAVAILABLE, 502);
 }
 
-// No apiVersion pinned deliberately — see file-level note in chat.
-// Omitting it means the SDK uses this Stripe account's own current
-// default API version, which is always valid for that account.
-const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? '');
+// Created on first use, and only when a key is configured: the SDK throws
+// when given no key, which used to stop the whole API from starting
+// without billing set up. (The SDK sends its own pinned API version.)
+let client: Stripe | null = null;
+
+function stripe(): Stripe {
+  if (!env.STRIPE_SECRET_KEY) {
+    console.error('Stripe: STRIPE_SECRET_KEY is not set; billing is off');
+    throw new AppError(BILLING_UNAVAILABLE, 503);
+  }
+  client ??= new Stripe(env.STRIPE_SECRET_KEY);
+  return client;
+}
 
 /**
  * Creates a new Stripe Customer. Does NOT persist the returned id
@@ -24,8 +33,9 @@ const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? '');
  * saving it onto the SaasUser document.
  */
 export async function createStripeCustomer(email: string): Promise<string> {
+  const stripeClient = stripe();
   try {
-    const customer = await stripe.customers.create({ email });
+    const customer = await stripeClient.customers.create({ email });
     return customer.id;
   } catch (error) {
     throw billingError('creating a customer', error);
@@ -47,8 +57,9 @@ export async function createSubscriptionCheckoutSession(
     throw new AppError('Server misconfiguration: STRIPE_PRO_PRICE_ID is not set', 500);
   }
 
+  const stripeClient = stripe();
   try {
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeClient.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: 'subscription',
       line_items: [{ price: env.STRIPE_PRO_PRICE_ID, quantity: 1 }],
@@ -81,8 +92,9 @@ export function verifyWebhookSignature(rawBody: Buffer, signature: string): Stri
     throw new AppError('Server misconfiguration: STRIPE_WEBHOOK_SECRET is not set', 500);
   }
 
+  const stripeClient = stripe();
   try {
-    return verifyStripeEvent(stripe.webhooks, rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
+    return verifyStripeEvent(stripeClient.webhooks, rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
   } catch {
     throw new AppError('Invalid webhook signature', 400);
   }
