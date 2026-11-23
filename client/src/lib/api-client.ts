@@ -89,5 +89,5 @@ export const apiClient = {
   get: <T>(path: string, init?: RequestInit): Promise<T> => apiFetch<T>(path, 'GET', undefined, init),
   post: <T>(path: string, body?: unknown): Promise<T> => apiFetch<T>(path, 'POST', body),
   patch: <T>(path: string, body?: unknown): Promise<T> => apiFetch<T>(path, 'PATCH', body),
-  delete: <T>(path: string): Promise<T> => apiFetch<T>(path, 'DELETE'),
+  delete: <T>(path: string, body?: unknown): Promise<T> => apiFetch<T>(path, 'DELETE', body),
 };

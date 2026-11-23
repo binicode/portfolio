@@ -6,7 +6,11 @@ export type SubscriptionStatus = 'none' | 'active' | 'canceled' | 'past_due';
 
 export interface SaasMeResponse {
   email: string;
+  /** The address was confirmed through an emailed link; checkout needs it. */
+  emailVerified: boolean;
   subscriptionStatus: SubscriptionStatus;
+  /** The account has been through checkout, so the billing portal has something to show. */
+  hasBillingAccount: boolean;
   githubUsername?: string;
   youtubeChannelId?: string;
   brandSearchQuery?: string;

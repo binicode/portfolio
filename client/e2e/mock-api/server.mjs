@@ -8,20 +8,40 @@
 //
 // - API (HTTP, MOCK_API_PORT, default 4100): projects, chat history and
 //   answers, the planner's insight and brief, and Creator Dashboard sign-up,
-//   log-in, log-out and session (an in-memory account store; the session
-//   cookie is a random id, never a real token).
+//   email confirmation, log-in, log-out, password reset, account deletion and
+//   session (an in-memory account store; the session cookie is a random id,
+//   never a real token).
+// - GET /__test/last-link?email=...&kind=verify|reset: the token the real API
+//   would have emailed. Test-only; the real API has nothing like it.
 
 import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 
 const port = Number(process.env.MOCK_API_PORT ?? 4100);
 const fixture = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), 'utf8'));
 const projects = fixture('projects.json');
 
 const SESSION_COOKIE = 'saas_token';
-const accounts = new Map(); // email -> { email, password }
+const accounts = new Map(); // email -> { email, password, verified }
 const sessions = new Map(); // session id -> email
+const links = new Map(); // token -> { email, kind: 'verify' | 'reset' }
+
+function issueLink(email, kind) {
+  const token = randomBytes(32).toString('base64url');
+  links.set(token, { email, kind });
+  return token;
+}
+
+function redeemLink(token, kind) {
+  const link = links.get(String(token ?? ''));
+  if (!link || link.kind !== kind || !accounts.has(link.email)) return null;
+  links.delete(token);
+  return accounts.get(link.email);
+}
+
+const LINK_INVALID = 'This link has expired or was already used.';
+const CLEAR_COOKIE = { 'Set-Cookie': `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0` };
 
 function cors(req, res) {
   const origin = req.headers.origin;
@@ -98,10 +118,16 @@ function get(req, pathname) {
   if (history) return [200, { sessionId: decodeURIComponent(history[1]), messages: [] }];
 
   if (pathname === '/api/saas/auth/me') {
-    const email = sessionEmail(req);
-    return email
-      ? [200, { email, subscriptionStatus: 'none' }]
+    const account = accounts.get(sessionEmail(req));
+    return account
+      ? [200, { email: account.email, emailVerified: account.verified, subscriptionStatus: 'none', hasBillingAccount: false }]
       : [401, error('Not authenticated')];
+  }
+
+  if (pathname === '/__test/last-link') {
+    const params = new URL(req.url ?? '/', 'http://localhost').searchParams;
+    const found = [...links].reverse().find(([, link]) => link.email === params.get('email') && link.kind === params.get('kind'));
+    return found ? [200, { token: found[0] }] : notFound('No link');
   }
 
   if (pathname === '/api/admin/auth/me') return [401, error('Not authenticated')];
@@ -117,9 +143,43 @@ async function post(req, res, pathname) {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || password.length < 8) {
       return send(req, res, 400, { error: { message: 'Validation failed', details: {} } });
     }
-    if (accounts.has(email)) return send(req, res, 409, error('A record with this value already exists'));
-    accounts.set(email, { email, password });
-    return send(req, res, 201, { success: true }, signIn(email));
+    // Like the real API: the same answer whether or not the address has an account.
+    if (!accounts.has(email)) {
+      accounts.set(email, { email, password, verified: false });
+      issueLink(email, 'verify');
+    }
+    return send(req, res, 202, { ok: true });
+  }
+
+  if (pathname === '/api/saas/auth/verify-email') {
+    const account = redeemLink((await readJson(req))?.token, 'verify');
+    if (!account) return send(req, res, 400, error(LINK_INVALID));
+    account.verified = true;
+    return send(req, res, 200, { success: true }, signIn(account.email));
+  }
+
+  if (pathname === '/api/saas/auth/verify-email/resend') {
+    const email = sessionEmail(req);
+    if (!email) return send(req, res, 401, error('Authentication required'));
+    issueLink(email, 'verify');
+    return send(req, res, 200, { ok: true });
+  }
+
+  if (pathname === '/api/saas/auth/password/forgot') {
+    const email = String((await readJson(req))?.email ?? '').trim().toLowerCase();
+    if (accounts.has(email)) issueLink(email, 'reset');
+    return send(req, res, 202, { ok: true });
+  }
+
+  if (pathname === '/api/saas/auth/password/reset') {
+    const body = await readJson(req);
+    if (String(body?.password ?? '').length < 8) return send(req, res, 400, { error: { message: 'Validation failed', details: {} } });
+    const account = redeemLink(body?.token, 'reset');
+    if (!account) return send(req, res, 400, error(LINK_INVALID));
+    account.password = body.password;
+    account.verified = true;
+    for (const [id, email] of sessions) if (email === account.email) sessions.delete(id);
+    return send(req, res, 200, { success: true }, signIn(account.email));
   }
 
   if (pathname === '/api/saas/auth/login') {
@@ -130,7 +190,7 @@ async function post(req, res, pathname) {
   }
 
   if (pathname === '/api/saas/auth/logout') {
-    return send(req, res, 200, { success: true }, { 'Set-Cookie': `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0` });
+    return send(req, res, 200, { success: true }, CLEAR_COOKIE);
   }
 
   if (pathname === '/api/ai-chat/chat') {
@@ -166,6 +226,15 @@ const api = createServer(async (req, res) => {
   if (req.method === 'POST') {
     await post(req, res, pathname);
     return;
+  }
+
+  if (req.method === 'DELETE' && pathname === '/api/saas/account') {
+    const account = accounts.get(sessionEmail(req));
+    if (!account) return send(req, res, 401, error('Authentication required'));
+    if ((await readJson(req))?.password !== account.password) return send(req, res, 403, error('That password is not right.'));
+    accounts.delete(account.email);
+    for (const [id, email] of sessions) if (email === account.email) sessions.delete(id);
+    return send(req, res, 200, { success: true }, CLEAR_COOKIE);
   }
 
   if (req.method !== 'GET') {
