@@ -535,6 +535,9 @@ The user prefers direct, honest, practical guidance.
 -   Do not ask the user to repeat information already available in this
     file.
 -   Ask only when a decision genuinely requires user input.
+-   In chat, show only what the user needs to do (decisions, approvals,
+    actions). Keep findings and details in `docs/`; show them in chat
+    only when the user asks.
 
 ## 14. Environment and verification commands
 
