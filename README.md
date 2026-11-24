@@ -14,8 +14,8 @@ Plus a CMS admin (`/login`) for the case studies.
 | Folder | What | Stack |
 | --- | --- | --- |
 | [`client/`](client) | The site, dashboards and admin | Next.js 16, React 19, Tailwind CSS 4, TypeScript |
-| [`server/`](server) | The API | Express 4, Mongoose 8, Zod, TypeScript |
-| [`docs/`](docs) | Release report, CMS content to paste | |
+| [`server/`](server) | The API | Express 5, Mongoose 9, Zod 4, TypeScript |
+| [`docs/`](docs) | Deployment guide, rebuild records, release report, CMS content to paste | |
 
 The client's design rules are in [`client/DESIGN-SYSTEM.md`](client/DESIGN-SYSTEM.md).
 
