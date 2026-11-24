@@ -1,14 +1,19 @@
 # Deploying biniyam.com
 
-Chosen 2026-11-23: **Netlify Free** for the site and **Koyeb Free** for the
-API, at $0 a month. Checked against each provider's documentation that day.
-Nothing here needs a paid plan; where a provider pushes one, the step says
-so.
+**What runs where** (checked against each provider's documentation on
+2026-11-23 and 2026-11-24):
+
+- **Site:** Netlify Free.
+- **API:** Render's free plan. It replaced Koyeb on 2026-11-24: Koyeb, joining
+  Mistral, stopped self-serve sign-ups.
+
+It all costs $0 a month and needs no card. Nothing here needs a paid plan;
+where a provider pushes one, the step says so.
 
 | Part | Where | Address |
 | --- | --- | --- |
 | Site (Next.js, `client/`) | Netlify Free | `https://www.biniyam.com` (the bare domain redirects there) |
-| API (Express, `server/`) | Koyeb free instance, Washington, D.C. | `https://api.biniyam.com` |
+| API (Express, `server/`) | Render free web service, Virginia (`render.yaml`) | `https://api.biniyam.com` |
 | Database | MongoDB Atlas M0 (free), AWS N. Virginia (`us-east-1`) | — |
 | Email | Resend Free, region `us-east-1` | sent from `mail.biniyam.com` |
 | Payments | Stripe, test mode (a sandbox) until launch | — |
@@ -39,16 +44,25 @@ so.
   `client/` changed (`netlify.toml`). Check usage under the team's
   **Billing** or **Usage** page.
 
-**Koyeb's free instance (512 MB, 0.1 vCPU).**
+**Render's free web service (512 MB, 0.1 CPU).**
 
-- It sleeps after an hour without traffic, and the next request waits a few
-  seconds while it wakes.
-- Koyeb says it isn't meant for production; it fits this pre-launch stage.
-- Sign-up needs a card. Koyeb places a $29 hold and releases it.
-- **Sign-up selects the Pro plan ($29 a month) by default: choose Starter.**
-  Starter is pay-as-you-go and includes the free instance, so nothing is
-  charged. If Pro was selected, switch to Starter under **Usage and
-  billing**.
+- **Sleeping.** It sleeps after 15 minutes without traffic and takes about a
+  minute to wake, longer than the site waits for it.
+  - **Keep-awake:** a Netlify scheduled function
+    (`client/netlify/functions/keep-api-awake.mjs`) requests `/health` every
+    10 minutes, so it stays up.
+  - **Hours:** that uses about 744 of the 750 free instance hours a month
+    (they're shared by the workspace's free services), so run no other free
+    web service in the same Render workspace.
+- **Monthly allowances (Hobby workspace):** 5 GB of outbound bandwidth and 500
+  build minutes. Without a card, using up the bandwidth suspends the service
+  until next month instead of billing you. Render emails before a limit is
+  reached.
+- **Not for production.** Render says free instances aren't for production
+  and may restart at any time; it fits this pre-launch stage. Keeping it
+  always on at launch is Render's Starter plan, a paid choice for later.
+- **No shell or one-off jobs:** run `npm run seed:kb` from your own machine
+  (step 7).
 
 **Atlas M0.** 0.5 GB of storage and no backups. Stripe stays the record of
 payments, and enquiries are also emailed, so losing the database would cost
@@ -66,13 +80,10 @@ DNS is last: three of its values come from the accounts made before it.
 1. Create a free **M0** cluster on AWS, region **N. Virginia (us-east-1)**.
 2. **Database Access:** add a user with a generated password and
    **specific privileges** `readWrite` on the database `portfolio` only.
-3. **Network Access:** add `0.0.0.0/0`.
-   - Koyeb's free instance has no fixed outgoing address, so a narrower list
-     would block it.
-   - What protects the database instead: the generated password, TLS (Atlas
-     requires it) and the user's access to one database only.
-4. **Connect > Drivers:** copy the connection string and put `/portfolio`
+3. **Connect > Drivers:** copy the connection string and put `/portfolio`
    before the `?`. This is `MONGODB_URI`, a secret.
+4. **Network Access:** filled in after step 3 (Render), from Render's own
+   list of addresses. Until then nothing can connect, which is fine.
 
 ### 2. Resend
 
@@ -83,39 +94,58 @@ DNS is last: three of its values come from the accounts made before it.
 3. **API Keys > Create:** permission **Sending access**, for this domain
    only. This is `RESEND_API_KEY`, a secret.
 
-### 3. Koyeb (the API)
+### 3. Render (the API)
 
-1. Create the service from GitHub, with these settings:
-   - **Repository:** `binicode/portfolio`, branch `main`.
-   - **Builder:** Dockerfile. In the Builder section, turn on **Override**
-     for **Work directory** and enter `server`. **Dockerfile:**
-     `Dockerfile`.
-   - **Instance:** Free. **Region:** Washington, D.C.
-   - **Exposed port:** `4000`, HTTP, path `/`.
-   - **Health check:** HTTP, path `/health`, port `4000`.
-2. Add the variables below. Store each secret as a Koyeb **Secret** and
-   reference it from the variable.
-3. **Domains:** add `api.biniyam.com`. Koyeb shows the `CNAME` value for step
-   6 (it looks like `<id>.cname.koyeb.app`).
+1. Sign up at render.com (no card needed) and connect GitHub with access to
+   `binicode/portfolio`.
+2. **New > Blueprint**, choose `binicode/portfolio`. Render reads
+   `render.yaml`, which sets everything about the service:
+   - the free plan, region Virginia and the Docker build from `server/`;
+   - the health check `/health`;
+   - deploys from `main` only after its CI checks pass;
+   - the domain `api.biniyam.com` and the non-secret variables;
+   - a `JWT_SECRET` that Render generates itself.
+3. **Secrets.** Render asks for each value marked `sync: false`; fill them in
+   from the table below.
+4. **DNS value.** After the first deploy, open the service: its `onrender.com`
+   address (for example `biniyam-api.onrender.com`) is the `api` value in
+   step 6.
+5. **Let it reach the database.**
+   - In the service, open **Connect > Outbound** and copy its IP ranges: the
+     addresses Render's Virginia services send from.
+   - In Atlas, add each range under **Network Access** (CIDR notation, as
+     shown).
+   - This is narrower than allowing every address. The ranges are shared by
+     Render services in that region, so the database user's generated
+     password, TLS and its access to one database still matter.
+   - The API keeps retrying the database in the background, so it connects
+     shortly after the list is saved; no redeploy is needed.
+6. **Optional, later:** under the service's **Environment** you can add
+   `GITHUB_API_TOKEN` and `YOUTUBE_API_KEY` (the dashboard's data sources) and
+   `AI_DAILY_COST_CAP_USD` (default `1`: the most Gemini may cost per UTC day
+   before the assistant pauses until midnight).
 
-| Variable | Value |
+| Secret | Where it comes from |
 | --- | --- |
-| `NODE_ENV` | `production` |
-| `PORT` | `4000` |
-| `MONGODB_URI` | secret, from Atlas |
-| `CLIENT_ORIGIN` | `https://www.biniyam.com` |
-| `COOKIE_DOMAIN` | `biniyam.com` |
-| `TRUST_PROXY` | `1`. Koyeb appends the visitor's address as the last `X-Forwarded-For` entry, and that is the only one it vouches for. |
-| `JWT_SECRET` | secret: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| `MONGODB_URI` | Atlas, step 1 |
 | `ADMIN_EMAIL` | your admin sign-in address |
-| `ADMIN_PASSWORD_HASH` | secret: the bcrypt hash command in `server/.env.example` |
-| `RESEND_API_KEY` | secret, from Resend |
-| `EMAIL_FROM` | `Biniyam <hello@mail.biniyam.com>` |
+| `ADMIN_PASSWORD_HASH` | the bcrypt hash command in `server/.env.example` |
 | `ALERT_EMAIL_TO` | the inbox that should receive new enquiries |
-| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` | secrets, from step 5 |
-| `GEMINI_API_KEY`, `VOYAGE_API_KEY` | secrets, the AI assistant's keys |
-| `AI_DAILY_COST_CAP_USD` | optional, default `1`: the most Gemini may cost per day (UTC) before the assistant pauses until midnight |
-| `GITHUB_API_TOKEN`, `YOUTUBE_API_KEY` | secrets, the dashboard's data sources |
+| `RESEND_API_KEY` | Resend, step 2 |
+| `GEMINI_API_KEY`, `VOYAGE_API_KEY` | the AI assistant's keys |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` | Stripe, step 5 (add them once it's done) |
+
+Set in `render.yaml` already:
+
+- `NODE_ENV=production`;
+- `CLIENT_ORIGIN=https://www.biniyam.com`;
+- `COOKIE_DOMAIN=biniyam.com`;
+- `EMAIL_FROM=Biniyam <hello@mail.biniyam.com>`;
+- `TRUST_PROXY=1`: one proxy, Render's, in front of the API, as Render's own
+  guidance for Express says. Confirm in step 7 that rate limits count per
+  visitor.
+
+Render sets `PORT` itself.
 
 ### 4. Netlify (the site)
 
@@ -134,6 +164,8 @@ DNS is last: three of its values come from the accounts made before it.
 4. **Domain management:** add `www.biniyam.com`. Netlify adds
    `biniyam.com` with it and redirects that to `www`. Netlify issues HTTPS
    certificates once DNS points at it.
+5. **Functions:** after the first production deploy, `keep-api-awake` is
+   listed with its schedule (every 10 minutes); **Run now** checks it.
 
 ### 5. Stripe (sandbox)
 
@@ -150,6 +182,7 @@ DNS is last: three of its values come from the accounts made before it.
    in the sandbox): allow updating payment methods, viewing invoices and
    cancelling subscriptions, then save.
 4. The sandbox's secret key is `STRIPE_SECRET_KEY`.
+5. Add the three Stripe values to the Render service's **Environment**.
 
 ### 6. DNS at Namecheap
 
@@ -162,7 +195,8 @@ DNS is last: three of its values come from the accounts made before it.
   - the `URL Redirect` for `@`.
 
   Remove any other `A`, `AAAA`, `CNAME` or redirect record on `@`, `www` or
-  `api` too: they would conflict.
+  `api` too: they would conflict, and neither Netlify nor Render supports
+  IPv6 (`AAAA`).
 - **Check Mail Settings.** If it is set to Email Forwarding or Gmail and you
   receive mail at `@biniyam.com`, switching it to **Custom MX** (needed only
   if Resend shows an `MX` record) replaces that setup. Add your existing mail
@@ -174,9 +208,13 @@ DNS is last: three of its values come from the accounts made before it.
 | --- | --- | --- | --- | --- |
 | ALIAS | `@` | `apex-loadbalancer.netlify.com` | 5 min | the bare domain, then redirected to `www` |
 | CNAME | `www` | `<your Netlify project>.netlify.app` | Automatic | the site |
-| CNAME | `api` | the value Koyeb shows | Automatic | the API |
+| CNAME | `api` | `<your Render service>.onrender.com` | Automatic | the API |
 | *as shown by Resend* | e.g. `send.mail`, `resend._domainkey.mail` | exactly as shown in Resend's **Records** tab | Automatic | sending email |
 | TXT | `_dmarc` | `v=DMARC1; p=none;` | Automatic | email authentication policy; add once Resend shows the domain as verified |
+
+**Verifying the domains.** Then, in Render, open the service's **Settings >
+Custom Domains** and click **Verify** next to `api.biniyam.com`: Render
+issues its HTTPS certificate.
 
 **Resend's records, typed into Namecheap:**
 
@@ -202,14 +240,28 @@ reports.
 
 ### 7. First deploy and checks (plan step 4.6)
 
-1. **Deploy.** Merge the rebuild into `main` through a pull request (you
-   approve it). Koyeb and Netlify then both deploy.
-2. **Load the knowledge base** once, from `server/` with that environment:
-   `npm run seed:kb`.
+1. **Deploy.** Merge the open rebuild work into `main` through a pull request
+   (you approve it). Render deploys once CI passes; Netlify builds when
+   `client/` changed.
+2. **Load the knowledge base** once, from `server/` on your own machine (Render's
+   free plan has no shell). In Atlas, **Network Access > Add current IP
+   address** first (remove it afterwards). Put `MONGODB_URI` and
+   `VOYAGE_API_KEY` in `server/.env` (never committed), then:
+
+   ```bash
+   npm ci
+   ```
+
+   ```bash
+   npm run seed:kb
+   ```
+
+   Until then the assistant answers from the whole built-in knowledge base,
+   matched by keyword instead of meaning.
 3. **Check in a real browser** on `https://www.biniyam.com`:
    - `https://api.biniyam.com/health` answers `"database":"connected"`.
-   - **Sign-up:** the confirmation email arrives from `mail.biniyam.com` and
-     its link signs in.
+   - **Sign-up:** the confirmation email arrives from `mail.biniyam.com`, and
+     its link with your password signs in.
    - **Password reset:** the link works once and signs out other sessions.
    - **Subscription:** Stripe test checkout (card `4242 4242 4242 4242`)
      unlocks the dashboard through the webhook; **Manage billing** opens the
@@ -218,8 +270,10 @@ reports.
    - **Enquiries:** a brief from the planner appears in the admin and as an
      email, and replying reaches the visitor.
    - **Assistant:** answers from the knowledge base.
-   - **Rate limits:** the response headers of a sign-in attempt show limits
-     per visitor, not shared by everyone (`TRUST_PROXY`).
+   - **Rate limits:** the `RateLimit` headers of an API response count per
+     visitor (two devices on different networks get separate counts), not one
+     count shared by everyone (`TRUST_PROXY`).
+   - **Keep-awake:** after 20 quiet minutes the API still answers at once.
    - **Search engines:** `robots.txt` disallows everything until launch.
 4. Record the results in `docs/rebuild/phase-4-mvp.md`.
 
@@ -229,5 +283,7 @@ reports.
    portal settings.
 2. **Search engines:** set `SITE_INDEXING=on` in Netlify and redeploy.
 3. **Search Console:** add the site.
-4. **Backups:** consider Atlas Flex, about $30 a month at most, for daily
+4. **Always-on API:** consider Render's paid Starter instance (a paid choice,
+   yours to make) instead of the free instance kept awake.
+5. **Backups:** consider Atlas Flex, about $30 a month at most, for daily
    snapshots once paying customers make them worth it.

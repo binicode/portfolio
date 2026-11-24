@@ -84,7 +84,7 @@ above on every pull request.
 
 ## Deployment
 
-This project runs on Netlify (site) and Koyeb (API), with DNS at Namecheap:
+This project runs on Netlify (site) and Render (API, `render.yaml`), with DNS at Namecheap:
 step by step in [docs/deploy.md](docs/deploy.md). In general:
 
 The site and the API deploy separately. Put them on one domain, the site on

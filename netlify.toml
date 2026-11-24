@@ -1,5 +1,5 @@
-# Netlify builds the site (client/) only; the API runs on Koyeb from
-# server/Dockerfile. Setup, secrets and DNS: docs/deploy.md.
+# Netlify builds the site (client/) only; the API runs on Render from
+# server/Dockerfile (render.yaml). Setup, secrets and DNS: docs/deploy.md.
 #
 # Free plan: each production deploy costs 15 of 300 monthly credits, and
 # when credits run out every site on the account pauses until next month.

@@ -55,7 +55,7 @@ flowchart LR
 | `dotenv` | Remove; use Node's built-in `--env-file-if-exists` | One dependency fewer (it is a major behind anyway). |
 | Dependency watch | CI fails on high advisories; enable GitHub's Dependabot **alerts** | Dependabot update pull requests would add a bot as a commit author, and you are the only contributor. |
 
-### Hosting (chosen 2026-11-23: option 3, Netlify Free + Koyeb Free; setup in `docs/deploy.md`)
+### Hosting (chosen 2026-11-23: option 3, Netlify Free + Koyeb Free. On 2026-11-24 Koyeb stopped self-serve sign-ups (joining Mistral), so the API moved to Render Free, the user's choice over Northflank's free Sandbox. Setup in `docs/deploy.md`.)
 
 The user asked for free or very economical hosting. Checked on 2026-11-23 against each provider's own pages:
 
@@ -133,6 +133,6 @@ Each step ends with lint, type-check, unit, database-backed and e2e tests where 
 ## 6. What I need from you
 
 1. ~~Approve this plan~~ approved 2026-11-23.
-2. ~~Hosting~~ option 3, Netlify Free + Koyeb Free, at $0 (2026-11-23). DNS is at Namecheap (BasicDNS).
+2. ~~Hosting~~ Netlify Free + Render Free (the API moved from Koyeb on 2026-11-24), at $0. DNS is at Namecheap (BasicDNS).
 3. ~~biniyam.com~~ owned by the user; where its DNS is managed is needed by step 4.4.
 4. **Later, at step 4.4 and 4.6 (not now):** accounts for the chosen host, Resend and Atlas, and keys for Gemini, Voyage, Stripe (test), GitHub and YouTube. You add them in each service's settings; I will say exactly which, when.

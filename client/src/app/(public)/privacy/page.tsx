@@ -81,7 +81,7 @@ export default function PrivacyPage() {
         <h2>Logs and hosting</h2>
         <p>
           The site&apos;s server logs each request&apos;s method, page, status and duration, without IP addresses or what was
-          sent. The site runs on Netlify, its server on Koyeb and its database on MongoDB Atlas; these providers, and those
+          sent. The site runs on Netlify, its server on Render and its database on MongoDB Atlas; these providers, and those
           above, may process data in the United States and keep their own logs.
         </p>
       </section>

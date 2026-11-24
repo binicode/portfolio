@@ -471,7 +471,8 @@ Do not change code during this phase.
 ### Phase 3 --- Architecture and implementation plan
 
 **Status:** approved 2026-11-23; plan in `docs/rebuild/phase-3-plan.md`.
-Hosting chosen: Netlify Free (site) + Koyeb Free (API), DNS at Namecheap;
+Hosting chosen: Netlify Free (site) + Render Free (API; Koyeb closed
+sign-ups on 2026-11-24), DNS at Namecheap;
 setup in `docs/deploy.md`. Keep it at $0: no paid plan without the user's
 approval.
 
