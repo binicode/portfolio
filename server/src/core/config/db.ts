@@ -1,6 +1,7 @@
 import dns from 'dns';
 import mongoose from 'mongoose';
 import { env } from './env.js';
+import { errorFields, log } from '../logger.js';
 
 // Force Node.js to use Google's Public DNS to bypass local querySrv blocks
 // Optional resolvers for the Atlas SRV lookup (DNS_SERVERS, comma-separated).
@@ -31,15 +32,15 @@ function attachListeners(): void {
   listenersAttached = true;
 
   mongoose.connection.on('connected', () => {
-    console.log('MongoDB: connected');
+    log.info('MongoDB: connected');
   });
 
   mongoose.connection.on('error', (err) => {
-    console.error('MongoDB: connection error', err);
+    log.error('MongoDB: connection error', errorFields(err));
   });
 
   mongoose.connection.on('disconnected', () => {
-    console.warn('MongoDB: disconnected');
+    log.warn('MongoDB: disconnected');
     isConnected = false;
   });
 }
@@ -52,7 +53,7 @@ function scheduleRetry(delayMs: number): void {
       await mongoose.connect(env.MONGODB_URI, { serverSelectionTimeoutMS: 10_000 });
       isConnected = true;
     } catch {
-      console.warn(`MongoDB: still unreachable, retrying in ${Math.round(Math.min(delayMs * 2, MAX_RETRY_MS) / 1000)} s`);
+      log.warn('MongoDB: still unreachable', { retryInSeconds: Math.round(Math.min(delayMs * 2, MAX_RETRY_MS) / 1000) });
       scheduleRetry(Math.min(delayMs * 2, MAX_RETRY_MS));
     }
   }, delayMs);
@@ -70,7 +71,7 @@ function scheduleRetry(delayMs: number): void {
  */
 export async function connectDB(): Promise<boolean> {
   if (isConnected) {
-    console.log('MongoDB: reusing existing connection');
+    log.info('MongoDB: reusing existing connection');
     return true;
   }
 
@@ -84,10 +85,10 @@ export async function connectDB(): Promise<boolean> {
     return true;
   } catch (err) {
     const reason = err instanceof Error ? err.message.split('\n')[0] : String(err);
-    console.error(
-      `MongoDB: initial connection failed (${reason}). Starting without the database and retrying in the background. ` +
-        "On a local machine this is usually Atlas's Network Access list: add this machine's IP address.",
-    );
+    log.error('MongoDB: initial connection failed; starting without the database and retrying in the background', {
+      detail: reason,
+      hint: "On a local machine this is usually Atlas's Network Access list: add this machine's IP address.",
+    });
     scheduleRetry(FIRST_RETRY_MS);
     return false;
   }
@@ -101,7 +102,7 @@ export async function disconnectDB(): Promise<void> {
   if (!isConnected) return;
   await mongoose.disconnect();
   isConnected = false;
-  console.log('MongoDB: disconnected gracefully');
+  log.info('MongoDB: disconnected gracefully');
 }
 
 // Shutdown on SIGTERM/SIGINT is handled in server.ts: the HTTP server

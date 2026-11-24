@@ -21,10 +21,11 @@ after(async () => {
   await app?.stop();
 });
 
-test('health reports the database as connected', async () => {
+test('health reports the database as connected, and nothing about the environment', async () => {
   const { status, body } = await app.call('/health');
   assert.equal(status, 200);
   assert.equal(body.database, 'connected');
+  assert.deepEqual(Object.keys(body).sort(), ['database', 'status', 'timestamp']);
 });
 
 test('sign-up creates an account; its confirmation link signs in', async () => {
@@ -128,6 +129,25 @@ test('project links must be http or https', async () => {
 test('an invalid slug is refused', async () => {
   const { status } = await app.post('/api/admin/projects', { title: 'X', slug: 'Not A Slug', summary: 'S' }, admin);
   assert.equal(status, 400);
+});
+
+test('CMS fields have length limits, with a message per field', async () => {
+  const { status, body } = await app.post(
+    '/api/admin/projects',
+    {
+      title: 't'.repeat(121),
+      slug: 'too-long',
+      summary: 's'.repeat(401),
+      techStack: Array.from({ length: 31 }, (_, i) => `tech-${i}`),
+      caseStudyBody: 'b'.repeat(50_001),
+    },
+    admin,
+  );
+  assert.equal(status, 400);
+  assert.deepEqual(body.error.details.title, ['Use at most 120 characters.']);
+  assert.deepEqual(body.error.details.summary, ['Use at most 400 characters.']);
+  assert.deepEqual(body.error.details.techStack, ['List at most 30 technologies.']);
+  assert.deepEqual(body.error.details.caseStudyBody, ['Use at most 50000 characters.']);
 });
 
 test('deleting a project removes it from the public list', async () => {

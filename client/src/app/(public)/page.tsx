@@ -13,10 +13,11 @@ import HeroSystem from '@/components/home/HeroSystem';
 import RevealWords from '@/components/ui/RevealWords';
 import { LIVE_SYSTEMS } from '@/lib/systems';
 import type { Project } from '@/types/project';
+import { pageOpenGraph } from '@/lib/open-graph';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
-  openGraph: { url: '/' },
+  openGraph: pageOpenGraph({ url: '/' }),
 };
 
 const FEATURED_COUNT = 4;

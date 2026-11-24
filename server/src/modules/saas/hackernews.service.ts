@@ -1,5 +1,6 @@
 import { AppError } from '../../core/middleware/errorHandler.js';
 import type { HackerNewsMention, HackerNewsStats, HackerNewsWeek } from './saas.types.js';
+import { errorFields, log } from '../../core/logger.js';
 
 const HN_ALGOLIA_SEARCH_BY_DATE_BASE = 'https://hn.algolia.com/api/v1/search_by_date';
 const HN_ITEM_BASE = 'https://news.ycombinator.com/item?id=';
@@ -63,7 +64,7 @@ async function weeklyCounts(query: string): Promise<HackerNewsWeek[]> {
       count: counts[index],
     }));
   } catch (error) {
-    console.error('Hacker News: weekly counts failed', error);
+    log.error('Hacker News: weekly counts failed', errorFields(error));
     return [];
   }
 }

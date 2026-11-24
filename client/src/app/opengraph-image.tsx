@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og';
+import { OG_IMAGE_ALT } from '@/lib/open-graph';
 
 // Generated once at build time and served as a static PNG.
-export const alt = 'Biniyam Abera, freelance full-stack engineer. Your product, built to hold up.';
+export const alt = OG_IMAGE_ALT;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 

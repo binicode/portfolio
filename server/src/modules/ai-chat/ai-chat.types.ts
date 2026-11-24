@@ -36,6 +36,8 @@ export interface KnowledgeChunkMetadata {
 export interface KnowledgeChunkDocument {
   content: string;
   embedding: number[];
+  /** The model that produced `embedding` (ai-chat.model.ts EMBEDDING_MODEL). */
+  embeddingModel: string;
   metadata: KnowledgeChunkMetadata;
   createdAt: Date;
 }

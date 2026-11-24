@@ -6,15 +6,25 @@ import { ProjectModel } from './content.model.js';
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+// Limits well above any real case study, so a mistaken paste or a bad
+// request can't store something the pages, the sitemap or the assistant's
+// prompt (which includes published summaries) would have to carry. The body
+// stays under express.json()'s 100 kB request limit.
+const LIMITS = { title: 120, slug: 80, summary: 400, techItems: 30, techItem: 40, url: 2048, body: 50_000 } as const;
+const atMost = (max: number) => ({ error: `Use at most ${max} characters.` });
+
 const createProjectBodySchema = z.object({
-  title: z.string().min(1),
-  slug: z.string().min(1).regex(slugPattern, 'slug must be lowercase, alphanumeric, and hyphen-separated'),
-  summary: z.string().min(1),
-  techStack: z.array(z.string().min(1)).default([]),
+  title: z.string().trim().min(1).max(LIMITS.title, atMost(LIMITS.title)),
+  slug: z.string().min(1).max(LIMITS.slug, atMost(LIMITS.slug)).regex(slugPattern, 'slug must be lowercase, alphanumeric, and hyphen-separated'),
+  summary: z.string().trim().min(1).max(LIMITS.summary, atMost(LIMITS.summary)),
+  techStack: z
+    .array(z.string().trim().min(1).max(LIMITS.techItem, atMost(LIMITS.techItem)))
+    .max(LIMITS.techItems, { error: `List at most ${LIMITS.techItems} technologies.` })
+    .default([]),
   // http(s) only: these become links on public pages, so no javascript: or data: URLs.
-  liveUrl: z.url({ protocol: /^https?$/, error: 'Use an http or https link.' }).optional(),
-  repoUrl: z.url({ protocol: /^https?$/, error: 'Use an http or https link.' }).optional(),
-  caseStudyBody: z.string().optional(),
+  liveUrl: z.url({ protocol: /^https?$/, error: 'Use an http or https link.' }).max(LIMITS.url, atMost(LIMITS.url)).optional(),
+  repoUrl: z.url({ protocol: /^https?$/, error: 'Use an http or https link.' }).max(LIMITS.url, atMost(LIMITS.url)).optional(),
+  caseStudyBody: z.string().max(LIMITS.body, atMost(LIMITS.body)).optional(),
   published: z.boolean().optional(),
 });
 

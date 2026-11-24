@@ -8,6 +8,7 @@ import { AUTH_COOKIE_NAME, sessionToken, signAccessToken, verifyAccessToken } fr
 import { ADMIN_ID, adminTokenVersion, endAdminSession } from './admin-session.js';
 import type { AdminLoginResult } from './admin.types.js';
 import { clearSessionCookieOptions, sessionCookieOptions } from '../../core/config/session-cookie.js';
+import { errorFields, log } from '../../core/logger.js';
 
 const cookieSettings = () => ({ production: env.NODE_ENV === 'production', domain: env.COOKIE_DOMAIN });
 
@@ -26,10 +27,7 @@ const adminLoginBodySchema = z.object({
  */
 export const postAdminLogin = async (req: Request, res: Response) => {
   const { email, password } = adminLoginBodySchema.parse(req.body);
-
-  if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD_HASH) {
-    throw new AppError('Server misconfiguration: admin credentials are not set', 500);
-  }
+  // ADMIN_EMAIL and ADMIN_PASSWORD_HASH are required at start-up (env.ts).
 
   // The password is always compared, so the response time does not reveal
   // whether the email was the admin's.
@@ -61,7 +59,7 @@ export const postAdminLogout = async (req: Request, res: Response) => {
     try {
       await endAdminSession(verifyAccessToken('admin', token));
     } catch (error) {
-      if (!(error instanceof AppError)) console.warn('Admin logout: could not revoke the session', error instanceof Error ? error.message : error);
+      if (!(error instanceof AppError)) log.warn('Admin logout: could not revoke the session', errorFields(error));
     }
   }
   res.clearCookie(AUTH_COOKIE_NAME, clearSessionCookieOptions(cookieSettings()));

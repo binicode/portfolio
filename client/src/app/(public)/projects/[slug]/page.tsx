@@ -10,6 +10,7 @@ import { site } from '@/lib/site';
 import JsonLdScript from '@/components/site/JsonLd';
 import StackMap from '@/components/work/StackMap';
 import ProjectCta from '@/components/work/ProjectCta';
+import { pageOpenGraph } from '@/lib/open-graph';
 
 
 interface ProjectPageProps {
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
     title: project.title,
     description: project.summary,
     alternates: { canonical: path },
-    openGraph: {
+    openGraph: pageOpenGraph({
       type: 'article',
       url: path,
       title: project.title,
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
       publishedTime: project.createdAt,
       modifiedTime: project.updatedAt,
       authors: [site.name],
-    },
+    }),
   };
 }
 

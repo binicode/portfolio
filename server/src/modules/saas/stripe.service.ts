@@ -2,13 +2,14 @@ import Stripe from 'stripe';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
 import { STRIPE_API_VERSION, verifyStripeEvent } from './stripe-events.js';
+import { errorFields, log } from '../../core/logger.js';
 
 // What a visitor sees when Stripe fails. Stripe's own message (which can
 // name prices, accounts or key fragments) is logged here, never returned.
 const BILLING_UNAVAILABLE = 'Billing is unavailable right now. Try again in a minute.';
 
 function billingError(context: string, error: unknown): AppError {
-  console.error(`Stripe: ${context} failed`, error instanceof Error ? error.message : error);
+  log.error('Stripe request failed', { context, ...errorFields(error) });
   return new AppError(BILLING_UNAVAILABLE, 502);
 }
 
@@ -16,10 +17,18 @@ function billingError(context: string, error: unknown): AppError {
 // when given no key, which used to stop the whole API from starting
 // without billing set up.
 let client: Stripe | null = null;
+let testClient: Stripe | null = null;
+
+/** Tests only: use this client (pointed at a local fake Stripe) instead of the real one; null restores it. */
+export function setStripeClientForTests(stripeClient: Stripe | null): void {
+  if (env.NODE_ENV !== 'test') throw new Error('setStripeClientForTests is for tests only');
+  testClient = stripeClient;
+}
 
 function stripe(): Stripe {
+  if (testClient) return testClient;
   if (!env.STRIPE_SECRET_KEY) {
-    console.error('Stripe: STRIPE_SECRET_KEY is not set; billing is off');
+    log.error('Stripe: STRIPE_SECRET_KEY is not set; billing is off');
     throw new AppError(BILLING_UNAVAILABLE, 503);
   }
   client ??= new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: STRIPE_API_VERSION });
@@ -31,11 +40,16 @@ function stripe(): Stripe {
  * anywhere — this file only talks to the Stripe API, never to
  * MongoDB. The caller (billing.controller.ts) is responsible for
  * saving it onto the SaasUser document.
+ *
+ * Idempotent per account: the key is the account's id (opaque, no personal
+ * data, as Stripe advises). If saving the id failed after Stripe created
+ * the customer, or two checkouts race, a retry within Stripe's 24-hour
+ * window gets the same customer back instead of a duplicate.
  */
-export async function createStripeCustomer(email: string): Promise<string> {
+export async function createStripeCustomer(email: string, accountId: string): Promise<string> {
   const stripeClient = stripe();
   try {
-    const customer = await stripeClient.customers.create({ email });
+    const customer = await stripeClient.customers.create({ email }, { idempotencyKey: `customer-create/${accountId}` });
     return customer.id;
   } catch (error) {
     throw billingError('creating a customer', error);
@@ -54,7 +68,8 @@ export async function createSubscriptionCheckoutSession(
   cancelUrl: string,
 ): Promise<string> {
   if (!env.STRIPE_PRO_PRICE_ID) {
-    throw new AppError('Server misconfiguration: STRIPE_PRO_PRICE_ID is not set', 500);
+    log.error('Stripe: STRIPE_PRO_PRICE_ID is not set; checkout is off');
+    throw new AppError(BILLING_UNAVAILABLE, 503);
   }
 
   const stripeClient = stripe();
@@ -89,7 +104,9 @@ export async function createSubscriptionCheckoutSession(
  */
 export function verifyWebhookSignature(rawBody: Buffer, signature: string): Stripe.Event {
   if (!env.STRIPE_WEBHOOK_SECRET) {
-    throw new AppError('Server misconfiguration: STRIPE_WEBHOOK_SECRET is not set', 500);
+    // 503: Stripe retries the event later, once the secret is set.
+    log.error('Stripe: STRIPE_WEBHOOK_SECRET is not set; webhooks are refused');
+    throw new AppError(BILLING_UNAVAILABLE, 503);
   }
 
   const stripeClient = stripe();

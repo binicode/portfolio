@@ -2,6 +2,7 @@ import { AppError } from '../../core/middleware/errorHandler.js';
 import { env } from '../../core/config/env.js';
 import { parseYoutubeChannel } from './source-identifiers.js';
 import type { YoutubeStats, YoutubeVideoSummary } from './saas.types.js';
+import { errorFields, log } from '../../core/logger.js';
 
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -111,7 +112,7 @@ export async function getYoutubeStats(saved: string): Promise<YoutubeStats> {
   const uploads = channel.contentDetails?.relatedPlaylists?.uploads;
   const recentVideos = uploads
     ? await fetchRecentVideos(uploads, key).catch((error) => {
-        console.error('YouTube: recent videos lookup failed', error);
+        log.error('YouTube: recent videos lookup failed', errorFields(error));
         return [];
       })
     : [];

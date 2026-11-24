@@ -1,4 +1,5 @@
 import type { SourceStatus } from './saas.types.js';
+import { errorFields, log } from '../../core/logger.js';
 
 /**
  * Runs one dashboard source and says how it went. Pure (no environment, no
@@ -20,10 +21,10 @@ export async function loadSource<T>(
     return { data: await fetcher(identifier), status: 'connected' };
   } catch (error) {
     if (isNotFound(error)) {
-      console.warn(`Aggregator: ${label} identifier not found`);
+      log.warn('Aggregator: identifier not found', { source: label });
       return { data: null, status: 'not_found' };
     }
-    console.error(`Aggregator: ${label} fetch failed`, error);
+    log.error('Aggregator: fetch failed', { source: label, ...errorFields(error) });
     return { data: null, status: 'unavailable' };
   }
 }

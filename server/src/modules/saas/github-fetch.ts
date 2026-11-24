@@ -1,3 +1,4 @@
+import { log } from '../../core/logger.js';
 /**
  * fetch for the GitHub API, with the server's token when it works and
  * without it when GitHub rejects it. Pure (the token, fetch and logger are
@@ -12,7 +13,7 @@
 export function createGithubFetch(
   getToken: () => string | undefined,
   fetchImpl: typeof fetch = fetch,
-  warn: (message: string) => void = console.warn,
+  warn: (message: string) => void = (message) => log.warn(message),
 ): (url: string, init: { headers: Record<string, string>; signal?: AbortSignal }) => Promise<Response> {
   let tokenRejected = false;
 

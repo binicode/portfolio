@@ -32,3 +32,12 @@ test('only the three source fields can be written', () => {
   });
   assert.throws(() => updateSettingsBodySchema.parse({ githubUsername: 42 }));
 });
+
+test('length limits: room for a pasted link, a short search term', () => {
+  const link = `https://github.com/${'a'.repeat(160)}`;
+  assert.doesNotThrow(() => updateSettingsBodySchema.parse({ githubUsername: link }));
+  assert.throws(() => updateSettingsBodySchema.parse({ githubUsername: 'a'.repeat(201) }), /at most 200/);
+  assert.throws(() => updateSettingsBodySchema.parse({ youtubeChannelId: 'a'.repeat(201) }), /at most 200/);
+  assert.doesNotThrow(() => updateSettingsBodySchema.parse({ brandSearchQuery: 'b'.repeat(100) }));
+  assert.throws(() => updateSettingsBodySchema.parse({ brandSearchQuery: 'b'.repeat(101) }), /at most 100/);
+});

@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node --env-file-if-exists=.env dist/core/server.js",
     "seed:kb": "tsx --env-file-if-exists=.env src/modules/ai-chat/scripts/seed-knowledge-base.ts",
+    "measure:models": "tsx --env-file-if-exists=.env src/modules/ai-chat/scripts/measure-models.ts",
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "lint": "eslint ."
   },

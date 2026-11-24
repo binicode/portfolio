@@ -62,6 +62,7 @@ async function seed(): Promise<void> {
     const documents = chunks.map((content, index) => ({
       content,
       embedding: embeddings[index].values,
+      embeddingModel: embeddings[index].model,
       metadata: {
         sourceTitle: source.sourceTitle,
         sourceType: source.sourceType,

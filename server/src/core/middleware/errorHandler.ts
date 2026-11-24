@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { z, ZodError } from 'zod';
-import { env } from '../config/env.js';
+import { errorFields, log } from '../logger.js';
 
 /**
  * Custom error class for known, expected failures (bad input, not found,
@@ -78,10 +78,12 @@ export function errorHandler(
 
   // Anything else is unexpected — log it fully, but never leak internals
   // to the client. Stack traces only appear in non-production logs.
-  console.error('Unhandled error:', err);
-  if (env.NODE_ENV !== 'production' && err instanceof Error) {
-    console.error(err.stack);
-  }
+  log.error('Unhandled error', {
+    method: req.method,
+    path: req.originalUrl.split('?')[0],
+    ...errorFields(err),
+    stack: err instanceof Error ? err.stack?.slice(0, 2000) : undefined,
+  });
 
   res.status(500).json({
     error: {

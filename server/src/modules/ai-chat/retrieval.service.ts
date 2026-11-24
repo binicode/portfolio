@@ -1,4 +1,4 @@
-import { KnowledgeChunkModel, VECTOR_INDEX_NAME } from './ai-chat.model.js';
+import { EMBEDDING_MODEL, KnowledgeChunkModel, VECTOR_INDEX_NAME } from './ai-chat.model.js';
 import { ProjectModel } from '../admin/content.model.js';
 import type { PublishedProjectSummary } from './chat-context.js';
 import type { RetrievedChunk, VectorSearchOptions } from './ai-chat.types.js';
@@ -17,9 +17,9 @@ function cached<T>(load: () => Promise<T>): () => Promise<T> {
   };
 }
 
-/** The knowledge-base sources present in the vector store (seeded). */
+/** The knowledge-base sources present in the vector store (seeded with the current embedding model). */
 export const seededSourceIds = cached(async () => {
-  const ids = await KnowledgeChunkModel.distinct('metadata.sourceId');
+  const ids = await KnowledgeChunkModel.distinct('metadata.sourceId', { embeddingModel: EMBEDDING_MODEL });
   return new Set(ids.map(String));
 });
 
@@ -70,6 +70,8 @@ export async function retrieveRelevantChunks(
         queryVector: queryEmbedding,
         numCandidates,
         limit: topK,
+        // Only vectors from the model that embedded the query are comparable.
+        filter: { embeddingModel: EMBEDDING_MODEL },
       },
     },
     {

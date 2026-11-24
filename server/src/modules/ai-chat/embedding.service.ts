@@ -1,10 +1,9 @@
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/middleware/errorHandler.js';
-import { EMBEDDING_DIMENSIONS } from './ai-chat.model.js';
+import { EMBEDDING_DIMENSIONS, EMBEDDING_MODEL as VOYAGE_MODEL } from './ai-chat.model.js';
 import type { EmbeddingVector } from './ai-chat.types.js';
 
 const VOYAGE_API_URL = 'https://api.voyageai.com/v1/embeddings';
-const VOYAGE_MODEL = 'voyage-3-lite';
 
 // Voyage's documented per-request batch limit. embedBatch chunks larger
 // input arrays against this so callers never have to think about it.
@@ -41,6 +40,8 @@ async function callVoyageEmbeddingsApi(
       model: VOYAGE_MODEL,
       input: texts,
       input_type: inputType,
+      // voyage-4-lite defaults to 1024; the index holds 512 (ai-chat.model.ts).
+      output_dimension: EMBEDDING_DIMENSIONS,
     }),
     signal: AbortSignal.timeout(texts.length > 1 ? BATCH_TIMEOUT_MS : QUERY_TIMEOUT_MS),
   });

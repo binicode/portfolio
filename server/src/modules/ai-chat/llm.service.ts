@@ -1,18 +1,31 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, type ThinkingLevel } from '@google/genai';
 import { env } from '../../core/config/env.js';
+import { inBackground } from '../../core/background.js';
 import type { ChatMessage, ChatStreamEvent, RetrievedChunk } from './ai-chat.types.js';
 import { buildSystemInstruction } from './chat.prompt.js';
+import { recordAiCost, withinDailyBudget } from './ai-budget.js';
+import { costMicroUsd, GEMINI_MODEL_IDS as GEMINI_MODELS, geminiModel, type TokenUsage } from './gemini-models.js';
 import {
   backoffMs,
-  GEMINI_MODELS,
   modelsDueForCheck as dueForCheck,
   modelsToTry as healthyFirst,
   type ModelHealth,
 } from './model-health.js';
+import { errorFields, log } from '../../core/logger.js';
 
-// Hard ceiling on generation length — protects against runaway cost
-// regardless of provider or free-tier status.
+// Hard ceiling on an answer's length — protects against runaway cost
+// regardless of provider or free-tier status. Each model adds its thinking
+// headroom on top (gemini-models.ts); the daily cap bounds the total.
 const MAX_OUTPUT_TOKENS = 1024;
+
+/** The request settings each pinned model needs: its thinking level, and room for that thinking. */
+function modelConfig(model: string, answerTokens: number) {
+  const info = geminiModel(model);
+  return {
+    maxOutputTokens: answerTokens + info.thinkingHeadroom,
+    thinkingConfig: { thinkingLevel: info.thinkingLevel as ThinkingLevel },
+  };
+}
 
 // One retry per model for transient errors (429/5xx/network), then move
 // to the next model.
@@ -60,7 +73,7 @@ async function checkModel(model: string): Promise<boolean> {
     const response = await ai.models.generateContent({
       model,
       contents: [{ role: 'user', parts: [{ text: 'Reply with OK.' }] }],
-      config: { maxOutputTokens: 8, abortSignal: AbortSignal.timeout(PROBE_TIMEOUT_MS) },
+      config: { ...modelConfig(model, 8), abortSignal: AbortSignal.timeout(PROBE_TIMEOUT_MS) },
     });
     return Boolean(response.text);
   } catch {
@@ -80,11 +93,11 @@ export function checkModelsInBackground(models: readonly string[] = modelsDueFor
     void checkModel(model)
       .then((ok) => {
         if (ok) {
-          if (modelHealth.has(model)) console.log(`Gemini: ${model} is answering again`);
+          if (modelHealth.has(model)) log.info('Gemini: model answering again', { model });
           markUp(model);
         } else {
           markDown(model);
-          console.warn(`Gemini: ${model} is not answering; checking again in ${Math.round(backoffMs(modelHealth.get(model)!.failures) / 60000)} min`);
+          log.warn('Gemini: model not answering', { model, nextCheckMinutes: Math.round(backoffMs(modelHealth.get(model)!.failures) / 60000) });
         }
       })
       .finally(() => probing.delete(model));
@@ -100,16 +113,25 @@ export function checkAllModels(): void {
 const BUSY_MESSAGE = 'The assistant is busy right now. Please try again in a minute.';
 const INTERRUPTED_MESSAGE = 'The answer was cut off. Please try again.';
 const UNAVAILABLE_MESSAGE = "The assistant can't answer right now. Please try again later.";
+const DAILY_LIMIT_MESSAGE = 'The assistant has reached its limit for today. Please try again tomorrow.';
 
 // Created on first use, and only when a key is configured: without one the
 // assistant answers with its "can't answer right now" message, and no
 // request (or SDK warning) is made.
 let client: GoogleGenAI | null = null;
+let testClient: GoogleGenAI | null = null;
 let missingKeyLogged = false;
 
+/** Tests only: use this client (pointed at a local fake Gemini) instead; null restores the default. */
+export function setGeminiClientForTests(geminiClient: GoogleGenAI | null): void {
+  if (env.NODE_ENV !== 'test') throw new Error('setGeminiClientForTests is for tests only');
+  testClient = geminiClient;
+}
+
 function gemini(): GoogleGenAI | null {
+  if (testClient) return testClient;
   if (!env.GEMINI_API_KEY) {
-    if (!missingKeyLogged) console.warn('Gemini: GEMINI_API_KEY is not set; the assistant cannot answer');
+    if (!missingKeyLogged) log.warn('Gemini: GEMINI_API_KEY is not set; the assistant cannot answer');
     missingKeyLogged = true;
     return null;
   }
@@ -195,6 +217,12 @@ export async function* streamText(
     return;
   }
 
+  // Over today's cost cap: answer without calling Gemini (ai-budget.ts).
+  if (!(await withinDailyBudget())) {
+    yield { type: 'error', message: DAILY_LIMIT_MESSAGE };
+    return;
+  }
+
   // Any down model whose back-off has passed is checked in the background;
   // this request uses only the healthy ones.
   checkModelsInBackground();
@@ -209,6 +237,10 @@ export async function* streamText(
       };
       const firstChunkTimer = setTimeout(abortOnTimeout, FIRST_CHUNK_TIMEOUT_MS);
       const totalTimer = setTimeout(abortOnTimeout, TOTAL_TIMEOUT_MS);
+      // The last chunk to include usageMetadata has the final, complete
+      // counts. Kept outside the try: an attempt cut off midway is billed
+      // for what it used, so it counts towards the daily cap too.
+      const usage: TokenUsage = { inputTokens: 0, outputTokens: 0, thinkingTokens: 0 };
 
       try {
         const stream = await ai.models.generateContentStream({
@@ -216,13 +248,10 @@ export async function* streamText(
           contents,
           config: {
             systemInstruction,
-            maxOutputTokens,
+            ...modelConfig(model, maxOutputTokens),
             abortSignal: controller.signal,
           },
         });
-
-        let inputTokens = 0;
-        let outputTokens = 0;
 
         for await (const chunk of stream) {
           clearTimeout(firstChunkTimer);
@@ -232,29 +261,29 @@ export async function* streamText(
             yield { type: 'token', content: chunk.text };
           }
 
-          // The last chunk to include usageMetadata has the final,
-          // complete token counts. Defaults to 0 rather than left
-          // undefined if the SDK never sends it.
           if (chunk.usageMetadata) {
-            inputTokens = chunk.usageMetadata.promptTokenCount ?? inputTokens;
-            outputTokens = chunk.usageMetadata.candidatesTokenCount ?? outputTokens;
+            usage.inputTokens = chunk.usageMetadata.promptTokenCount ?? usage.inputTokens;
+            usage.outputTokens = chunk.usageMetadata.candidatesTokenCount ?? usage.outputTokens;
+            usage.thinkingTokens = chunk.usageMetadata.thoughtsTokenCount ?? usage.thinkingTokens;
           }
         }
 
         if (model !== GEMINI_MODELS[0]) {
-          console.warn(`${logLabel}: answered with fallback model ${model}`);
+          log.warn('Gemini: answered with the fallback model', { label: logLabel, model });
         }
         markUp(model);
 
-        yield { type: 'done', usage: { inputTokens, outputTokens } };
+        yield { type: 'done', usage: { inputTokens: usage.inputTokens, outputTokens: usage.outputTokens } };
         return;
       } catch (error) {
         // Logged here because this error never reaches errorHandler.ts;
         // without it a failing provider is invisible server-side.
-        console.error(
-          `${logLabel}: ${model} attempt ${attempt + 1} failed`,
-          timedOut ? `(no response within ${FIRST_CHUNK_TIMEOUT_MS / 1000}s)` : error,
-        );
+        log.error('Gemini: attempt failed', {
+          label: logLabel,
+          model,
+          attempt: attempt + 1,
+          ...(timedOut ? { error: 'Timeout', detail: `no response within ${FIRST_CHUNK_TIMEOUT_MS / 1000} s` } : errorFields(error)),
+        });
 
         // Once tokens have reached the visitor, switching model would
         // splice two different answers together — stop instead.
@@ -281,6 +310,10 @@ export async function* streamText(
       } finally {
         clearTimeout(firstChunkTimer);
         clearTimeout(totalTimer);
+        if (usage.inputTokens + usage.outputTokens + usage.thinkingTokens > 0) {
+          const cost = costMicroUsd(geminiModel(model), usage);
+          inBackground('AI cost record', () => recordAiCost(cost));
+        }
       }
     }
   }

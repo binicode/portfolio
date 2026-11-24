@@ -93,24 +93,24 @@ test('questions about the body of work bring in the case studies', () => {
 
 test('a model that is down is not used for visitors until a background check passes', () => {
   const now = 1_000_000;
-  assert.deepEqual(modelsToTry(new Map()), ['gemini-flash-latest', 'gemini-flash-lite-latest']);
+  assert.deepEqual(modelsToTry(new Map()), ['gemini-3.5-flash-lite', 'gemini-4-hydrogen']);
 
   // Down, back-off not over: skipped, and not due a check yet.
-  const down = new Map([['gemini-flash-latest', { failures: 1, retryAt: now + 1000 }]]);
-  assert.deepEqual(modelsToTry(down), ['gemini-flash-lite-latest']);
+  const down = new Map([['gemini-3.5-flash-lite', { failures: 1, retryAt: now + 1000 }]]);
+  assert.deepEqual(modelsToTry(down), ['gemini-4-hydrogen']);
   assert.deepEqual(modelsDueForCheck(now, down), []);
 
   // Back-off over: still skipped for visitors, but due a background check.
-  const due = new Map([['gemini-flash-latest', { failures: 1, retryAt: now - 1 }]]);
-  assert.deepEqual(modelsToTry(due), ['gemini-flash-lite-latest']);
-  assert.deepEqual(modelsDueForCheck(now, due), ['gemini-flash-latest']);
+  const due = new Map([['gemini-3.5-flash-lite', { failures: 1, retryAt: now - 1 }]]);
+  assert.deepEqual(modelsToTry(due), ['gemini-4-hydrogen']);
+  assert.deepEqual(modelsDueForCheck(now, due), ['gemini-3.5-flash-lite']);
 
   // Everything down: try them all anyway.
   const allDown = new Map([
-    ['gemini-flash-latest', { failures: 2, retryAt: now + 1000 }],
-    ['gemini-flash-lite-latest', { failures: 1, retryAt: now + 1000 }],
+    ['gemini-3.5-flash-lite', { failures: 2, retryAt: now + 1000 }],
+    ['gemini-4-hydrogen', { failures: 1, retryAt: now + 1000 }],
   ]);
-  assert.deepEqual(modelsToTry(allDown), ['gemini-flash-latest', 'gemini-flash-lite-latest']);
+  assert.deepEqual(modelsToTry(allDown), ['gemini-3.5-flash-lite', 'gemini-4-hydrogen']);
 });
 
 test('the back-off doubles per failure, from 5 minutes up to an hour', () => {

@@ -1,7 +1,7 @@
 import { createApp } from './app.js';
 import { connectDB, disconnectDB } from './config/db.js';
 import { env } from './config/env.js';
-import { log } from './logger.js';
+import { errorFields, log } from './logger.js';
 import { ensureKnowledgeVectorIndex } from '../modules/ai-chat/ai-chat.model.js';
 import { checkAllModels } from '../modules/ai-chat/llm.service.js';
 
@@ -23,10 +23,7 @@ async function bootstrap(): Promise<void> {
     try {
       await ensureKnowledgeVectorIndex();
     } catch (err) {
-      console.warn(
-        '⚠️  ai-chat: failed to ensure vector search index — chat retrieval may not work until this is resolved',
-        err,
-      );
+      log.warn('Chat: could not ensure the vector search index; retrieval falls back to the whole knowledge base', errorFields(err));
     }
   }
 
@@ -64,6 +61,6 @@ async function bootstrap(): Promise<void> {
 }
 
 bootstrap().catch((err) => {
-  console.error('❌ Failed to start server:', err);
+  log.error('Failed to start the server', errorFields(err));
   process.exit(1);
 });

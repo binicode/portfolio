@@ -60,6 +60,7 @@ export async function startDatabaseApp(overrides: Record<string, string> = {}): 
     STRIPE_PRO_PRICE_ID: '',
     GITHUB_API_TOKEN: '',
     YOUTUBE_API_KEY: '',
+    AI_DAILY_COST_CAP_USD: '',
     RESEND_API_KEY: '',
     EMAIL_FROM: '',
     ALERT_EMAIL_TO: '',

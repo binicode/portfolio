@@ -163,13 +163,16 @@ editor, on the `knowledge_chunks` collection, named `knowledge_vector_index`:
 {
   "fields": [
     { "type": "vector", "path": "embedding", "numDimensions": 512, "similarity": "cosine" },
-    { "type": "filter", "path": "metadata.sourceType" }
+    { "type": "filter", "path": "metadata.sourceType" },
+    { "type": "filter", "path": "embeddingModel" }
   ]
 }
 ```
 
-512 dimensions match `voyage-3-lite`; a different embedding model needs a
-new index and a fresh `npm run seed:kb`.
+The API creates this index, or updates an older definition of it, when it
+connects. The embeddings come from `voyage-4-lite` at 512 dimensions, and
+each chunk records its model: search only uses chunks from the current
+model. After changing the model, run `npm run seed:kb` again.
 
 ## Security notes
 

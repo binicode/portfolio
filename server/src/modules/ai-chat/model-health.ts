@@ -13,11 +13,11 @@
  * failure doubles the back-off, from 5 minutes up to an hour.
  */
 
-// Tried in order. When the primary model is overloaded (Gemini returns
-// 503 "high demand") or hangs, the lighter model usually still answers,
-// so a visitor gets a reply instead of an error. Both are "-latest"
-// aliases that are available to new API keys.
-export const GEMINI_MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest'] as const;
+import { GEMINI_MODEL_IDS as GEMINI_MODELS } from './gemini-models.js';
+
+// GEMINI_MODELS, tried in order, are pinned in gemini-models.ts. When one is
+// overloaded (Gemini returns 503 "high demand") or hangs, the other usually
+// still answers, so a visitor gets a reply instead of an error.
 
 const BACKOFF_BASE_MS = 5 * 60 * 1000;
 const BACKOFF_MAX_MS = 60 * 60 * 1000;

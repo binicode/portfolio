@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import LegalPage from '@/components/site/LegalPage';
 import { contactHref, site } from '@/lib/site';
+import { pageOpenGraph } from '@/lib/open-graph';
 
 export const metadata: Metadata = {
   title: 'Terms',
   description: 'The terms for using the Creator Dashboard and its subscription.',
   alternates: { canonical: '/terms' },
-  openGraph: { url: '/terms' },
+  openGraph: pageOpenGraph({ url: '/terms' }),
 };
 
 export default function TermsPage() {
