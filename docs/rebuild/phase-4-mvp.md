@@ -43,7 +43,7 @@
 | 4.5.6 Length limits: CMS fields and settings | Done | Database and unit tests |
 | 4.5.7 Configuration errors, `/health`, one structured logger | Done | Database test (`/health` fields); sample production log lines checked |
 | 4.5.8 Shared Open Graph base | Done | e2e: every public page has the site name, type, locale, URL and a working image |
-| 4.6 Hosting configuration | Prepared | `netlify.toml`, `docs/deploy.md`; the API's production-only install started and answered |
+| 4.6 Hosting configuration | Prepared | `netlify.toml`, `render.yaml` (valid against Render's schema), the keep-awake function, `docs/deploy.md`; the API's production-only install started and answered |
 | Search engines kept out until launch | Done | `SITE_INDEXING`, off by default |
 
 ## Tests now
@@ -90,12 +90,19 @@
 17. **Link previews had no image or site name on any public page (4.5.8).** Each page set its own `openGraph` for `og:url`, and Next.js replaces a layout's whole `openGraph` with a page's, so the shared image and site fields were lost; the built HTML had only title, description and URL. Every page now builds on one shared base.
 18. **Gemini 4 Hydrogen thinks at "high" by default, and thinking counts towards the output limit**, which would have left the planner's 160-token note empty or cut answers short. Each model now has its thinking level and headroom set explicitly (4.5.2).
 19. **A knowledge base embedded with another model would have matched badly without any error** (vectors from different models aren't comparable). Chunks now record their model and search filters on it (4.5.3).
+20. **Koyeb stopped self-serve sign-ups on 2026-11-24** (it is joining Mistral; its site shows only a contact form), so the API moved to Render's free plan, the user's choice over Northflank's free Sandbox (always on, also $0).
+    - Render's free instance sleeps after 15 minutes and takes about a minute to wake, longer than the site waits (10 s). A Netlify scheduled function requests `/health` every 10 minutes, which uses about 744 of the 750 free hours a month.
+    - Render publishes each region's outgoing address ranges, so Atlas allows only those (and, while seeding, your own address) instead of every address.
+    - `TRUST_PROXY=1` follows Render's own guidance for Express; it can't be checked before deployment, so step 7 of `docs/deploy.md` checks it.
+21. **Security review of 4.5:** nothing at the reporting bar. Acted on its cheap improvements:
+    - **Leaving visitors.** The chat and the planner never noticed a visitor leaving: they listened for the request's `close`, which Node emits once the body has been read. Every abandoned answer streamed to the end, at full cost. They now watch the response's `close`, and token usage is counted before each chunk is passed on, so the cost of a stopped answer is still recorded. Checked with a probe: the stream stops at the next chunk and its usage is recorded.
+    - **Error logs** now mask ids in the route and leave the message's first line out of the stack.
 
 ## Needs the user
 
-- **Accounts and settings, `docs/deploy.md` steps 1 to 5:** Atlas, Resend, Koyeb (choose Starter), Netlify, the Stripe sandbox. Secrets go into each host's settings, never into chat or git.
+- **Accounts and settings, `docs/deploy.md` steps 1 to 5:** Atlas, Resend, Render (New > Blueprint), Netlify, the Stripe sandbox. Secrets go into each host's settings, never into chat or git.
 - **DNS at Namecheap, `docs/deploy.md` step 6.**
 - **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
-- **Merge [binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27)** (still open on 2026-11-23); step 4.5 follows in its own pull request from `rebuild/phase-4-integrations`. Deployment builds from `main`.
+- **A pull request for step 4.5** (`rebuild/phase-4-integrations`), when you ask for it; [binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27) is merged. Deployment builds from `main`.
 - **A Gemini API key for the model measurement** (4.5.2): entered through this session's secure form, never chat. Without it the provisional order stays (Flash-Lite first).
-- ~~Hosting choice~~ Netlify Free + Koyeb Free (2026-11-23). ~~DNS~~ Namecheap BasicDNS. ~~Dependabot alerts~~ on.
+- ~~Hosting choice~~ Netlify Free + Render Free (Koyeb closed sign-ups on 2026-11-24). ~~DNS~~ Namecheap BasicDNS. ~~Dependabot alerts~~ on.

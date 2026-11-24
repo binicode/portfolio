@@ -24,9 +24,12 @@ export const postChatMessage = async (req: Request, res: Response) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
+  // The response's 'close' before it has finished means the visitor went
+  // away; the request's own 'close' fires as soon as its body has been read,
+  // so it can't tell. Stopping early stops the model call (and its cost).
   let clientDisconnected = false;
-  req.on('close', () => {
-    clientDisconnected = true;
+  res.on('close', () => {
+    if (!res.writableFinished) clientDisconnected = true;
   });
 
   const writeEvent = (event: ChatStreamEvent): void => {

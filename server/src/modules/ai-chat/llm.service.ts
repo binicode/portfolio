@@ -256,15 +256,17 @@ export async function* streamText(
         for await (const chunk of stream) {
           clearTimeout(firstChunkTimer);
 
-          if (chunk.text) {
-            hasYieldedToken = true;
-            yield { type: 'token', content: chunk.text };
-          }
-
+          // Counted before yielding: a visitor who leaves stops the loop at
+          // the yield, and the cost recorded in `finally` must include this chunk.
           if (chunk.usageMetadata) {
             usage.inputTokens = chunk.usageMetadata.promptTokenCount ?? usage.inputTokens;
             usage.outputTokens = chunk.usageMetadata.candidatesTokenCount ?? usage.outputTokens;
             usage.thinkingTokens = chunk.usageMetadata.thoughtsTokenCount ?? usage.thinkingTokens;
+          }
+
+          if (chunk.text) {
+            hasYieldedToken = true;
+            yield { type: 'token', content: chunk.text };
           }
         }
 

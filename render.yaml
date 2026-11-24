@@ -1,0 +1,56 @@
+# Render Blueprint for the API (server/), on Render's free plan. The site
+# runs on Netlify (netlify.toml). Setup, secrets and DNS: docs/deploy.md.
+# In the Render Dashboard: New > Blueprint, pick this repository; Render asks
+# for each `sync: false` value. Secrets are entered there, never committed.
+services:
+  - type: web
+    name: biniyam-api
+    runtime: docker
+    plan: free
+    # Next to the database (Atlas, AWS N. Virginia) and the email service.
+    region: virginia
+    branch: main
+    # Only changes under server/ rebuild the API; paths below are relative to it.
+    rootDir: server
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    # Deploy a commit on main only once its CI checks have passed.
+    autoDeployTrigger: checksPass
+    domains:
+      - api.biniyam.com
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_ORIGIN
+        value: https://www.biniyam.com
+      - key: COOKIE_DOMAIN
+        value: biniyam.com
+      # One proxy in front of the API (Render's), as Render's docs advise for Express.
+      - key: TRUST_PROXY
+        value: "1"
+      - key: EMAIL_FROM
+        value: Biniyam <hello@mail.biniyam.com>
+      # A random 256-bit value made by Render: it never exists anywhere else.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: ALERT_EMAIL_TO
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: VOYAGE_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRO_PRICE_ID
+        sync: false
