@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { z, ZodError } from 'zod';
 import { errorFields, log } from '../logger.js';
+import { routeForLog } from './http-hygiene.js';
 
 /**
  * Custom error class for known, expected failures (bad input, not found,
@@ -76,13 +77,15 @@ export function errorHandler(
     return;
   }
 
-  // Anything else is unexpected — log it fully, but never leak internals
-  // to the client. Stack traces only appear in non-production logs.
+  // Anything else is unexpected: log what it takes to find it (route, error
+  // name and short message, stack), and never leak internals to the client.
   log.error('Unhandled error', {
     method: req.method,
-    path: req.originalUrl.split('?')[0],
+    // Ids masked as in the request log: a chat session id grants access to that chat.
+    route: routeForLog(req.originalUrl),
     ...errorFields(err),
-    stack: err instanceof Error ? err.stack?.slice(0, 2000) : undefined,
+    // Without its first line, which repeats the message errorFields already shortened.
+    stack: err instanceof Error ? err.stack?.split('\n').slice(1).join('\n').slice(0, 2000) : undefined,
   });
 
   res.status(500).json({
