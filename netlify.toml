@@ -6,11 +6,23 @@
 # So production deploys come only from main (set in the Netlify UI, with
 # branch deploys and Deploy Previews off), and a push that changes nothing
 # under client/ doesn't build at all (Netlify's default for a base
-# directory).
+# directory). That includes a change to this file alone: after merging one,
+# start a deploy in the Netlify UI (Deploys > Trigger deploy).
 
 [build]
   base = "client"
   command = "npm run build"
+  # Relative to base. Without it Netlify published client/ itself as plain
+  # files, and no page was server-rendered.
+  publish = ".next"
+
+# Netlify's Next.js adapter (OpenNext): server rendering, revalidation, image
+# optimisation. Netlify adds it by itself only when it detects Next.js while
+# linking the repository, which it can't here (no package.json at the root).
+# Not pinned in package.json, so each build uses the latest release, as
+# Netlify recommends.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [build.environment]
   NODE_VERSION = "24"
