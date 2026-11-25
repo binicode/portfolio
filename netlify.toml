@@ -4,10 +4,12 @@
 # Free plan: each production deploy costs 15 of 300 monthly credits, and
 # when credits run out every site on the account pauses until next month.
 # So production deploys come only from main (set in the Netlify UI, with
-# branch deploys and Deploy Previews off), and a push that changes nothing
-# under client/ doesn't build at all (Netlify's default for a base
-# directory). That includes a change to this file alone: after merging one,
-# start a deploy in the Netlify UI (Deploys > Trigger deploy).
+# branch deploys off), and a push that changes nothing under client/
+# doesn't build at all (Netlify's default for a base directory). That
+# includes a change to this file alone: after merging one, start a deploy in
+# the Netlify UI (Deploys > Trigger deploy). Deploy Previews cost no
+# credits and stay private: each pull request gets one, built like
+# production.
 
 [build]
   base = "client"
@@ -24,12 +26,12 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Public values only: they are built into the pages, and the build fails
+# without them, so every context (production and Deploy Previews) gets them.
+# Secrets go in the Netlify UI, and so does the launch switch, SITE_INDEXING,
+# set for the production context only.
 [build.environment]
   NODE_VERSION = "24"
   NEXT_TELEMETRY_DISABLED = "1"
-
-# Public values only: they are built into the pages. Secrets and the launch
-# switch (SITE_INDEXING) go in the Netlify UI.
-[context.production.environment]
   NEXT_PUBLIC_API_URL = "https://api.biniyam.com/api"
   NEXT_PUBLIC_SITE_URL = "https://www.biniyam.com"
