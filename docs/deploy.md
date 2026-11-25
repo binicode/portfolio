@@ -152,7 +152,11 @@ Render sets `PORT` itself.
 
 1. **Add new project > Import from Git:** `binicode/portfolio`.
    - `netlify.toml` already sets the base directory (`client`), the build,
-     Node 24 and the public variables.
+     the publish directory (`.next`), Netlify's Next.js adapter, Node 24 and
+     the public variables. It overrides whatever the import screen fills in.
+   - Check the first deploy's log: it must say **Using Next.js Runtime** and
+     package `___netlify-server-handler`. Without the adapter, Netlify
+     publishes the folder as plain files and no page is server-rendered.
    - Name the project `biniyam` if that name is free. Its address
      (`<name>.netlify.app`) is the `www` value in step 6.
 2. **Project configuration > Build & deploy > Branches and deploy contexts:**
@@ -167,6 +171,18 @@ Render sets `PORT` itself.
    certificates once DNS points at it.
 5. **Functions:** after the first production deploy, `keep-api-awake` is
    listed with its schedule (every 10 minutes); **Run now** checks it.
+6. **Visitor access.** New projects on the Free plan start private: only you,
+   signed in to Netlify, can open them. To run the checks in step 7 from any
+   device, set **Project configuration > General > Visitor access > Project
+   visibility** to public for production and keep previews private. Search
+   engines stay out either way until `SITE_INDEXING` is set.
+7. **Badge.** Public projects created on the Free plan since 2026-08-19 show a
+   "Powered by Netlify" badge in a corner of every page. Turn it off under
+   **Project configuration > General > Powered by Netlify badge** if the plan
+   allows it; on Free the setting may be locked.
+8. **Changing `netlify.toml` alone doesn't start a build** (Netlify only builds
+   when something under `client/` changed). After merging such a change,
+   start one under **Deploys > Trigger deploy**.
 
 ### 5. Stripe (sandbox)
 

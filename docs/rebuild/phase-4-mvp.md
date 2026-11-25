@@ -2,7 +2,7 @@
 
 - **Branch:** `rebuild/phase-4-mvp` (from `rebuild/phase-3-plan`)
 - **Plan:** `docs/rebuild/phase-3-plan.md`, section 4
-- **Status:** in progress; steps 4.1 to 4.5 done and merged; 4.6 in progress on `rebuild/phase-4-deploy`: the API runs on Render (checks below), and the site, DNS and Stripe come next
+- **Status:** in progress; steps 4.1 to 4.5 done and merged; 4.6 in progress: the API runs on Render (checks below); the site builds on Netlify, with the adapter fix on `rebuild/phase-4-netlify` (finding 24); DNS, Resend and Stripe come next
 
 ## Progress
 
@@ -104,10 +104,15 @@
     - **Fixed** in `render.yaml` (`3`), the env example, the README and `docs/deploy.md`, which now says how to recheck it.
     - **Checked with `3` deployed:** faked `X-Forwarded-For` entries, single or three deep, no longer start new counts, and 40 requests from 11 sending addresses made exactly 11 counts. To repeat on `api.biniyam.com` once its DNS exists.
 23. **Malformed JSON got a 500, and was logged as a bug.** Errors from Express's body parser (malformed JSON, a body over the size limit) reached the error handler's catch-all. They now answer 400 or 413 with a fixed message that doesn't echo the input (unit tests, including that unexpected errors still answer a generic 500).
+24. **The first Netlify deploy published `client/` as plain files** (build log, 2026-11-25). The build succeeded, but it said "Custom publish path detected: 'client'" and packaged only `keep-api-awake`. Netlify's Next.js adapter never ran: Netlify adds it by itself only when it detects Next.js while linking the repository, which it can't here (no `package.json` at the root). So no page was server-rendered, revalidation and the dashboards couldn't work, and the source files were published (the repository is public, so nothing secret).
+    - **Fixed** in `netlify.toml`: `publish = ".next"` and the adapter (`@netlify/plugin-nextjs`, not pinned, as Netlify recommends). `netlify build --context production` (Netlify CLI 27.20.1) now logs "Using Next.js Runtime" and packages `___netlify-server-handler` beside `keep-api-awake`. Serving that build locally needs Deno, which this environment can't download, so the pages themselves are checked on the next deploy.
+    - **Changing `netlify.toml` alone doesn't start a build** (Netlify builds only when `client/` changed), so this fix needs a deploy started by hand. Noted in the file and `docs/deploy.md`.
+    - **The project is private** (new Free projects start private). Public projects on Free show a "Powered by Netlify" badge, which may not be removable on that plan. Both are in `docs/deploy.md`, step 4.
 
 ## Needs the user
 
-- **Accounts and settings, `docs/deploy.md` steps 2, 4 and 5:** Resend, Netlify, the Stripe sandbox (Atlas and Render are done). Secrets go into each host's settings, never into chat or git.
+- **Netlify, after the adapter fix is merged:** start a deploy by hand (Deploys > Trigger deploy), and make production public so the site can be checked from outside (`docs/deploy.md`, step 4).
+- **Accounts and settings, `docs/deploy.md` steps 2 and 5:** Resend, the Stripe sandbox (Atlas, Render and Netlify are done). Secrets go into each host's settings, never into chat or git.
 - **DNS at Namecheap, `docs/deploy.md` step 6.**
 - **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
 - ~~Pull requests for 4.1 to 4.5~~ merged ([binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27), [binicode/portfolio#28](https://github.com/binicode/portfolio/pull/28), [binicode/portfolio#29](https://github.com/binicode/portfolio/pull/29)).
