@@ -117,8 +117,10 @@ Plain Node, no platform SDK. On Render, Railway, Fly.io, a VPS or similar:
 - **Health check path:** `/health`
 - **Environment:** everything in `server/.env.example`, with
   `NODE_ENV=production`, `CLIENT_ORIGIN=https://example.com` (add preview
-  origins comma-separated), `COOKIE_DOMAIN=example.com`, and `TRUST_PROXY=1`
-  when the host puts one proxy in front (most do). Never `TRUST_PROXY=true`.
+  origins comma-separated), `COOKIE_DOMAIN=example.com`, and `TRUST_PROXY`
+  set to the number of proxies the host puts in front of the API: `3` on
+  Render (measured; how to check it is in `docs/deploy.md`, step 7), `1` for
+  a single proxy. Never `TRUST_PROXY=true`.
 
 Or as a container, with [`server/Dockerfile`](server/Dockerfile):
 

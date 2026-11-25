@@ -26,9 +26,11 @@ services:
         value: https://www.biniyam.com
       - key: COOKIE_DOMAIN
         value: biniyam.com
-      # One proxy in front of the API (Render's), as Render's docs advise for Express.
+      # Three proxies sit in front of the API on Render (Cloudflare, then Render's
+      # load balancers), measured on 2026-11-25; with 1, every visitor shared a
+      # few rate-limit counts. How to recheck: docs/deploy.md, step 7.
       - key: TRUST_PROXY
-        value: "1"
+        value: "3"
       - key: EMAIL_FROM
         value: Biniyam <hello@mail.biniyam.com>
       # A random 256-bit value made by Render: it never exists anywhere else.

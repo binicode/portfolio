@@ -141,9 +141,10 @@ Set in `render.yaml` already:
 - `CLIENT_ORIGIN=https://www.biniyam.com`;
 - `COOKIE_DOMAIN=biniyam.com`;
 - `EMAIL_FROM=Biniyam <hello@mail.biniyam.com>`;
-- `TRUST_PROXY=1`: one proxy, Render's, in front of the API, as Render's own
-  guidance for Express says. Confirm in step 7 that rate limits count per
-  visitor.
+- `TRUST_PROXY=3`: the number of proxies in front of the API on Render
+  (Cloudflare, then Render's load balancers). Render doesn't document it;
+  it was measured on the first deploy (step 7). With `1`, every visitor
+  shared a few rate-limit counts.
 
 Render sets `PORT` itself.
 
@@ -270,9 +271,21 @@ reports.
    - **Enquiries:** a brief from the planner appears in the admin and as an
      email, and replying reaches the visitor.
    - **Assistant:** answers from the knowledge base.
-   - **Rate limits:** the `RateLimit` headers of an API response count per
-     visitor (two devices on different networks get separate counts), not one
-     count shared by everyone (`TRUST_PROXY`).
+   - **Rate limits** count per visitor (`TRUST_PROXY`). Recheck this whenever
+     Render changes its network, with `curl -sI` on
+     `https://api.biniyam.com/health`, reading `RateLimit-Remaining`:
+     - **Not too high:** send `-H "X-Forwarded-For: 198.18.0.N"` with a new
+       `N` each time. The count must keep falling. If it starts again at 299
+       each time, callers can fake their address: lower `TRUST_PROXY`.
+     - **Not too low:** from two networks (say, your phone on mobile data and
+       your computer), each gets its own count. One shared count means
+       visitors share limits: raise `TRUST_PROXY`.
+     - **Finding the number** (how 3 was found): set `TRUST_PROXY` to 4 for a
+       moment and send `X-Forwarded-For: 198.19.0.1, 198.19.0.2, 198.18.0.N`
+       with a new `N` each time. If every request starts a new count, the
+       API is reading the last of your three entries, one hop too far, so
+       the right value is 3. If the count keeps falling, vary the middle
+       entry instead: a new count each time means 2. Then set the result.
    - **Keep-awake:** after 20 quiet minutes the API still answers at once.
    - **Search engines:** `robots.txt` disallows everything until launch.
 4. Record the results in `docs/rebuild/phase-4-mvp.md`.

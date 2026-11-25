@@ -8,8 +8,10 @@ import { isIP } from 'node:net';
  * - Unset, "0" or "false": trust no proxy; `req.ip` is the connecting
  *   address. Right when the API is reached directly. Behind a proxy it makes
  *   every visitor share the proxy's address, and so its rate limits.
- * - A hop count, e.g. "1": trust that many proxies. Most hosts (Render,
- *   Railway, Heroku, Fly.io) put one proxy in front of the app.
+ * - A hop count: trust that many proxies. Render puts three in front of a
+ *   web service (measured: docs/deploy.md, step 7); a single proxy is 1.
+ *   Too low and visitors share the proxies' rate limits; too high and a
+ *   caller's own X-Forwarded-For entries are believed.
  * - Addresses, subnets or Express presets ("loopback", "linklocal",
  *   "uniquelocal"), comma-separated: trust exactly those proxies.
  *
@@ -36,7 +38,7 @@ export function parseTrustProxy(value: string | undefined): TrustProxySetting {
 
   if (text === 'true') {
     throw new Error(
-      'TRUST_PROXY=true would trust any X-Forwarded-For value, letting callers pick their own IP; set the number of proxies in front of the API instead (usually 1)',
+      'TRUST_PROXY=true would trust any X-Forwarded-For value, letting callers pick their own IP; set the number of proxies in front of the API instead (3 on Render)',
     );
   }
 
