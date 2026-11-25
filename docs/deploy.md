@@ -162,10 +162,14 @@ Render sets `PORT` itself.
 2. **Project configuration > Build & deploy > Branches and deploy contexts:**
    - **Production branch:** `main`.
    - **Branch deploys:** None.
-   - **Deploy Previews:** off.
+   - **Deploy Previews:** on. They cost no credits (only production deploys
+     and traffic do), stay private, and build each pull request the way
+     production will, so a broken Netlify build shows on the pull request
+     before merging.
 3. **Environment variables** (optional): `GITHUB_API_TOKEN`, a token with no
    scopes, for the home page's GitHub list. Leave `SITE_INDEXING` unset until
-   launch: the site then stays out of search engines.
+   launch: the site then stays out of search engines. At launch, set it for
+   the production context only.
 4. **Domain management:** add `www.biniyam.com`. Netlify adds
    `biniyam.com` with it and redirects that to `www`. Netlify issues HTTPS
    certificates once DNS points at it.
