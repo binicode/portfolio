@@ -101,12 +101,12 @@
 22. **On Render, `TRUST_PROXY=1` made visitors share rate limits; the right value is 3** (measured on the deployed API, 2026-11-25).
     - **Symptom.** 41 requests from about ten different addresses (this environment's outgoing addresses, seen in Cloudflare's `/cdn-cgi/trace`) landed in only three `RateLimit-Remaining` counts. The API was counting by the address of one of Render's proxies. Once live, ten failed sign-ins by anyone would have blocked sign-in for everyone behind that proxy for 15 minutes.
     - **Measurement.** With `TRUST_PROXY=4`, requests whose last faked `X-Forwarded-For` entry changed each time each started a new count, and requests where only an earlier entry changed shared one. The API was reading one entry past the real visitor, so three proxies (Cloudflare, then Render's load balancers) append to the header. Render doesn't document this; a Render article reports that it appends the visitor's address and doesn't clear a caller's own entries, which is why the count must be exact.
-    - **Fixed** in `render.yaml` (`3`), the env example, the README and `docs/deploy.md`, which now says how to recheck it. After the change: faked entries must not start new counts, and different visitors must get separate ones (checked once `TRUST_PROXY=3` is deployed, and again on `api.biniyam.com`).
+    - **Fixed** in `render.yaml` (`3`), the env example, the README and `docs/deploy.md`, which now says how to recheck it.
+    - **Checked with `3` deployed:** faked `X-Forwarded-For` entries, single or three deep, no longer start new counts, and 40 requests from 11 sending addresses made exactly 11 counts. To repeat on `api.biniyam.com` once its DNS exists.
 23. **Malformed JSON got a 500, and was logged as a bug.** Errors from Express's body parser (malformed JSON, a body over the size limit) reached the error handler's catch-all. They now answer 400 or 413 with a fixed message that doesn't echo the input (unit tests, including that unexpected errors still answer a generic 500).
 
 ## Needs the user
 
-- **Render:** set `TRUST_PROXY` to `3` (finding 22). `render.yaml` sets the same once `rebuild/phase-4-deploy` is merged.
 - **Accounts and settings, `docs/deploy.md` steps 2, 4 and 5:** Resend, Netlify, the Stripe sandbox (Atlas and Render are done). Secrets go into each host's settings, never into chat or git.
 - **DNS at Namecheap, `docs/deploy.md` step 6.**
 - **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
