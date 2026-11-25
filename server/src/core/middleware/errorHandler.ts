@@ -30,6 +30,25 @@ export function notFoundHandler(req: Request, _res: Response, next: NextFunction
   next(new AppError(`Route not found: ${req.method} ${req.originalUrl}`, 404));
 }
 
+const BODY_PARSER_MESSAGES: Readonly<Record<string, string>> = {
+  'entity.parse.failed': 'The request body isn’t valid JSON.',
+  'entity.too.large': 'The request body is too large.',
+  'charset.unsupported': 'The request body’s encoding isn’t supported.',
+  'encoding.unsupported': 'The request body’s encoding isn’t supported.',
+};
+
+/**
+ * A request error from Express's body parser (express.json, express.raw),
+ * which marks them with a 4xx `status`, `expose: true` and a `type` such as
+ * 'entity.parse.failed'. Undefined for anything else.
+ */
+function bodyParserError(err: unknown): { status: number; type: string } | undefined {
+  if (typeof err !== 'object' || err === null) return undefined;
+  const { status, expose, type } = err as { status?: unknown; expose?: unknown; type?: unknown };
+  if (expose !== true || typeof type !== 'string' || typeof status !== 'number') return undefined;
+  return status >= 400 && status < 500 ? { status, type } : undefined;
+}
+
 /**
  * Centralized error-handling middleware. Must be the LAST app.use() call
  * in app.ts — Express identifies error middleware by its 4-argument
@@ -72,6 +91,19 @@ export function errorHandler(
     res.status(409).json({
       error: {
         message: 'A record with this value already exists',
+      },
+    });
+    return;
+  }
+
+  // A body Express's parser refused (malformed JSON, over the size limit):
+  // the caller's mistake, not a bug. Fixed messages, so nothing from the
+  // parser (or the caller's own input) is echoed back.
+  const parserError = bodyParserError(err);
+  if (parserError) {
+    res.status(parserError.status).json({
+      error: {
+        message: BODY_PARSER_MESSAGES[parserError.type] ?? 'The request body couldn’t be read.',
       },
     });
     return;
