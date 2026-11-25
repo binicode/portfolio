@@ -2,7 +2,7 @@
 
 - **Branch:** `rebuild/phase-4-mvp` (from `rebuild/phase-3-plan`)
 - **Plan:** `docs/rebuild/phase-3-plan.md`, section 4
-- **Status:** in progress; steps 4.1 to 4.5 done (4.5 on `rebuild/phase-4-integrations`); 4.6 prepared (configuration and `docs/deploy.md`), waiting for the accounts, DNS and the merge
+- **Status:** in progress; steps 4.1 to 4.5 done and merged; 4.6 in progress on `rebuild/phase-4-deploy`: the API runs on Render (checks below), and the site, DNS and Stripe come next
 
 ## Progress
 
@@ -44,11 +44,12 @@
 | 4.5.7 Configuration errors, `/health`, one structured logger | Done | Database test (`/health` fields); sample production log lines checked |
 | 4.5.8 Shared Open Graph base | Done | e2e: every public page has the site name, type, locale, URL and a working image |
 | 4.6 Hosting configuration | Prepared | `netlify.toml`, `render.yaml` (valid against Render's schema), the keep-awake function, `docs/deploy.md`; the API's production-only install started and answered |
+| 4.6 API deployed on Render (2026-11-25) | Checked from outside | `/health` reports the database connected; only the site's origin gets CORS; the hardening headers are sent; unsigned webhook 400; no session 401; unknown route 404 in JSON. Two defects found and fixed (findings 22, 23) |
 | Search engines kept out until launch | Done | `SITE_INDEXING`, off by default |
 
 ## Tests now
 
-- **Server:** 141 tests, 45 of them against a real MongoDB (five suites, each with its own database; two also run the real Stripe and Gemini SDKs against local stand-ins): billing (checkout, portal, deletion at Stripe), the assistant's models and daily cost cap, sign-up through the emailed confirmation link (with the password), sign-up that reveals nothing about existing accounts and can't be used to take one over, password reset, the checkout gate for unconfirmed addresses, the billing portal guard, account deletion, enquiry alerts, log-in, sessions and their revocation, equal refusals for unknown emails, the sign-in rate limit, the admin and customer separation, the subscription gate, settings, the CMS draft-and-publish flow, http(s)-only project links, project briefs (store, list, mark read, delete, honeypot), the assistant without a model key, and the API running without Stripe.
+- **Server:** 145 tests, 45 of them against a real MongoDB (five suites, each with its own database; two also run the real Stripe and Gemini SDKs against local stand-ins): billing (checkout, portal, deletion at Stripe), the assistant's models and daily cost cap, sign-up through the emailed confirmation link (with the password), sign-up that reveals nothing about existing accounts and can't be used to take one over, password reset, the checkout gate for unconfirmed addresses, the billing portal guard, account deletion, enquiry alerts, log-in, sessions and their revocation, equal refusals for unknown emails, the sign-in rate limit, the admin and customer separation, the subscription gate, settings, the CMS draft-and-publish flow, http(s)-only project links, project briefs (store, list, mark read, delete, honeypot), the assistant without a model key, and the API running without Stripe.
 - **Client:** 38 unit tests; e2e 80 passed (re-run after the 4.4 review fix: see below), 10 skipped by design (each skipped test belongs to the other viewport), now including the account journeys and the new pages' load and accessibility checks.
 - **QA suite** (manual, `npm run test:qa`): its API-boundary file was run for 4.3 against a throwaway local MongoDB without provider keys: 8 passed; the Stripe webhook check answered 503 instead of 400, as designed when no Stripe key is set (that suite expects the keys from `server/.env`).
 
@@ -93,16 +94,22 @@
 20. **Koyeb stopped self-serve sign-ups on 2026-11-24** (it is joining Mistral; its site shows only a contact form), so the API moved to Render's free plan, the user's choice over Northflank's free Sandbox (always on, also $0).
     - Render's free instance sleeps after 15 minutes and takes about a minute to wake, longer than the site waits (10 s). A Netlify scheduled function requests `/health` every 10 minutes, which uses about 744 of the 750 free hours a month.
     - Render publishes each region's outgoing address ranges, so Atlas allows only those (and, while seeding, your own address) instead of every address.
-    - `TRUST_PROXY=1` follows Render's own guidance for Express; it can't be checked before deployment, so step 7 of `docs/deploy.md` checks it.
+    - `TRUST_PROXY=1` followed Render's guidance for Express; the deployed API showed it was wrong (finding 22).
 21. **Security review of 4.5:** nothing at the reporting bar. Acted on its cheap improvements:
     - **Leaving visitors.** The chat and the planner never noticed a visitor leaving: they listened for the request's `close`, which Node emits once the body has been read. Every abandoned answer streamed to the end, at full cost. They now watch the response's `close`, and token usage is counted before each chunk is passed on, so the cost of a stopped answer is still recorded. Checked with a probe: the stream stops at the next chunk and its usage is recorded.
     - **Error logs** now mask ids in the route and leave the message's first line out of the stack.
+22. **On Render, `TRUST_PROXY=1` made visitors share rate limits; the right value is 3** (measured on the deployed API, 2026-11-25).
+    - **Symptom.** 41 requests from about ten different addresses (this environment's outgoing addresses, seen in Cloudflare's `/cdn-cgi/trace`) landed in only three `RateLimit-Remaining` counts. The API was counting by the address of one of Render's proxies. Once live, ten failed sign-ins by anyone would have blocked sign-in for everyone behind that proxy for 15 minutes.
+    - **Measurement.** With `TRUST_PROXY=4`, requests whose last faked `X-Forwarded-For` entry changed each time each started a new count, and requests where only an earlier entry changed shared one. The API was reading one entry past the real visitor, so three proxies (Cloudflare, then Render's load balancers) append to the header. Render doesn't document this; a Render article reports that it appends the visitor's address and doesn't clear a caller's own entries, which is why the count must be exact.
+    - **Fixed** in `render.yaml` (`3`), the env example, the README and `docs/deploy.md`, which now says how to recheck it. After the change: faked entries must not start new counts, and different visitors must get separate ones (checked once `TRUST_PROXY=3` is deployed, and again on `api.biniyam.com`).
+23. **Malformed JSON got a 500, and was logged as a bug.** Errors from Express's body parser (malformed JSON, a body over the size limit) reached the error handler's catch-all. They now answer 400 or 413 with a fixed message that doesn't echo the input (unit tests, including that unexpected errors still answer a generic 500).
 
 ## Needs the user
 
-- **Accounts and settings, `docs/deploy.md` steps 1 to 5:** Atlas, Resend, Render (New > Blueprint), Netlify, the Stripe sandbox. Secrets go into each host's settings, never into chat or git.
+- **Render:** set `TRUST_PROXY` to `3` (finding 22). `render.yaml` sets the same once `rebuild/phase-4-deploy` is merged.
+- **Accounts and settings, `docs/deploy.md` steps 2, 4 and 5:** Resend, Netlify, the Stripe sandbox (Atlas and Render are done). Secrets go into each host's settings, never into chat or git.
 - **DNS at Namecheap, `docs/deploy.md` step 6.**
 - **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
-- **A pull request for step 4.5** (`rebuild/phase-4-integrations`), when you ask for it; [binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27) is merged. Deployment builds from `main`.
+- ~~Pull requests for 4.1 to 4.5~~ merged ([binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27), [binicode/portfolio#28](https://github.com/binicode/portfolio/pull/28), [binicode/portfolio#29](https://github.com/binicode/portfolio/pull/29)).
 - **A Gemini API key for the model measurement** (4.5.2): entered through this session's secure form, never chat. Without it the provisional order stays (Flash-Lite first).
 - ~~Hosting choice~~ Netlify Free + Render Free (Koyeb closed sign-ups on 2026-11-24). ~~DNS~~ Namecheap BasicDNS. ~~Dependabot alerts~~ on.

@@ -486,7 +486,7 @@ and the plan before Phase 4 starts.
 
 ### Phase 4 --- Complete the MVP
 
-**Status:** in progress on `rebuild/phase-4-mvp`, following
+**Status:** in progress (step 4.6, deployment, on `rebuild/phase-4-deploy`), following
 `docs/rebuild/phase-3-plan.md` section 4. Progress, findings and test
 counts: `docs/rebuild/phase-4-mvp.md`.
 
