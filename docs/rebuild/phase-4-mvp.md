@@ -115,12 +115,16 @@
     - **Keep-awake fails until then** (it requests `api.biniyam.com/health`), so the API sleeps between visits.
     - **Only `www.biniyam.com` will work for accounts:** the API's CORS allows that origin alone, and the session cookies are `SameSite=Strict` for `biniyam.com`, so the `netlify.app` address can't sign anyone in.
     - **Netlify injects its "Powered by Netlify" badge** into every page (`/.netlify/scripts/hud?variant=public`, a 36 KB script) now that production is public. It is third-party branding and extra script on every page. Turning it off may need a paid plan (`docs/deploy.md`, step 4); the user decides.
+26. **`biniyam.com` already serves a live site** (Vercel: an `A` record on `@`, a `CNAME` on `www`; checked 2026-11-26). Pointing it at Netlify now would replace that site with the pre-launch one, which asks search engines not to index it. The user chose to keep the old site until launch: the new one runs on `new.biniyam.com`, and the API's `CLIENT_ORIGIN` is that address until then (`render.yaml`, `docs/deploy.md`; the launch steps move `www`).
+    - Accounts still work there: `new.biniyam.com` and `api.biniyam.com` are the same site for `SameSite=Strict`, and the cookies' domain is `biniyam.com`.
+    - That domain also sends the session cookies to the old site on Vercel while both are up. Only test accounts exist before launch, so this is accepted; it ends when `www` moves.
+27. **The Stripe webhook was first created with the path `/api/webhooks/stripe`**, which answers 404 on the live API; the route is `/api/saas/billing/webhook`. `docs/deploy.md` now gives the full URL on the service's `onrender.com` address and says other paths fail.
 
 ## Needs the user
 
 - **Netlify badge:** try turning it off (Project configuration > General > Powered by Netlify badge); if it is locked on Free, decide whether to keep it (finding 25).
 - **Accounts and settings, `docs/deploy.md` steps 2 and 5:** Resend, the Stripe sandbox (Atlas, Render and Netlify are done). Secrets go into each host's settings, never into chat or git.
-- **DNS at Namecheap, `docs/deploy.md` step 6.**
+- **DNS at Namecheap, `docs/deploy.md` step 6:** `api` and `new` CNAMEs and Resend's records (`@` and `www` stay on Vercel until launch).
 - **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
 - ~~Pull requests for 4.1 to 4.5~~ merged ([binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27), [binicode/portfolio#28](https://github.com/binicode/portfolio/pull/28), [binicode/portfolio#29](https://github.com/binicode/portfolio/pull/29)).
 - **A Gemini API key for the model measurement** (4.5.2): entered through this session's secure form, never chat. Without it the provisional order stays (Flash-Lite first).
