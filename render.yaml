@@ -22,8 +22,12 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # The site that may call the API, and where email links and Stripe send
+      # people back. Until launch the new site runs on new.biniyam.com, while
+      # www stays on the old site; at launch this becomes
+      # https://www.biniyam.com (docs/deploy.md, Launch).
       - key: CLIENT_ORIGIN
-        value: https://www.biniyam.com
+        value: https://new.biniyam.com
       - key: COOKIE_DOMAIN
         value: biniyam.com
       # Three proxies sit in front of the API on Render (Cloudflare, then Render's
