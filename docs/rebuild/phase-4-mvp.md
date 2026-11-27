@@ -2,7 +2,7 @@
 
 - **Branch:** `rebuild/phase-4-mvp` (from `rebuild/phase-3-plan`)
 - **Plan:** `docs/rebuild/phase-3-plan.md`, section 4
-- **Status:** in progress; steps 4.1 to 4.5 done and merged; 4.6 in progress: the API runs on Render (checks below); the site builds on Netlify, with the adapter fix on `rebuild/phase-4-netlify` (finding 24); DNS, Resend and Stripe come next
+- **Status:** in progress; steps 4.1 to 4.5 done and merged; 4.6 in progress: the API runs on Render and the site on Netlify, both checked from outside (below); DNS, Resend and Stripe come next, then the end-to-end checks
 
 ## Progress
 
@@ -45,6 +45,9 @@
 | 4.5.8 Shared Open Graph base | Done | e2e: every public page has the site name, type, locale, URL and a working image |
 | 4.6 Hosting configuration | Prepared | `netlify.toml`, `render.yaml` (valid against Render's schema), the keep-awake function, `docs/deploy.md`; the API's production-only install started and answered |
 | 4.6 API deployed on Render (2026-11-25) | Checked from outside | `/health` reports the database connected; only the site's origin gets CORS; the hardening headers are sent; unsigned webhook 400; no session 401; unknown route 404 in JSON. Two defects found and fixed (findings 22, 23) |
+| 4.6 Site deployed on Netlify (2026-11-25, `portfolio-dser.netlify.app`) | Checked from outside | Build log: Next.js adapter 5.16.9, published from `client/.next`, server handler and `keep-api-awake` packaged. Every public page 200; both dashboards 307 to their log-in without a session; source files and unknown paths 404; the content security policy and hardening headers sent; `robots.txt` disallows everything and pages say `noindex`; canonical and `og:url` point at `www.biniyam.com`; hashed assets cached a year, immutable. Not yet testable: anything that calls the API (finding 25) |
+| 4.6 `api.biniyam.com` and staging origin (2026-11-26) | Checked from outside | `/health` over the custom domain: HTTPS, database connected. Rate limits rechecked through it: faked `X-Forwarded-For` entries start no new counts, and senders get separate ones (`TRUST_PROXY=3` holds). CORS allows `new.biniyam.com` only. The webhook route answers a forged signature with 400 "Invalid webhook signature", so its secret is set. `new.biniyam.com` points at Netlify, which hadn't issued its certificate yet |
+| 4.6 Services configured (2026-11-27) | Checked from outside and through Render's API | Render: every required variable set, latest `main` live, `api.biniyam.com` verified (it was listed as unverified; verification triggered through the API). `new.biniyam.com`: Let's Encrypt certificate, every page 200, dashboards 307 without a session. Resend's records for `mail.biniyam.com` published (`send.mail` delegated by `CNAME`, DKIM `TXT`); DMARC `v=DMARC1; p=none;` published at `_dmarc.mail.biniyam.com`, the sending domain's own record (checked after it was added). Assistant: answers in about 1.5 s; a specific question returns knowledge-base sources, so the vector index is seeded. A labelled test enquiry was stored (201) and its alert email logged no failure (receipt to be confirmed by the user). Keep-awake: no restart for about 21 hours. Logs: no errors since the 400/413 fix, only bot scans answered 404. Not checkable without a browser and inbox: sign-up, password reset, Stripe checkout and portal, account deletion. The CMS has no projects yet |
 | Search engines kept out until launch | Done | `SITE_INDEXING`, off by default |
 
 ## Tests now
@@ -109,12 +112,21 @@
     - **Deploy Previews failed** for the same pull request: `netlify.toml` gave the public values (`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`) to production only, and the build stops without them. They now apply to every context; previews cost no credits and stay private, so they stay on and check each pull request on Netlify. Both contexts build locally with the adapter.
     - **Changing `netlify.toml` alone doesn't start a build** (Netlify builds only when `client/` changed), so this fix needs a deploy started by hand. Noted in the file and `docs/deploy.md`.
     - **The project is private** (new Free projects start private). Public projects on Free show a "Powered by Netlify" badge, which may not be removable on that plan. Both are in `docs/deploy.md`, step 4.
+25. **What the live site can't do until DNS exists** (checked 2026-11-25):
+    - **The API is unreachable from the site.** The site calls `https://api.biniyam.com`, which has no DNS record yet, so sign-up, log-in, the assistant and enquiries can't work, and the home and projects pages show no projects. The new database also has no projects until they are added through the admin (`docs/content-updates.md`).
+    - **Keep-awake fails until then** (it requests `api.biniyam.com/health`), so the API sleeps between visits.
+    - **Only `www.biniyam.com` will work for accounts:** the API's CORS allows that origin alone, and the session cookies are `SameSite=Strict` for `biniyam.com`, so the `netlify.app` address can't sign anyone in.
+    - **Netlify injects its "Powered by Netlify" badge** into every page (`/.netlify/scripts/hud?variant=public`, a 36 KB script) now that production is public. It is third-party branding and extra script on every page. Turning it off may need a paid plan (`docs/deploy.md`, step 4); the user decides.
+26. **`biniyam.com` already serves a live site** (Vercel: an `A` record on `@`, a `CNAME` on `www`; checked 2026-11-26). Pointing it at Netlify now would replace that site with the pre-launch one, which asks search engines not to index it. The user chose to keep the old site until launch: the new one runs on `new.biniyam.com`, and the API's `CLIENT_ORIGIN` is that address until then (`render.yaml`, `docs/deploy.md`; the launch steps move `www`).
+    - Accounts still work there: `new.biniyam.com` and `api.biniyam.com` are the same site for `SameSite=Strict`, and the cookies' domain is `biniyam.com`.
+    - That domain also sends the session cookies to the old site on Vercel while both are up. Only test accounts exist before launch, so this is accepted; it ends when `www` moves.
+27. **The Stripe webhook was first created with the path `/api/webhooks/stripe`**, which answers 404 on the live API; the route is `/api/saas/billing/webhook`. `docs/deploy.md` now gives the full URL on the service's `onrender.com` address and says other paths fail.
 
 ## Needs the user
 
-- **Netlify, after the adapter fix is merged:** start a deploy by hand (Deploys > Trigger deploy), and make production public so the site can be checked from outside (`docs/deploy.md`, step 4).
+- **Netlify badge:** try turning it off (Project configuration > General > Powered by Netlify badge); if it is locked on Free, decide whether to keep it (finding 25).
 - **Accounts and settings, `docs/deploy.md` steps 2 and 5:** Resend, the Stripe sandbox (Atlas, Render and Netlify are done). Secrets go into each host's settings, never into chat or git.
-- **DNS at Namecheap, `docs/deploy.md` step 6.**
+- **DNS at Namecheap, `docs/deploy.md` step 6:** `api` and `new` CNAMEs and Resend's records (`@` and `www` stay on Vercel until launch).
 - **Review the privacy and terms drafts** (`/privacy`, `/terms`). Open decisions they leave out: refunds, governing law, and whether privacy requests should go to an email address instead of LinkedIn.
 - ~~Pull requests for 4.1 to 4.5~~ merged ([binicode/portfolio#27](https://github.com/binicode/portfolio/pull/27), [binicode/portfolio#28](https://github.com/binicode/portfolio/pull/28), [binicode/portfolio#29](https://github.com/binicode/portfolio/pull/29)).
 - **A Gemini API key for the model measurement** (4.5.2): entered through this session's secure form, never chat. Without it the provisional order stays (Flash-Lite first).

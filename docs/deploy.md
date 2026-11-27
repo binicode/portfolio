@@ -138,7 +138,8 @@ DNS is last: three of its values come from the accounts made before it.
 Set in `render.yaml` already:
 
 - `NODE_ENV=production`;
-- `CLIENT_ORIGIN=https://www.biniyam.com`;
+- `CLIENT_ORIGIN=https://new.biniyam.com`: the new site's address until
+  launch (see **Until launch** below); `https://www.biniyam.com` from launch;
 - `COOKIE_DOMAIN=biniyam.com`;
 - `EMAIL_FROM=Biniyam <hello@mail.biniyam.com>`;
 - `TRUST_PROXY=3`: the number of proxies in front of the API on Render
@@ -170,9 +171,11 @@ Render sets `PORT` itself.
    scopes, for the home page's GitHub list. Leave `SITE_INDEXING` unset until
    launch: the site then stays out of search engines. At launch, set it for
    the production context only.
-4. **Domain management:** add `www.biniyam.com`. Netlify adds
-   `biniyam.com` with it and redirects that to `www`. Netlify issues HTTPS
-   certificates once DNS points at it.
+4. **Domain management:** add `new.biniyam.com` (until launch; see **Until
+   launch** below). Netlify shows the `CNAME` to add in step 6 and issues the
+   HTTPS certificate once DNS points at it. At launch, add `www.biniyam.com`
+   and make it the primary domain: Netlify adds `biniyam.com` with it and
+   redirects that to `www`.
 5. **Functions:** after the first production deploy, `keep-api-awake` is
    listed with its schedule (every 10 minutes); **Run now** checks it.
 6. **Visitor access.** New projects on the Free plan start private: only you,
@@ -193,7 +196,10 @@ Render sets `PORT` itself.
 1. Create a product with a **recurring** price. Its id (`price_…`) is
    `STRIPE_PRO_PRICE_ID`.
 2. **Webhooks > Add endpoint:**
-   - **URL:** `https://api.biniyam.com/api/saas/billing/webhook`.
+   - **URL:** `https://biniyam-api.onrender.com/api/saas/billing/webhook`
+     (the service's own address, which works with or without the `api` DNS
+     record; `https://api.biniyam.com/...` works too once it exists). Any
+     other path answers 404 and every event fails.
    - **API version:** `2026-11-18.endive` (the version the code pins).
    - **Events:** `checkout.session.completed`,
      `customer.subscription.created`, `customer.subscription.updated`,
@@ -209,15 +215,17 @@ Render sets `PORT` itself.
 
 **Domain List > Manage > Advanced DNS.**
 
+**Until launch.** `biniyam.com` and `www.biniyam.com` keep pointing at the old
+site on Vercel (an `A` record on `@` and a `CNAME` on `www`). Leave both
+alone: the new site runs on `new.biniyam.com` until launch, so search engines
+keep the old site, and accounts can still be tested on a `biniyam.com`
+address (the API's cookies and CORS need one). At launch, the **Launch**
+section replaces those two records.
+
 **Before adding anything:**
 
-- **Remove Namecheap's parking records:**
-  - the `CNAME` for `www` (to `parkingpage.namecheap.com`);
-  - the `URL Redirect` for `@`.
-
-  Remove any other `A`, `AAAA`, `CNAME` or redirect record on `@`, `www` or
-  `api` too: they would conflict, and neither Netlify nor Render supports
-  IPv6 (`AAAA`).
+- Remove any `AAAA` record on `@`, `www`, `new` or `api`: neither Netlify
+  nor Render supports IPv6.
 - **Check Mail Settings.** If it is set to Email Forwarding or Gmail and you
   receive mail at `@biniyam.com`, switching it to **Custom MX** (needed only
   if Resend shows an `MX` record) replaces that setup. Add your existing mail
@@ -227,11 +235,10 @@ Render sets `PORT` itself.
 
 | Type | Host | Value | TTL | For |
 | --- | --- | --- | --- | --- |
-| ALIAS | `@` | `apex-loadbalancer.netlify.com` | 5 min | the bare domain, then redirected to `www` |
-| CNAME | `www` | `<your Netlify project>.netlify.app` | Automatic | the site |
-| CNAME | `api` | `<your Render service>.onrender.com` | Automatic | the API |
+| CNAME | `new` | `portfolio-dser.netlify.app` | Automatic | the new site, until launch |
+| CNAME | `api` | `biniyam-api.onrender.com` | 1 min | the API |
 | *as shown by Resend* | e.g. `send.mail`, `resend._domainkey.mail` | exactly as shown in Resend's **Records** tab | Automatic | sending email |
-| TXT | `_dmarc` | `v=DMARC1; p=none;` | Automatic | email authentication policy; add once Resend shows the domain as verified |
+| TXT | `_dmarc.mail` | `v=DMARC1; p=none;` | Automatic | email authentication policy for `mail.biniyam.com`, the sending domain; add once Resend shows the domain as verified |
 
 **Verifying the domains.** Then, in Render, open the service's **Settings >
 Custom Domains** and click **Verify** next to `api.biniyam.com`: Render
@@ -279,7 +286,8 @@ reports.
 
    Until then the assistant answers from the whole built-in knowledge base,
    matched by keyword instead of meaning.
-3. **Check in a real browser** on `https://www.biniyam.com`:
+3. **Check in a real browser** on `https://new.biniyam.com` (`www` from
+   launch):
    - `https://api.biniyam.com/health` answers `"database":"connected"`.
    - **Sign-up:** the confirmation email arrives from `mail.biniyam.com`, and
      its link with your password signs in.
@@ -312,6 +320,18 @@ reports.
 
 ## Launch (end of Phase 5)
 
+0. **Move the domain to the new site**, in this order:
+   - **Render:** set `CLIENT_ORIGIN` to `https://www.biniyam.com` in
+     `render.yaml` (merged, so the Blueprint applies it) or in the
+     service's **Environment**.
+   - **Netlify:** add `www.biniyam.com` and make it the primary domain.
+   - **Namecheap:** replace Vercel's records: on `@`, remove the `A`
+     record and add `ALIAS` `@` to `apex-loadbalancer.netlify.com`
+     (TTL 5 min); on `www`, point the `CNAME` to
+     `portfolio-dser.netlify.app`.
+   - **Vercel:** remove `biniyam.com` from the old project.
+   - **Afterwards:** remove `new.biniyam.com` from Netlify and its `CNAME`
+     from Namecheap.
 1. **Stripe:** switch to live keys, then create a live price, webhook and
    portal settings.
 2. **Search engines:** set `SITE_INDEXING=on` in Netlify and redeploy.
