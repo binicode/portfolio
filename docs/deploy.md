@@ -238,7 +238,7 @@ section replaces those two records.
 | CNAME | `new` | `portfolio-dser.netlify.app` | Automatic | the new site, until launch |
 | CNAME | `api` | `biniyam-api.onrender.com` | 1 min | the API |
 | *as shown by Resend* | e.g. `send.mail`, `resend._domainkey.mail` | exactly as shown in Resend's **Records** tab | Automatic | sending email |
-| TXT | `_dmarc` | `v=DMARC1; p=none;` | Automatic | email authentication policy; add once Resend shows the domain as verified |
+| TXT | `_dmarc.mail` | `v=DMARC1; p=none;` | Automatic | email authentication policy for `mail.biniyam.com`, the sending domain; add once Resend shows the domain as verified |
 
 **Verifying the domains.** Then, in Render, open the service's **Settings >
 Custom Domains** and click **Verify** next to `api.biniyam.com`: Render
